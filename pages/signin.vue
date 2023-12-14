@@ -15,8 +15,8 @@ definePageMeta({
     </p>
     <form>
       <div class="mb-8 space-y-5">
-        <base-input type="email" placeholder="pXXXXXX@sggw.edu.pl" label="Adres e-mail" autocomplete="false" />
-        <base-input type="password" placeholder="********" label="Hasło" autocomplete="false" caption="Zapomniałeś hasła?" />
+        <base-input type="email" placeholder="pXXXXXX@sggw.edu.pl" label="Adres e-mail" autocomplete="false" dark />
+        <base-input type="password" placeholder="********" label="Hasło" autocomplete="false" caption="Zapomniałeś hasła?" dark />
       </div>
       <button class="mt-4 flex w-full items-center justify-center rounded-lg bg-blue-600 py-3 text-gray-50 transition-colors duration-200 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 active:ring-2 active:ring-blue-600">
         Zaloguj się
