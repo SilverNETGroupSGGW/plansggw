@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   },
   googleFonts: {
     families: {
-      'Open+Sans': true,
+      'Open+Sans': [400, 500, 600, 700],
     },
   },
   devtools: {

@@ -3,7 +3,7 @@ import { Bars3CenterLeftIcon, ChatBubbleOvalLeftEllipsisIcon, PencilIcon, UserIc
 </script>
 
 <template>
-  <aside class="h-[100dvh] w-80 border-r-2 border-gray-700 bg-gray-900 pl-7 pr-3 py-9">
+  <aside class="h-[100dvh] w-96 border-r-2 border-gray-700 bg-gray-900 pl-7 pr-3 py-9">
     <logo class="mb-12" />
     <small class="mb-4 block text-sm font-semibold text-blue-400">Panel główny</small>
     <ul>
