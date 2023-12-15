@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
+import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/vue/24/outline'
 
-const defaultData = reactive([
+const data = reactive([
   {
     degree: 'mgr inż.',
     name: 'Aleksandra Konopka',
@@ -63,15 +63,18 @@ const columns = reactive([
     </div>
     <base-input placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
   </div>
-  <base-table :default-data="defaultData" :columns="columns">
+
+  <base-table :data="data" :columns="columns">
     <template #degree="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.degree }}</span>
     </template>
+
     <template #name="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
       <br>
       <span class="text-gray-800">{{ cell.faculty }}</span>
     </template>
+
     <template #actions>
       <div class="flex gap-4">
         <button class="font-medium text-green-600">
@@ -81,6 +84,13 @@ const columns = reactive([
           Usuń
         </button>
       </div>
+    </template>
+
+    <template #footer>
+      <button class="flex items-center gap-2 font-medium text-blue-600">
+        <PlusIcon class="h-4 w-4" />
+        Dodaj nowego wykładowcę
+      </button>
     </template>
   </base-table>
 </template>
