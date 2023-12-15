@@ -65,12 +65,12 @@ const columns = reactive([
   </div>
   <base-table :default-data="defaultData" :columns="columns">
     <template #degree="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell }}</span>
+      <span class="text-base font-medium text-gray-900">{{ cell.degree }}</span>
     </template>
-    <template #name="{ cell, cellData }">
-      <span class="text-base font-medium text-gray-900">{{ cell }}</span>
+    <template #name="{ cell }">
+      <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
       <br>
-      <span class="text-gray-800">{{ cellData.faculty }}</span>
+      <span class="text-gray-800">{{ cell.faculty }}</span>
     </template>
     <template #actions>
       <div class="flex gap-4">

@@ -33,7 +33,7 @@ const { getRowModel, getHeaderGroups } = useVueTable({ columns: mapColumns(), da
     <tbody class="align-top">
       <tr v-for="row in getRowModel().rows" :key="row.id">
         <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="border-b border-gray-200 px-12 py-4">
-          <slot :name="cell.column.columnDef.id" :cell="cell.getValue()" :cell-data="cell.row.original" />
+          <slot :name="cell.column.columnDef.id" :cell="cell.row.original" />
         </td>
       </tr>
     </tbody>
