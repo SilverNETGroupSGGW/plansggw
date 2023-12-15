@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/vue/24/outline'
 
+const search = ref('')
+
 const data = reactive([
   {
     degree: 'mgr inż.',
@@ -32,7 +34,7 @@ const data = reactive([
     name: 'Andrzej Zembrzuski',
     faculty: 'Wydział Zastosowań Informatyki i Matematyki',
   },
-])
+].sort((e, a) => e.name.localeCompare(a.name)))
 
 const columns = reactive([
   {
@@ -48,6 +50,14 @@ const columns = reactive([
     header: 'Akcje',
   },
 ])
+
+const filteredData = computed(() => {
+  return data.filter((row) => {
+    return Object.values(row).some((value) => {
+      return String(value).toLowerCase().includes(search.value.toLowerCase())
+    })
+  })
+})
 </script>
 
 <template>
@@ -61,10 +71,10 @@ const columns = reactive([
         <span class="text-base font-semibold leading-normal text-blue-600">Bazy Wiedzy SGGW</span>
       </p>
     </div>
-    <base-input placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
+    <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
   </div>
 
-  <base-table :data="data" :columns="columns">
+  <base-table :data="filteredData" :columns="columns">
     <template #degree="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.degree }}</span>
     </template>
