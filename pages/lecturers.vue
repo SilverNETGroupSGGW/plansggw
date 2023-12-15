@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { faker } from '@faker-js/faker'
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import equal from 'deep-equal'
 
 const search = ref('')
 
-const data = reactive(faker.helpers.multiple(() => ({
+const data = ref(faker.helpers.multiple(() => ({
   degree: faker.person.jobTitle(),
   name: faker.person.fullName(),
   faculty: faker.person.jobArea(),
@@ -57,12 +58,12 @@ function filter(row: typeof data[0]) {
       <span class="text-gray-700">{{ cell.faculty }}</span>
     </template>
 
-    <template #actions>
+    <template #actions="{ cell }">
       <div class="flex gap-4">
         <button class="font-medium text-green-600">
           Edytuj
         </button>
-        <button class="font-medium text-red-600">
+        <button class="font-medium text-red-600" @click="data = data.filter(row => !equal(row, cell))">
           Usuń
         </button>
       </div>
