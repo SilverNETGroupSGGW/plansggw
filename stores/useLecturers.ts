@@ -36,6 +36,9 @@ export const useLecturers = defineStore('lecturers', {
     },
   },
   actions: {
+    create(data: Lecturer) {
+      this.data.push(data)
+    },
     dispatch() {
       let index = 0
 
@@ -44,7 +47,7 @@ export const useLecturers = defineStore('lecturers', {
         degree: faker.person.jobTitle(),
         name: faker.person.fullName(),
         faculty: faker.person.jobArea(),
-      } as Lecturer), { count: 100 })
+      } as Lecturer), { count: 10 })
     },
     delete(id: number) {
       this.data.splice(this.data.findIndex(item => item.id === id), 1)
@@ -54,7 +57,7 @@ export const useLecturers = defineStore('lecturers', {
         return String(value).toLowerCase().includes(this.search.toLowerCase())
       })
     },
-    save(id: number, data: Lecturer) {
+    update(id: number, data: Lecturer) {
       const index = this.data.findIndex(item => item.id === id)
       if (index === -1)
         return

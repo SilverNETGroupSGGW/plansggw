@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, PlusIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
 
-const dialog = ref(false)
+const createDialog = ref(false)
+const updateDialog = ref(false)
+
 const activeLecturer = ref<number | null>(null)
+
 const updatedLecturer = ref({
   id: 0,
   name: '',
@@ -16,24 +19,48 @@ lecturers.dispatch()
 function handleDialogOpen(id: number) {
   activeLecturer.value = id
   updatedLecturer.value = JSON.parse(JSON.stringify(lecturers.getById(id)!))
-  dialog.value = true
+  updateDialog.value = true
 }
 
-function handleFormSubmit() {
-  lecturers.save(activeLecturer.value!, updatedLecturer.value)
-  dialog.value = false
+function handleFormSubmit(mode: 'create' | 'update') {
+  if (mode === 'create') {
+    lecturers.create(updatedLecturer.value)
+    createDialog.value = false
+  }
+  else {
+    lecturers.update(activeLecturer.value!, updatedLecturer.value)
+    updateDialog.value = false
+  }
 }
 </script>
 
 <template>
-  <base-dialog v-model="dialog" title="Edytuj wykładowcę">
-    <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit">
+  <base-dialog v-model="createDialog" title="Dodaj nowego wykładowcę">
+    <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('create')">
       <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
       <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
       <base-input v-model="updatedLecturer.degree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
 
       <div class="flex justify-end gap-4">
-        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100" @click="dialog = false">
+        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100" @click="createDialog = false">
+          Zamknij
+        </button>
+
+        <button type="submit" class="flex items-center justify-center rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-600 transition-colors duration-200 ease-in-out hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-100 active:ring-2 active:ring-blue-100">
+          Dodaj wykładowcę
+        </button>
+      </div>
+    </form>
+  </base-dialog>
+
+  <base-dialog v-model="updateDialog" title="Edytuj wykładowcę">
+    <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('update')">
+      <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
+      <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
+      <base-input v-model="updatedLecturer.degree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
+
+      <div class="flex justify-end gap-4">
+        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100" @click="updateDialog = false">
           Zamknij
         </button>
 
@@ -81,7 +108,7 @@ function handleFormSubmit() {
     </template>
 
     <template #footer>
-      <button class="flex items-center gap-2 font-medium text-blue-600">
+      <button class="flex items-center gap-2 font-medium text-blue-600" @click="createDialog = true">
         <PlusIcon class="h-4 w-4" />
         Dodaj nowego wykładowcę
       </button>
