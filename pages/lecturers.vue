@@ -1,11 +1,35 @@
 <script setup lang="ts">
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, PlusIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
+
+const dialog = ref(false)
 
 const lecturers = useLecturers()
 lecturers.dispatch()
 </script>
 
 <template>
+  <base-dialog v-model="dialog" title="Edytuj wykładowcę">
+    <template #content>
+      <div class="flex flex-col gap-4">
+        <base-input placeholder="Imię i nazwisko" :icon="UserIcon" />
+        <base-input placeholder="Wydział" :icon="ChatBubbleBottomCenterIcon" />
+        <base-input placeholder="Stopień naukowy" :icon="TrophyIcon" />
+      </div>
+    </template>
+
+    <template #actions>
+      <div class="flex gap-4">
+        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100">
+          Zamknij
+        </button>
+
+        <button class="flex items-center justify-center rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-600 transition-colors duration-200 ease-in-out hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-100 active:ring-2 active:ring-blue-100">
+          Zapisz zmiany
+        </button>
+      </div>
+    </template>
+  </base-dialog>
+
   <div class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-gray-50 px-12 py-9">
     <div>
       <h1 class="text-2xl font-bold leading-9 text-gray-900">
@@ -32,7 +56,7 @@ lecturers.dispatch()
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-green-600">
+        <button class="font-medium text-green-600" @click="dialog = true">
           Edytuj
         </button>
         <button class="font-medium text-red-600" @click="lecturers.delete(cell.id)">
