@@ -26,6 +26,15 @@ export const useLecturers = defineStore('lecturers', {
       },
     ],
   }),
+  getters: {
+    getById: state => (id: number) => {
+      const result = state.data.find(item => item.id === id)
+      if (!result)
+        return null
+
+      return result
+    },
+  },
   actions: {
     dispatch() {
       let index = 0
@@ -44,6 +53,13 @@ export const useLecturers = defineStore('lecturers', {
       return Object.values(row).some((value) => {
         return String(value).toLowerCase().includes(this.search.toLowerCase())
       })
+    },
+    save(id: number, data: Lecturer) {
+      const index = this.data.findIndex(item => item.id === id)
+      if (index === -1)
+        return
+
+      this.data[index] = data
     },
   },
 })

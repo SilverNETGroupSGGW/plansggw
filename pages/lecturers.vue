@@ -1,33 +1,47 @@
 <script setup lang="ts">
-import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, PlusIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
 
 const dialog = ref(false)
+const activeLecturer = ref<number | null>(null)
+const updatedLecturer = ref({
+  id: 0,
+  name: '',
+  faculty: '',
+  degree: '',
+})
 
 const lecturers = useLecturers()
 lecturers.dispatch()
+
+function handleDialogOpen(id: number) {
+  activeLecturer.value = id
+  updatedLecturer.value = JSON.parse(JSON.stringify(lecturers.getById(id)!))
+  dialog.value = true
+}
+
+function handleFormSubmit() {
+  lecturers.save(activeLecturer.value!, updatedLecturer.value)
+  dialog.value = false
+}
 </script>
 
 <template>
   <base-dialog v-model="dialog" title="Edytuj wykładowcę">
-    <template #content>
-      <div class="flex flex-col gap-4">
-        <base-input placeholder="Imię i nazwisko" :icon="UserIcon" />
-        <base-input placeholder="Wydział" :icon="ChatBubbleBottomCenterIcon" />
-        <base-input placeholder="Stopień naukowy" :icon="TrophyIcon" />
-      </div>
-    </template>
+    <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit">
+      <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
+      <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
+      <base-input v-model="updatedLecturer.degree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
 
-    <template #actions>
-      <div class="flex gap-4">
-        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100">
+      <div class="flex justify-end gap-4">
+        <button class="flex items-center justify-center rounded-lg bg-gray-50 px-4 py-2 font-medium text-gray-600 transition-colors duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-100 active:ring-2 active:ring-gray-100" @click="dialog = false">
           Zamknij
         </button>
 
-        <button class="flex items-center justify-center rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-600 transition-colors duration-200 ease-in-out hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-100 active:ring-2 active:ring-blue-100">
+        <button type="submit" class="flex items-center justify-center rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-600 transition-colors duration-200 ease-in-out hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-100 active:ring-2 active:ring-blue-100">
           Zapisz zmiany
         </button>
       </div>
-    </template>
+    </form>
   </base-dialog>
 
   <div class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-gray-50 px-12 py-9">
@@ -40,6 +54,7 @@ lecturers.dispatch()
         <span class="text-base font-semibold leading-normal text-blue-600">Bazy Wiedzy SGGW</span>
       </p>
     </div>
+
     <base-input v-model="lecturers.search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
   </div>
 
@@ -56,7 +71,7 @@ lecturers.dispatch()
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-green-600" @click="dialog = true">
+        <button class="font-medium text-green-600" @click="handleDialogOpen(cell.id)">
           Edytuj
         </button>
         <button class="font-medium text-red-600" @click="lecturers.delete(cell.id)">

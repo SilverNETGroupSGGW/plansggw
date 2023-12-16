@@ -29,12 +29,7 @@ defineEmits<{
                 </DialogTitle>
                 <XMarkIcon class="h-6 w-6 cursor-pointer text-gray-400" @click="$emit('update:modelValue', false)" />
               </div>
-              <div class="p-6">
-                <slot name="content" />
-              </div>
-              <div class="flex w-full items-center justify-end border border-t-gray-200 bg-gray-50 px-6 py-4">
-                <slot name="actions" />
-              </div>
+              <slot />
             </DialogPanel>
           </TransitionChild>
         </div>
