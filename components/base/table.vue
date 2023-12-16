@@ -11,11 +11,6 @@ const page = ref(1)
 
 const filteredData = computed(() => props.data.filter(props.filter))
 const paginatedData = computed(() => filteredData.value.slice((page.value - 1) * 10, page.value * 10))
-
-watch(filteredData, () => {
-  if (page.value > 1)
-    page.value = 1
-})
 </script>
 
 <template>
@@ -32,7 +27,7 @@ watch(filteredData, () => {
       <tr v-for="(row, index) in paginatedData" :key="index">
         <template v-if="paginatedData.length > 0">
           <td v-for="column in columns" :key="column.key" class="px-12 py-4">
-            <slot :name="column.key" :cell="row" />
+            <slot :name="column.key" :cell="row" :index="index" />
           </td>
         </template>
       </tr>
