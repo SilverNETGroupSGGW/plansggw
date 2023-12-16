@@ -35,7 +35,7 @@ function handleFormSubmit(mode: 'create' | 'update') {
 </script>
 
 <template>
-  <base-dialog v-model="createDialog" title="Dodaj nowego wykładowcę">
+  <base-dialog v-model="createDialog" title="Dodaj nowego wykładowcę" :icon="PlusIcon">
     <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('create')">
       <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
       <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
@@ -53,7 +53,7 @@ function handleFormSubmit(mode: 'create' | 'update') {
     </form>
   </base-dialog>
 
-  <base-dialog v-model="updateDialog" title="Edytuj wykładowcę">
+  <base-dialog v-model="updateDialog" title="Edytuj wykładowcę" :icon="UserIcon">
     <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('update')">
       <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
       <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
