@@ -112,7 +112,16 @@ function onMouseMove(event: MouseEvent) {
     </div>
   </div>
 
-  <div class="overflow-x-scroll">
+  <div class="relative overflow-x-scroll">
+    <div
+      v-for="lecture in lectures" :key="lecture.startCell.id" :style="{
+        top: `${lecture.startCell.offsetTop}px`,
+        left: `${lecture.startCell.offsetLeft}px`,
+        width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`,
+        height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px`,
+      }" class="absolute bg-blue-200 opacity-50"
+    />
+
     <table class="w-full table-auto border-b border-gray-200">
       <thead>
         <tr>
