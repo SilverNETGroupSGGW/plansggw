@@ -4,6 +4,9 @@ const { generateTimeInterval } = useTime()
 
 // Interfaces
 interface Lecture {
+  startCell: HTMLTableCellElement
+  endCell: HTMLTableCellElement
+
   start: Date
   end: Date
   group: string
@@ -22,11 +25,6 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
     const endStr = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     return `${startStr} - ${endStr}`
   })
-
-function getCellId(group: string, time: string) {
-  const [start, end] = time.split(' - ')
-  return JSON.stringify({ group, start, end })
-}
 
 // Mouse events
 const lectures = ref<Lecture[]>([])
@@ -51,11 +49,13 @@ function onMouseUp(event: MouseEvent) {
   isDragging.value = false
 
   if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
-    lectures.value.push({
+    const data = {
       start: new Date(millis.start),
       end: new Date(millis.end),
       group: currentGroup,
-    })
+    } as Lecture
+
+    lectures.value.push(data)
   }
 
   millis.start = 0
@@ -71,11 +71,9 @@ function onMouseMove(event: MouseEvent) {
   if (!(cell instanceof HTMLTableCellElement))
     return
 
-  const cellId = JSON.parse(cell.id)
-
   const currentMillis = {
-    start: parseTime(cellId.start),
-    end: parseTime(cellId.end),
+    start: parseTime(cell.getAttribute('data-time')!.split('-')[0].replaceAll('@', ':')),
+    end: parseTime(cell.getAttribute('data-time')!.split('-')[1].replaceAll('@', ':')),
   }
 
   if (millis.start === 0 || currentMillis.start < millis.start)
@@ -84,7 +82,7 @@ function onMouseMove(event: MouseEvent) {
   if (millis.end === 0 || currentMillis.end > millis.end)
     millis.end = currentMillis.end
 
-  currentGroup = cellId.group
+  currentGroup = cell.getAttribute('data-group')
 }
 </script>
 
@@ -117,7 +115,7 @@ function onMouseMove(event: MouseEvent) {
           <td :id="group" class="border-r border-gray-200 px-12 py-8 text-left font-semibold text-blue-600">
             {{ group }}
           </td>
-          <td v-for="time in timeRange" :id="getCellId(group, time)" :key="time" class="border-r border-gray-200" @mousedown.prevent="onMouseDown" @mouseup.prevent="onMouseUp" @mousemove.prevent="onMouseMove" />
+          <td v-for="time in timeRange" :key="time" class="border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @mousedown.prevent="onMouseDown" @mouseup.prevent="onMouseUp" @mousemove.prevent="onMouseMove" />
         </tr>
       </tbody>
     </table>
