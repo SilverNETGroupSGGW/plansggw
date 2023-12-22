@@ -26,27 +26,29 @@ const lectures = ref<Lecture[]>([])
 const _lectures = ref<Lecture[]>([])
 const isDragging = ref(false)
 
-function onMouseDown() {
-  isDragging.value = true
+function onMouseDown(event: MouseEvent) {
+  if (event.button === 1) return;
+  isDragging.value = true;
 }
 
-function onMouseUp() {
-  isDragging.value = false
+function onMouseUp(event: MouseEvent) {
+  if (event.button === 1) return;
+  isDragging.value = false;
 
-  const firstLecture = _lectures.value[0]
-  const lastLecture = _lectures.value[_lectures.value.length - 1]
+  const firstLecture = _lectures.value[0];
+  const lastLecture = _lectures.value[_lectures.value.length - 1];
 
   lectures.value.push({
     start: firstLecture.start,
     end: lastLecture.end,
     group: firstLecture.group,
-  })
+  });
 
   setTimeout(() => {
-    lectures.value = lectures.value.slice(1)
-  }, 2000)
+    lectures.value = lectures.value.slice(1);
+  }, 2000);
 
-  _lectures.value = []
+  _lectures.value = [];
 }
 
 let lastCellId = '';
