@@ -2,12 +2,71 @@
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
 
+// Interfaces
+interface Lecture {
+  start: Date
+  end: Date
+  group: string
+}
+
+// Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
   .map(([start, end]) => [
     start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
    end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
   ])
   .map(([start, end]) => `${start} - ${end}`)
+
+function getCellId(group: string, time: string) {
+  return `${group}@${time.replace(' - ', '@')}`
+}
+
+// Mouse events
+const lectures = ref<Lecture[]>([])
+const _lectures = ref<Lecture[]>([])
+const isDragging = ref(false)
+
+function onMouseDown(event: MouseEvent) {
+  isDragging.value = true
+}
+
+function onMouseUp(event: MouseEvent) {
+  isDragging.value = false
+
+  const firstLecture = _lectures.value[0]
+  const lastLecture = _lectures.value[_lectures.value.length - 1]
+
+  lectures.value.push({
+    start: firstLecture.start,
+    end: lastLecture.end,
+    group: firstLecture.group,
+  })
+
+  setTimeout(() => {
+    lectures.value = lectures.value.slice(0, -1)
+  }, 2000)
+
+  _lectures.value = []
+}
+
+function onMouseMove(event: MouseEvent) {
+  if (!isDragging.value) return
+
+  const cell = event.target as HTMLTableCellElement
+  if (!cell) return
+
+  const [group, start, end] = cell.id.split('@')
+  const [startHour, startMinute] = start.split(':')
+  const [endHour, endMinute] = end.split(':')
+
+  const lecture: Lecture = {
+    start: new Date(2023, 0, 1, Number(startHour), Number(startMinute)),
+    end: new Date(2023, 0, 1, Number(endHour), Number(endMinute)),
+    group,
+  }
+
+  _lectures.value.push(lecture)
+}
 </script>
 
 <template>
@@ -36,12 +95,21 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
       </thead>
       <tbody class="divide-y divide-gray-200">
         <tr v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="border-b">
-          <td :id="group.replace('-', '_')" class="border-r border-gray-200 px-12 py-8 text-left font-semibold text-blue-600">
+          <td :id="group" class="border-r border-gray-200 px-12 py-8 text-left font-semibold text-blue-600">
             {{ group }}
           </td>
-          <td v-for="time in timeRange" :id="`${group}-${time}`.replaceAll(' ', '_').replaceAll('-', '_').replaceAll(':', '_')" :key="time" class="border-r border-gray-200" />
+          <td v-for="time in timeRange" :id="getCellId(group, time)" :key="time" class="border-r border-gray-200" @mousedown.prevent="onMouseDown" @mouseup.prevent="onMouseUp" @mousemove.prevent="onMouseMove" />
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="fixed bottom-0 right-0 z-10">
+      <div v-for="(lecture, index) in lectures" :key="index" class="border-gray-200 border text-gray-900 rounded-lg px-4 py-2 m-2">
+        <span class="font-semibold">{{ lecture.group }}, </span>
+        <span>
+        {{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
+        </span>
+      </div>
   </div>
 </template>
