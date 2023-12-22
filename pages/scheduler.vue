@@ -18,13 +18,13 @@ function parseTime(time: string) {
   return (hour - 1) * 60 * 60 * 1000 + minute * 60 * 1000
 }
 
+function toLocaleTimeString(date: Date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
-  .map(([start, end]) => {
-    const startStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-    const endStr = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-    return `${startStr} - ${endStr}`
-  })
+  .map(([start, end]) => `${toLocaleTimeString(start)} - ${toLocaleTimeString(end)}`)
 
 // Mouse events
 const lectures = ref<Lecture[]>([])
@@ -34,8 +34,8 @@ const millis = {
   end: 0,
 }
 const spannedCells = {
-  start: null as HTMLTableCellElement | null,
-  end: null as HTMLTableCellElement | null,
+  start: undefined as HTMLTableCellElement | undefined,
+  end: undefined as HTMLTableCellElement | undefined,
 }
 
 let currentGroup: string | null = null
@@ -69,8 +69,8 @@ function onMouseUp(event: MouseEvent) {
   millis.start = 0
   millis.end = 0
   currentGroup = null
-  spannedCells.start = null
-  spannedCells.end = null
+  spannedCells.start = undefined
+  spannedCells.end = undefined
 }
 
 function onMouseMove(event: MouseEvent) {
@@ -78,12 +78,13 @@ function onMouseMove(event: MouseEvent) {
     return
 
   const cell = event.target as HTMLTableCellElement
-  if (!(cell instanceof HTMLTableCellElement))
-    return
+
+  const timeData = cell.getAttribute('data-time')
+  if (!timeData) return
 
   const currentMillis = {
-    start: parseTime(cell.getAttribute('data-time')!.split('-')[0].replaceAll('@', ':')),
-    end: parseTime(cell.getAttribute('data-time')!.split('-')[1].replaceAll('@', ':')),
+    start: parseTime(timeData.split('-')[0].replaceAll('@', ':')),
+    end: parseTime(timeData.split('-')[1].replaceAll('@', ':')),
   }
 
   if (millis.start === 0 || currentMillis.start < millis.start) {
@@ -91,10 +92,8 @@ function onMouseMove(event: MouseEvent) {
     spannedCells.start = cell
   }
 
-  if (millis.end === 0 || currentMillis.end > millis.end) {
-    millis.end = currentMillis.end
-    spannedCells.end = cell
-  }
+  millis.end = currentMillis.end
+  spannedCells.end = cell
 
   currentGroup = cell.getAttribute('data-group')
 }
