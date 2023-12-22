@@ -9,6 +9,12 @@ interface Lecture {
   group: string
 }
 
+// Misc
+function parseTime(time: string) {
+  const [hour, minute] = time.split(':').map(Number);
+  return (hour - 1) * 60 * 60 * 1000 + minute * 60 * 1000;
+}
+
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
   .map(([start, end]) => [
@@ -18,66 +24,65 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
   .map(([start, end]) => `${start} - ${end}`)
 
 function getCellId(group: string, time: string) {
-  return `${group}@${time.replace(' - ', '@')}`
+  const [start, end] = time.split(' - ');
+  return JSON.stringify({ group, start, end });
 }
 
 // Mouse events
 const lectures = ref<Lecture[]>([])
-const _lectures = ref<Lecture[]>([])
 const isDragging = ref(false)
+let startMillis: number | null = null;
+let endMillis: number | null = null;
+let _group: string | null = null;
 
 function onMouseDown(event: MouseEvent) {
-  if (event.button === 1) return;
+  if (event.button !== 0) return;
   isDragging.value = true;
 }
 
 function onMouseUp(event: MouseEvent) {
-  if (event.button === 1) return;
+  if (event.button !== 0) return;
   isDragging.value = false;
 
-  const firstLecture = _lectures.value[0];
-  const lastLecture = _lectures.value[_lectures.value.length - 1];
+  if (startMillis !== null && endMillis !== null && _group !== null) {
+    lectures.value.push({
+      start: new Date(startMillis),
+      end: new Date(endMillis),
+      group: _group,
+    });
+  }
 
-  lectures.value.push({
-    start: firstLecture.start,
-    end: lastLecture.end,
-    group: firstLecture.group,
-  });
-
-  setTimeout(() => {
-    lectures.value = lectures.value.slice(1);
-  }, 2000);
-
-  _lectures.value = [];
+  startMillis = null;
+  endMillis = null;
+  _group = null;
 }
 
 let lastCellId = '';
 
 function onMouseMove(event: MouseEvent) {
-  if (!isDragging.value) return
+  if (!isDragging.value) return;
 
-  const cell = event.target as HTMLTableCellElement
-  if (!cell || !(cell instanceof HTMLTableCellElement)) return
+  const cell = event.target as HTMLTableCellElement;
+  if (!(cell instanceof HTMLTableCellElement)) return;
 
-  if (cell.id === lastCellId) return
+  const cellId = JSON.parse(cell.id);
 
-  lastCellId = cell.id;
+  if (cellId === lastCellId) return;
 
-  const [group, start, end] = cell.id.split('@')
-  const [startHour, startMinute] = start.split(':')
-  const [endHour, endMinute] = end.split(':')
+  lastCellId = cellId;
 
-  const baseDate = new Date(2023, 0, 1)
-  const startMillis = baseDate.getTime() + Number(startHour) * 60 * 60 * 1000 + Number(startMinute) * 60 * 1000
-  const endMillis = baseDate.getTime() + Number(endHour) * 60 * 60 * 1000 + Number(endMinute) * 60 * 1000
+  const currentStartMillis = parseTime(cellId.start);
+  const currentEndMillis = parseTime(cellId.end);
 
-  const lecture: Lecture = {
-    start: new Date(startMillis),
-    end: new Date(endMillis),
-    group,
+  if (startMillis === null || currentStartMillis < startMillis) {
+    startMillis = currentStartMillis;
   }
 
-  _lectures.value.push(lecture)
+  if (endMillis === null || currentEndMillis > endMillis) {
+    endMillis = currentEndMillis;
+  }
+
+  _group = cellId.group;
 }
 </script>
 
@@ -117,7 +122,7 @@ function onMouseMove(event: MouseEvent) {
   </div>
 
   <div class="fixed bottom-0 right-0 z-10">
-      <div v-for="(lecture, index) in lectures" :key="index" class="border-gray-200 border text-gray-900 rounded-lg px-4 py-2 m-2">
+      <div v-for="(lecture, index) in lectures" :key="index" class="border-gray-200 bg-white border text-gray-900 rounded-lg px-4 py-2 m-2">
         <span class="font-semibold">{{ lecture.group }}, </span>
         <span>
         {{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
