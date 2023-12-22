@@ -57,23 +57,22 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
         return
 
       const timeData = cell.getAttribute('data-time')
-      if (!timeData)
+      const groupData = cell.getAttribute('data-group')
+      if (!timeData || !groupData)
         return
 
-      const currentMillis = {
-        start: parseTime(timeData.split('-')[0].replaceAll('@', ':')),
-        end: parseTime(timeData.split('-')[1].replaceAll('@', ':')),
-      }
+      const [start, end] = timeData.split('-')
+        .map(time => parseTime(time.replaceAll('@', ':')))
 
-      if (millis.start === 0 || currentMillis.start < millis.start) {
-        millis.start = currentMillis.start
+      if (millis.start === 0 || start < millis.start) {
+        millis.start = start
         spannedCells.start = cell
       }
 
-      millis.end = currentMillis.end
+      millis.end = end
       spannedCells.end = cell
 
-      currentGroup = cell.getAttribute('data-group')
+      currentGroup = groupData
 
       prevCell = cell
     })
