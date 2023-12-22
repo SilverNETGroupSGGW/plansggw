@@ -1,16 +1,8 @@
 <script setup lang="ts">
+import type { Lecture } from '~/types';
+
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
-
-// Interfaces
-interface Lecture {
-  startCell: HTMLTableCellElement
-  endCell: HTMLTableCellElement
-
-  start: Date
-  end: Date
-  group: string
-}
 
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]

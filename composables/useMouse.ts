@@ -8,6 +8,8 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
   const spannedCells = { start: undefined as HTMLTableCellElement | undefined, end: undefined as HTMLTableCellElement | undefined }
 
   let currentGroup: string | null = null
+  let rafId: number | null = null
+  let prevCell: HTMLTableCellElement | null = null
 
   function onMouseDown(event: MouseEvent) {
     if (event.button !== 0)
@@ -46,26 +48,35 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
     if (!isDragging.value)
       return
 
-    const cell = event.target as HTMLTableCellElement
+    if (rafId !== null)
+      cancelAnimationFrame(rafId)
 
-    const timeData = cell.getAttribute('data-time')
-    if (!timeData)
-      return
+    rafId = requestAnimationFrame(() => {
+      const cell = event.target as HTMLTableCellElement
+      if (cell.isEqualNode(prevCell))
+        return
 
-    const currentMillis = {
-      start: parseTime(timeData.split('-')[0].replaceAll('@', ':')),
-      end: parseTime(timeData.split('-')[1].replaceAll('@', ':')),
-    }
+      const timeData = cell.getAttribute('data-time')
+      if (!timeData)
+        return
 
-    if (millis.start === 0 || currentMillis.start < millis.start) {
-      millis.start = currentMillis.start
-      spannedCells.start = cell
-    }
+      const currentMillis = {
+        start: parseTime(timeData.split('-')[0].replaceAll('@', ':')),
+        end: parseTime(timeData.split('-')[1].replaceAll('@', ':')),
+      }
 
-    millis.end = currentMillis.end
-    spannedCells.end = cell
+      if (millis.start === 0 || currentMillis.start < millis.start) {
+        millis.start = currentMillis.start
+        spannedCells.start = cell
+      }
 
-    currentGroup = cell.getAttribute('data-group')
+      millis.end = currentMillis.end
+      spannedCells.end = cell
+
+      currentGroup = cell.getAttribute('data-group')
+
+      prevCell = cell
+    })
   }
 
   return {
