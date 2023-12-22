@@ -12,91 +12,14 @@ interface Lecture {
   group: string
 }
 
-// Misc
-function parseTime(time: string) {
-  const [hour, minute] = time.split(':').map(Number)
-  return (hour - 1) * 60 * 60 * 1000 + minute * 60 * 1000
-}
-
-function toLocaleTimeString(date: Date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-}
-
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
-  .map(([start, end]) => `${toLocaleTimeString(start)} - ${toLocaleTimeString(end)}`)
+  .map(([start, end]) =>
+    `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
 
-// Mouse events
+// Lectures
 const lectures = ref<Lecture[]>([])
-const isDragging = ref(false)
-const millis = {
-  start: 0,
-  end: 0,
-}
-const spannedCells = {
-  start: undefined as HTMLTableCellElement | undefined,
-  end: undefined as HTMLTableCellElement | undefined,
-}
-
-let currentGroup: string | null = null
-
-function onMouseDown(event: MouseEvent) {
-  if (event.button !== 0)
-    return
-
-  isDragging.value = true
-}
-
-function onMouseUp(event: MouseEvent) {
-  if (event.button !== 0)
-    return
-
-  isDragging.value = false
-
-  if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
-    const data = {
-      startCell: spannedCells.start!,
-      endCell: spannedCells.end!,
-
-      start: new Date(millis.start),
-      end: new Date(millis.end),
-      group: currentGroup,
-    } as Lecture
-
-    lectures.value.push(data)
-  }
-
-  millis.start = 0
-  millis.end = 0
-  currentGroup = null
-  spannedCells.start = undefined
-  spannedCells.end = undefined
-}
-
-function onMouseMove(event: MouseEvent) {
-  if (!isDragging.value)
-    return
-
-  const cell = event.target as HTMLTableCellElement
-
-  const timeData = cell.getAttribute('data-time')
-  if (!timeData) return
-
-  const currentMillis = {
-    start: parseTime(timeData.split('-')[0].replaceAll('@', ':')),
-    end: parseTime(timeData.split('-')[1].replaceAll('@', ':')),
-  }
-
-  if (millis.start === 0 || currentMillis.start < millis.start) {
-    millis.start = currentMillis.start
-    spannedCells.start = cell
-  }
-
-  millis.end = currentMillis.end
-  spannedCells.end = cell
-
-  currentGroup = cell.getAttribute('data-group')
-}
+const { onMouseDown, onMouseMove, onMouseUp } = useMouse(lectures)
 </script>
 
 <template>

@@ -14,7 +14,13 @@ export default function useTime() {
     return result
   }
 
+  function parseTime(time: string) {
+    const [hour, minute] = time.split(':').map(Number)
+    return (hour - 1) * 60 * 60 * 1000 + minute * 60 * 1000
+  }
+
   return {
     generateTimeInterval,
+    parseTime,
   }
 }
