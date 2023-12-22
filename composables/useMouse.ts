@@ -11,14 +11,14 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
   let rafId: number | null = null
   let prevCell: HTMLTableCellElement | null = null
 
-  function onMouseDown(event: MouseEvent) {
+  function onPointerDown(event: PointerEvent) {
     if (event.button !== 0)
       return
 
     isDragging.value = true
   }
 
-  function onMouseUp(event: MouseEvent) {
+  function onPointerUp(event: PointerEvent) {
     if (event.button !== 0)
       return
 
@@ -44,7 +44,7 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
     spannedCells.end = undefined
   }
 
-  function onMouseMove(event: MouseEvent) {
+  function onPointerMove(event: PointerEvent) {
     if (!isDragging.value)
       return
 
@@ -80,8 +80,8 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
 
   return {
     lectures,
-    onMouseDown,
-    onMouseUp,
-    onMouseMove,
+    onPointerDown,
+    onPointerUp,
+    onPointerMove,
   }
 }

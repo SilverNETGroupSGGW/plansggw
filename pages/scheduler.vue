@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lecture } from '~/types';
+import type { Lecture } from '~/types'
 
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
@@ -11,7 +11,7 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
 
 // Lectures
 const lectures = ref<Lecture[]>([])
-const { onMouseDown, onMouseMove, onMouseUp } = useMouse(lectures)
+const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 </script>
 
 <template>
@@ -27,14 +27,7 @@ const { onMouseDown, onMouseMove, onMouseUp } = useMouse(lectures)
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div
-      v-for="lecture in lectures" :key="lecture.startCell.id" :style="{
-        top: `${lecture.startCell.offsetTop}px`,
-        left: `${lecture.startCell.offsetLeft}px`,
-        width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`,
-        height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px`,
-      }" class="absolute bg-blue-200 opacity-50"
-    />
+    <div v-for="lecture in lectures" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-200 opacity-50" />
 
     <table class="w-full table-auto border-b border-gray-200">
       <thead>
@@ -52,7 +45,7 @@ const { onMouseDown, onMouseMove, onMouseUp } = useMouse(lectures)
           <td :id="group" class="border-r border-gray-200 px-12 py-8 text-left font-semibold text-blue-600">
             {{ group }}
           </td>
-          <td v-for="time in timeRange" :key="time" class="border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @mousedown.prevent="onMouseDown" @mouseup.prevent="onMouseUp" @mousemove.prevent="onMouseMove" />
+          <td v-for="time in timeRange" :key="time" class="border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
         </tr>
       </tbody>
     </table>
@@ -61,9 +54,7 @@ const { onMouseDown, onMouseMove, onMouseUp } = useMouse(lectures)
   <div class="fixed bottom-0 right-0 z-10">
     <div v-for="(lecture, index) in lectures" :key="index" class="m-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900">
       <span class="font-semibold">{{ lecture.group }}, </span>
-      <span>
-        {{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
-      </span>
+      <span>{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
     </div>
   </div>
 </template>
