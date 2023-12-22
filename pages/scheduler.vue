@@ -33,6 +33,11 @@ const millis = {
   start: 0,
   end: 0,
 }
+const spannedCells = {
+  start: null as HTMLTableCellElement | null,
+  end: null as HTMLTableCellElement | null,
+}
+
 let currentGroup: string | null = null
 
 function onMouseDown(event: MouseEvent) {
@@ -50,6 +55,9 @@ function onMouseUp(event: MouseEvent) {
 
   if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
     const data = {
+      startCell: spannedCells.start!,
+      endCell: spannedCells.end!,
+
       start: new Date(millis.start),
       end: new Date(millis.end),
       group: currentGroup,
@@ -61,6 +69,8 @@ function onMouseUp(event: MouseEvent) {
   millis.start = 0
   millis.end = 0
   currentGroup = null
+  spannedCells.start = null
+  spannedCells.end = null
 }
 
 function onMouseMove(event: MouseEvent) {
@@ -76,11 +86,15 @@ function onMouseMove(event: MouseEvent) {
     end: parseTime(cell.getAttribute('data-time')!.split('-')[1].replaceAll('@', ':')),
   }
 
-  if (millis.start === 0 || currentMillis.start < millis.start)
+  if (millis.start === 0 || currentMillis.start < millis.start) {
     millis.start = currentMillis.start
+    spannedCells.start = cell
+  }
 
-  if (millis.end === 0 || currentMillis.end > millis.end)
+  if (millis.end === 0 || currentMillis.end > millis.end) {
     millis.end = currentMillis.end
+    spannedCells.end = cell
+  }
 
   currentGroup = cell.getAttribute('data-group')
 }
