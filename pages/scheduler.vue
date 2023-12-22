@@ -26,11 +26,11 @@ const lectures = ref<Lecture[]>([])
 const _lectures = ref<Lecture[]>([])
 const isDragging = ref(false)
 
-function onMouseDown(event: MouseEvent) {
+function onMouseDown() {
   isDragging.value = true
 }
 
-function onMouseUp(event: MouseEvent) {
+function onMouseUp() {
   isDragging.value = false
 
   const firstLecture = _lectures.value[0]
@@ -49,19 +49,29 @@ function onMouseUp(event: MouseEvent) {
   _lectures.value = []
 }
 
+let lastCellId = '';
+
 function onMouseMove(event: MouseEvent) {
   if (!isDragging.value) return
 
   const cell = event.target as HTMLTableCellElement
-  if (!cell) return
+  if (!cell || !(cell instanceof HTMLTableCellElement)) return
+
+  if (cell.id === lastCellId) return
+
+  lastCellId = cell.id;
 
   const [group, start, end] = cell.id.split('@')
   const [startHour, startMinute] = start.split(':')
   const [endHour, endMinute] = end.split(':')
 
+  const baseDate = new Date(2023, 0, 1)
+  const startMillis = baseDate.getTime() + Number(startHour) * 60 * 60 * 1000 + Number(startMinute) * 60 * 1000
+  const endMillis = baseDate.getTime() + Number(endHour) * 60 * 60 * 1000 + Number(endMinute) * 60 * 1000
+
   const lecture: Lecture = {
-    start: new Date(2023, 0, 1, Number(startHour), Number(startMinute)),
-    end: new Date(2023, 0, 1, Number(endHour), Number(endMinute)),
+    start: new Date(startMillis),
+    end: new Date(endMillis),
     group,
   }
 
