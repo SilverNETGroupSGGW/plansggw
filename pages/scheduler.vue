@@ -17,11 +17,11 @@ function parseTime(time: string) {
 
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
-  .map(([start, end]) => [
-    start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-    end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-  ])
-  .map(([start, end]) => `${start} - ${end}`)
+  .map(([start, end]) => {
+    const startStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+    const endStr = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+    return `${startStr} - ${endStr}`
+  })
 
 function getCellId(group: string, time: string) {
   const [start, end] = time.split(' - ')
@@ -31,35 +31,37 @@ function getCellId(group: string, time: string) {
 // Mouse events
 const lectures = ref<Lecture[]>([])
 const isDragging = ref(false)
-let startMillis: number | null = null
-let endMillis: number | null = null
-let _group: string | null = null
+const millis = {
+  start: 0,
+  end: 0,
+}
+let currentGroup: string | null = null
 
 function onMouseDown(event: MouseEvent) {
   if (event.button !== 0)
     return
+
   isDragging.value = true
 }
 
 function onMouseUp(event: MouseEvent) {
   if (event.button !== 0)
     return
+
   isDragging.value = false
 
-  if (startMillis !== null && endMillis !== null && _group !== null) {
+  if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
     lectures.value.push({
-      start: new Date(startMillis),
-      end: new Date(endMillis),
-      group: _group,
+      start: new Date(millis.start),
+      end: new Date(millis.end),
+      group: currentGroup,
     })
   }
 
-  startMillis = null
-  endMillis = null
-  _group = null
+  millis.start = 0
+  millis.end = 0
+  currentGroup = null
 }
-
-let lastCellId = ''
 
 function onMouseMove(event: MouseEvent) {
   if (!isDragging.value)
@@ -71,21 +73,18 @@ function onMouseMove(event: MouseEvent) {
 
   const cellId = JSON.parse(cell.id)
 
-  if (cellId === lastCellId)
-    return
+  const currentMillis = {
+    start: parseTime(cellId.start),
+    end: parseTime(cellId.end),
+  }
 
-  lastCellId = cellId
+  if (millis.start === 0 || currentMillis.start < millis.start)
+    millis.start = currentMillis.start
 
-  const currentStartMillis = parseTime(cellId.start)
-  const currentEndMillis = parseTime(cellId.end)
+  if (millis.end === 0 || currentMillis.end > millis.end)
+    millis.end = currentMillis.end
 
-  if (startMillis === null || currentStartMillis < startMillis)
-    startMillis = currentStartMillis
-
-  if (endMillis === null || currentEndMillis > endMillis)
-    endMillis = currentEndMillis
-
-  _group = cellId.group
+  currentGroup = cellId.group
 }
 </script>
 
