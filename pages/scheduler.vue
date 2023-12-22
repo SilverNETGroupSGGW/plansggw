@@ -43,7 +43,7 @@ function onMouseUp(event: MouseEvent) {
   })
 
   setTimeout(() => {
-    lectures.value = lectures.value.slice(0, -1)
+    lectures.value = lectures.value.slice(1)
   }, 2000)
 
   _lectures.value = []
