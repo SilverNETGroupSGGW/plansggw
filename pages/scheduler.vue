@@ -73,7 +73,7 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
       </thead>
       <tbody class="divide-y divide-gray-200">
         <tr v-for="time in timeRange" :key="time" class="border-b">
-          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="px-12 h-6 border-r border-gray-200 text-left font-semibold text-blue-600">
+          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="h-6 border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
             {{ time }}
           </td>
           <td v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-9 border-r border-gray-200 px-12" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
