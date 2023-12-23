@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 onMounted(() => {
   interact('#lecture')
     .resizable({
-      edges: { top: true, bottom: true },
+      edges: { bottom: true },
       listeners: {
         move(event) {
           let { x, y } = event.target.dataset
