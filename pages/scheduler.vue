@@ -1,8 +1,32 @@
 <script setup lang="ts">
+import interact from 'interactjs'
 import type { Lecture } from '~/types'
 
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
+
+onMounted(() => {
+  interact('#lecture')
+    .resizable({
+      edges: { left: true, right: true },
+      listeners: {
+        move(event) {
+          let { x, y } = event.target.dataset
+
+          x = (Number.parseFloat(x) || 0) + event.deltaRect.left
+          y = (Number.parseFloat(y) || 0) + event.deltaRect.top
+
+          Object.assign(event.target.style, {
+            width: `${Math.round(event.rect.width / 4) * 4}px`,
+            height: `${event.rect.height}px`,
+            transform: `translate(${x}px, ${y}px)`,
+          })
+
+          Object.assign(event.target.dataset, { x, y })
+        },
+      },
+    })
+})
 
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -27,7 +51,14 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-200 opacity-50" />
+    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-600">
+      <div class="flex flex-col gap-2 p-4">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>
+          <span class="text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+        </div>
+      </div>
+    </div>
 
     <table class="w-full table-auto border-b border-gray-200">
       <thead>
@@ -49,12 +80,5 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
         </tr>
       </tbody>
     </table>
-  </div>
-
-  <div class="fixed bottom-0 right-0 z-10">
-    <div v-for="(lecture, index) in lectures" :key="index" class="m-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900">
-      <span class="font-semibold">{{ lecture.group }}, </span>
-      <span>{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
-    </div>
   </div>
 </template>
