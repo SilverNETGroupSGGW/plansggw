@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 onMounted(() => {
   interact('#lecture')
     .resizable({
-      edges: { left: true, right: true },
+      edges: { top: true, bottom: true },
       listeners: {
         move(event) {
           let { x, y } = event.target.dataset
@@ -17,8 +17,8 @@ onMounted(() => {
           y = (Number.parseFloat(y) || 0) + event.deltaRect.top
 
           Object.assign(event.target.style, {
-            width: `${Math.round(event.rect.width / 4) * 4}px`,
-            height: `${event.rect.height}px`,
+            width: `${event.rect.width}px`,
+            height: `${Math.round(event.rect.height / 12) * 12}px`,
             transform: `translate(${x}px, ${y}px)`,
           })
 
@@ -60,23 +60,23 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
       </div>
     </div>
 
-    <table class="w-full table-auto border-b border-gray-200">
+    <table class="w-full table-fixed border-b border-gray-200">
       <thead>
         <tr>
           <th class="border-b border-r border-gray-200 px-12 py-4 text-left font-semibold text-blue-600">
             Grupa
           </th>
-          <th v-for="time in timeRange" :key="time" class="whitespace-nowrap border-b border-r border-gray-200 px-12 py-4 text-center font-semibold text-blue-600">
-            {{ time }}
+          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="whitespace-nowrap border-b border-r border-gray-200 px-12 py-4 text-center font-semibold text-blue-600">
+            {{ group }}
           </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
-        <tr v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="border-b">
-          <td :id="group" class="border-r border-gray-200 px-12 py-8 text-left font-semibold text-blue-600">
-            {{ group }}
+        <tr v-for="time in timeRange" :key="time" class="border-b">
+          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="px-12 h-6 border-r border-gray-200 text-left font-semibold text-blue-600">
+            {{ time }}
           </td>
-          <td v-for="time in timeRange" :key="time" class="border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
+          <td v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-9 border-r border-gray-200 px-12" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
         </tr>
       </tbody>
     </table>
