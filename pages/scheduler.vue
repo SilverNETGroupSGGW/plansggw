@@ -8,21 +8,40 @@ const { generateTimeInterval } = useTime()
 onMounted(() => {
   interact('#lecture')
     .resizable({
-      edges: { bottom: true },
+      edges: { bottom: true, top: true },
       listeners: {
         move(event) {
-          let { x, y } = event.target.dataset
+          const target = event.target
+          let x = (Number.parseFloat(target.getAttribute('data-x')) || 0)
+          let y = (Number.parseFloat(target.getAttribute('data-y')) || 0)
 
-          x = (Number.parseFloat(x) || 0) + event.deltaRect.left
-          y = (Number.parseFloat(y) || 0) + event.deltaRect.top
+          target.style.width = `${event.rect.width}px`
+          target.style.height = `${Math.round(event.rect.height / 12) * 12}px`
 
-          Object.assign(event.target.style, {
-            width: `${event.rect.width}px`,
-            height: `${Math.round(event.rect.height / 12) * 12}px`,
-            transform: `translate(${x}px, ${y}px)`,
-          })
+          x += event.deltaRect.left
+          y += event.deltaRect.top
 
-          Object.assign(event.target.dataset, { x, y })
+          target.style.transform = `translate(${x}px,${y}px)`
+
+          target.setAttribute('data-x', x)
+          target.setAttribute('data-y', y)
+        },
+      },
+      inertia: true,
+    })
+    .draggable({
+      inertia: true,
+      listeners: {
+        move(event) {
+          const target = event.target
+
+          const x = (Number.parseFloat(target.getAttribute('data-x')) || 0)
+          const y = Math.round(((Number.parseFloat(target.getAttribute('data-y')) || 0) + event.dy) / 12) * 12
+
+          target.style.transform = `translate(${x}px, ${y}px)`
+
+          target.setAttribute('data-x', x)
+          target.setAttribute('data-y', y)
         },
       },
     })
@@ -51,7 +70,7 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-600">
+    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-600 box-border">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>
