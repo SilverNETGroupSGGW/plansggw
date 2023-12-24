@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InteractEvent } from '@interactjs/types'
+import type { InteractEvent } from '@interactjs/types';
 import interact from 'interactjs'
 import type { Lecture } from '~/types'
 
@@ -18,27 +18,30 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
 // Watch lectures value
 watch(lectureCells, () => {
-  // interactjs
-  // attach to new lecture
   interact(lectureCells.at(-1)!)
     .draggable({
+      origin: 'parent',
       lockAxis: 'y',
       startAxis: 'y',
-      inertia: {
-        resistance: 30,
-        minSpeed: 200,
-        endSpeed: 100,
-      },
-      listeners: {
-        move: (event: InteractEvent) => {
-          event.preventDefault()
+      modifiers: [
+        interact.modifiers.snap({
+          targets: [
+            interact.snappers.grid({ x: 16, y: 16 }),
+          ],
+          range: Number.POSITIVE_INFINITY,
+          relativePoints: [{ x: 0, y: 0 }],
+        }),
+      ],
+      inertia: true,
+    })
+    .on('dragmove', (event: InteractEvent) => {
+      const lecture = lectures.at(-1)!
+      const dy = Math.ceil(lecture.top + event.dy)
 
-          const lecture = lectures.at(-1)!
-          const dy = (lecture.top + event.dy)
+      lecture.top = dy
 
-          lecture.top = dy
-        },
-      },
+      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
+      lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
     })
 })
 </script>
@@ -68,20 +71,20 @@ watch(lectureCells, () => {
     <table class="w-full table-fixed border-b border-gray-200">
       <thead>
         <tr>
-          <th class="border-b border-r border-gray-200 px-12 py-4 text-left font-semibold text-blue-600">
+          <th class="h-12 border-b border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
             Grupa
           </th>
-          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="whitespace-nowrap border-b border-r border-gray-200 px-12 py-4 text-center font-semibold text-blue-600">
+          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-12 whitespace-nowrap border-b border-r border-gray-200 px-12 text-center font-semibold text-blue-600">
             {{ group }}
           </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
         <tr v-for="time in timeRange" :key="time" class="border-b">
-          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="h-6 border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
+          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="h-12 border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
             {{ time }}
           </td>
-          <td v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-9 border-r border-gray-200 px-12" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
+          <td v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-12 border-r border-gray-200 px-12" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
         </tr>
       </tbody>
     </table>
