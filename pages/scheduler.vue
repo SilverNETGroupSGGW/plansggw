@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 onMounted(() => {
   interact('#lecture')
     .resizable({
-      edges: { bottom: true, top: true },
+      edges: { bottom: true },
       listeners: {
         move(event) {
           const target = event.target
@@ -30,12 +30,12 @@ onMounted(() => {
       inertia: true,
     })
     .draggable({
-      inertia: true,
+      lockAxis: 'y',
+      startAxis: 'y',
       listeners: {
         move(event) {
           const target = event.target
-
-          const x = (Number.parseFloat(target.getAttribute('data-x')) || 0)
+          const x = (Number.parseFloat(target.getAttribute('data-x')) || 0) + event.dx
           const y = Math.round(((Number.parseFloat(target.getAttribute('data-y')) || 0) + event.dy) / 12) * 12
 
           target.style.transform = `translate(${x}px, ${y}px)`
@@ -44,6 +44,7 @@ onMounted(() => {
           target.setAttribute('data-y', y)
         },
       },
+      inertia: false,
     })
 })
 
@@ -70,7 +71,7 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 bg-blue-600 box-border">
+    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 box-border bg-blue-600">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>
