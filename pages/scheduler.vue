@@ -59,8 +59,8 @@ watch(lectureCells, () => {
     })
     .on('resizemove', (event: ResizeEvent) => {
       const lecture = lectures.at(-1)!
-      const dy = Math.ceil(lecture.top + event.deltaRect!.top)
-      const dh = Math.ceil(lecture.height + event.deltaRect!.height)
+      const dy = Math.round(lecture.top + event.deltaRect!.top)
+      const dh = Math.round(lecture.height + event.deltaRect!.height)
 
       lecture.top = dy
       lecture.height = dh
