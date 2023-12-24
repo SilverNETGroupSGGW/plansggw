@@ -25,7 +25,9 @@ export default function useMouse(lectures: Lecture[]) {
     isDragging.value = false
 
     if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
-      const data = {
+      const data: Lecture = {
+        id: lectures.length === 0 ? 0 : lectures.length + 1,
+
         top: spannedCells.start!.offsetTop,
         left: spannedCells.start!.offsetLeft,
         
@@ -35,7 +37,7 @@ export default function useMouse(lectures: Lecture[]) {
         start: new Date(millis.start),
         end: new Date(millis.end),
         group: currentGroup,
-      } as Lecture
+      }
 
       lectures.push(data)
     }

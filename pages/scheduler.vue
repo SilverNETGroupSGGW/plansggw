@@ -13,12 +13,12 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
 
 // Lectures
 const lectures = reactive<Lecture[]>([])
-const lectureCells = reactive<HTMLDivElement[]>([])
+const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
 // Watch lectures value
-watch(lectureCells, () => {
-  interact(lectureCells.at(-1)!)
+onMounted(() => {
+  interact('.lecture')
     .draggable({
       origin: 'parent',
       lockAxis: 'y',
@@ -32,10 +32,11 @@ watch(lectureCells, () => {
           relativePoints: [{ x: 0, y: 0 }],
         }),
       ],
-      inertia: true,
+      inertia: false,
     })
     .on('dragmove', (event: InteractEvent) => {
-      const lecture = lectures.at(-1)!
+      const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
+
       const dy = Math.ceil(lecture.top + event.dy)
 
       lecture.top = dy
@@ -55,10 +56,11 @@ watch(lectureCells, () => {
           relativePoints: [{ x: 0, y: 0 }],
         }),
       ],
-      inertia: true,
     })
     .on('resizemove', (event: ResizeEvent) => {
-      const lecture = lectures.at(-1)!
+      const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
+      console.log(lecture)
+
       const dy = Math.round(lecture.top + event.deltaRect!.top)
       const dh = Math.round(lecture.height + event.deltaRect!.height)
 
@@ -84,7 +86,7 @@ watch(lectureCells, () => {
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" id="lecture" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="absolute z-10 box-border bg-blue-600">
+    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute z-10 box-border bg-blue-600">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>
