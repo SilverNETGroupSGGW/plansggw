@@ -26,7 +26,7 @@ export default function useMouse(lectures: Lecture[]) {
 
     if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
       const data: Lecture = {
-        id: lectures.length === 0 ? 0 : lectures.length + 1,
+        id: lectures.length === 0 ? 0 : lectures.length,
 
         top: spannedCells.start!.offsetTop,
         left: spannedCells.start!.offsetLeft,

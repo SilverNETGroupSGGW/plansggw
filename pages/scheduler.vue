@@ -7,6 +7,10 @@ const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
 
 // Cells
+const headers = ref<HTMLTableCellElement[]>([])
+let headerWidth = 0 // constant
+
+// Time range
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
   .map(([start, end]) =>
     `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
@@ -16,8 +20,11 @@ const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
-// Watch lectures value
 onMounted(() => {
+  // Set header width
+  headerWidth = headers.value[0].offsetWidth
+
+  // Apply interact.js
   interact('.lecture')
     .draggable({
       origin: 'parent',
@@ -61,7 +68,7 @@ onMounted(() => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
       const dy = Math.round(lecture.top + event.deltaRect!.top)
-      const dh = Math.round(lecture.height + event.deltaRect!.height)
+      const dh = Math.round(Math.ceil((lecture.height + event.deltaRect!.height) / 16) * 16)
 
       lecture.top = dy
       lecture.height = dh
@@ -69,6 +76,15 @@ onMounted(() => {
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
     })
+
+  // Watch window size changes
+  window.addEventListener('resize', () => {
+    const _headerWidth = headers.value[0].offsetWidth
+    lectures.forEach((lecture) => {
+      lecture.width = _headerWidth
+      lecture.left = _headerWidth * (['ISI-1', 'ISI-2', 'ISK', 'TM'].indexOf(lecture.group) + 1)
+    })
+  })
 })
 </script>
 
@@ -100,7 +116,7 @@ onMounted(() => {
           <th class="h-12 border-b border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
             Grupa
           </th>
-          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-12 whitespace-nowrap border-b border-r border-gray-200 px-12 text-center font-semibold text-blue-600">
+          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" ref="headers" :key="group" class="h-12 whitespace-nowrap border-b border-r border-gray-200 px-12 text-center font-semibold text-blue-600">
             {{ group }}
           </th>
         </tr>
