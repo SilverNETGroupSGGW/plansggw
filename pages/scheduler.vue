@@ -81,8 +81,8 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     const _headerWidth = headers.value[0].offsetWidth
     lectures.forEach((lecture) => {
-      lecture.width = _headerWidth
-      lecture.left = _headerWidth * (['ISI-1', 'ISI-2', 'ISK', 'TM'].indexOf(lecture.group) + 1)
+      lecture.width = _headerWidth * lecture.group.length
+      lecture.left = _headerWidth * (['ISI-1', 'ISI-2', 'ISK', 'TM'].indexOf(lecture.group[0]) + 1)
     })
   })
 })
@@ -104,7 +104,7 @@ onMounted(() => {
     <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute z-10 box-border bg-blue-600">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
-          <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>
+          <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
           <span class="text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
         </div>
       </div>

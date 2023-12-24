@@ -8,6 +8,8 @@ export default function useMouse(lectures: Lecture[]) {
   const spannedCells = { start: undefined as HTMLTableCellElement | undefined, end: undefined as HTMLTableCellElement | undefined }
 
   let currentGroup: string | null = null
+  const spannedGroups: Set<string> = new Set()
+
   let rafId: number | null = null
   let prevCell: HTMLTableCellElement | null = null
 
@@ -30,13 +32,13 @@ export default function useMouse(lectures: Lecture[]) {
 
         top: spannedCells.start!.offsetTop,
         left: spannedCells.start!.offsetLeft,
-        
+
         width: spannedCells.end!.offsetLeft - spannedCells.start!.offsetLeft + spannedCells.end!.offsetWidth,
         height: spannedCells.end!.offsetTop - spannedCells.start!.offsetTop + spannedCells.end!.offsetHeight,
 
         start: new Date(millis.start),
         end: new Date(millis.end),
-        group: currentGroup,
+        group: [...spannedGroups]
       }
 
       lectures.push(data)
@@ -44,9 +46,11 @@ export default function useMouse(lectures: Lecture[]) {
 
     millis.start = 0
     millis.end = 0
+    
     currentGroup = null
     spannedCells.start = undefined
     spannedCells.end = undefined
+    spannedGroups.clear()
   }
 
   function onPointerMove(event: PointerEvent) {
@@ -78,6 +82,7 @@ export default function useMouse(lectures: Lecture[]) {
       spannedCells.end = cell
 
       currentGroup = groupData
+      spannedGroups.add(groupData)
 
       prevCell = cell
     })

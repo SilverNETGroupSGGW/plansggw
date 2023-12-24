@@ -7,5 +7,5 @@ export interface Lecture {
   id: number
   start: Date
   end: Date
-  group: string
+  group: string[]
 }
