@@ -2,7 +2,7 @@ import type { Lecture } from '~/types'
 
 const { parseTime } = useTime()
 
-export default function useMouse(lectures: Ref<Lecture[]>) {
+export default function useMouse(lectures: Lecture[]) {
   const isDragging = ref(false)
   const millis = { start: 0, end: 0 }
   const spannedCells = { start: undefined as HTMLTableCellElement | undefined, end: undefined as HTMLTableCellElement | undefined }
@@ -26,15 +26,18 @@ export default function useMouse(lectures: Ref<Lecture[]>) {
 
     if (millis.start !== 0 && millis.end !== 0 && currentGroup !== null) {
       const data = {
-        startCell: spannedCells.start!,
-        endCell: spannedCells.end!,
+        top: spannedCells.start!.offsetTop,
+        left: spannedCells.start!.offsetLeft,
+        
+        width: spannedCells.end!.offsetLeft - spannedCells.start!.offsetLeft + spannedCells.end!.offsetWidth,
+        height: spannedCells.end!.offsetTop - spannedCells.start!.offsetTop + spannedCells.end!.offsetHeight,
 
         start: new Date(millis.start),
         end: new Date(millis.end),
         group: currentGroup,
       } as Lecture
 
-      lectures.value.push(data)
+      lectures.push(data)
     }
 
     millis.start = 0

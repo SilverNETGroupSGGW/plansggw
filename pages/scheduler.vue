@@ -1,52 +1,10 @@
 <script setup lang="ts">
+import type { InteractEvent } from '@interactjs/types'
 import interact from 'interactjs'
 import type { Lecture } from '~/types'
 
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
-
-onMounted(() => {
-  interact('#lecture')
-    .resizable({
-      edges: { bottom: true },
-      listeners: {
-        move(event) {
-          const target = event.target
-          let x = (Number.parseFloat(target.getAttribute('data-x')) || 0)
-          let y = (Number.parseFloat(target.getAttribute('data-y')) || 0)
-
-          target.style.width = `${event.rect.width}px`
-          target.style.height = `${Math.round(event.rect.height / 12) * 12}px`
-
-          x += event.deltaRect.left
-          y += event.deltaRect.top
-
-          target.style.transform = `translate(${x}px,${y}px)`
-
-          target.setAttribute('data-x', x)
-          target.setAttribute('data-y', y)
-        },
-      },
-      inertia: true,
-    })
-    .draggable({
-      lockAxis: 'y',
-      startAxis: 'y',
-      listeners: {
-        move(event) {
-          const target = event.target
-          const x = (Number.parseFloat(target.getAttribute('data-x')) || 0) + event.dx
-          const y = Math.round(((Number.parseFloat(target.getAttribute('data-y')) || 0) + event.dy) / 12) * 12
-
-          target.style.transform = `translate(${x}px, ${y}px)`
-
-          target.setAttribute('data-x', x)
-          target.setAttribute('data-y', y)
-        },
-      },
-      inertia: false,
-    })
-})
 
 // Cells
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -54,8 +12,35 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
     `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
 
 // Lectures
-const lectures = ref<Lecture[]>([])
+const lectures = reactive<Lecture[]>([])
+const lectureCells = reactive<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
+
+// Watch lectures value
+watch(lectureCells, () => {
+  // interactjs
+  // attach to new lecture
+  interact(lectureCells.at(-1)!)
+    .draggable({
+      lockAxis: 'y',
+      startAxis: 'y',
+      inertia: {
+        resistance: 30,
+        minSpeed: 200,
+        endSpeed: 100,
+      },
+      listeners: {
+        move: (event: InteractEvent) => {
+          event.preventDefault()
+
+          const lecture = lectures.at(-1)!
+          const dy = (lecture.top + event.dy)
+
+          lecture.top = dy
+        },
+      },
+    })
+})
 </script>
 
 <template>
@@ -71,7 +56,7 @@ const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" id="lecture" :key="lecture.startCell.id" :style="{ top: `${lecture.startCell.offsetTop}px`, left: `${lecture.startCell.offsetLeft}px`, width: `${lecture.endCell.offsetLeft - lecture.startCell.offsetLeft + lecture.endCell.offsetWidth}px`, height: `${lecture.endCell.offsetTop - lecture.startCell.offsetTop + lecture.endCell.offsetHeight}px` }" class="absolute z-10 box-border bg-blue-600">
+    <div v-for="lecture in lectures" id="lecture" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="absolute z-10 box-border bg-blue-600">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group }}</span>

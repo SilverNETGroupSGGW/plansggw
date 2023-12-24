@@ -1,6 +1,8 @@
 export interface Lecture {
-  startCell: HTMLTableCellElement
-  endCell: HTMLTableCellElement
+  top: number
+  left: number
+  width: number
+  height: number
 
   id: number
   start: Date
