@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 
 // Cells
 const headers = ref<HTMLTableCellElement[]>([])
-let headerWidth = 0 // constant
+let headerWidth = ref(0) // constant
 
 // Time range
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -20,20 +20,16 @@ const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
-onMounted(() => {
+// Interact.js
+function applyInteractJs() {
   // Set header width
-  headerWidth = headers.value[0].offsetWidth
-
-  // Apply interact.js
   interact('.lecture')
     .draggable({
       origin: 'parent',
-      lockAxis: 'y',
-      startAxis: 'y',
       modifiers: [
         interact.modifiers.snap({
           targets: [
-            interact.snappers.grid({ x: 16, y: 16 }),
+            interact.snappers.grid({ x: headerWidth.value, y: 16 }),
           ],
           range: Number.POSITIVE_INFINITY,
           relativePoints: [{ x: 0, y: 0 }],
@@ -44,8 +40,10 @@ onMounted(() => {
     .on('dragmove', (event: InteractEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
+      const dx = Math.ceil(lecture.left + event.dx)
       const dy = Math.ceil(lecture.top + event.dy)
 
+      lecture.left = dx
       lecture.top = dy
 
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
@@ -53,11 +51,11 @@ onMounted(() => {
     })
     .resizable({
       origin: 'parent',
-      edges: { top: true, bottom: true },
+      edges: { top: true, bottom: true, left: true, right: true },
       modifiers: [
         interact.modifiers.snap({
           targets: [
-            interact.snappers.grid({ x: 16, y: 16 }),
+            interact.snappers.grid({ x: headerWidth.value, y: 16 }),
           ],
           range: Number.POSITIVE_INFINITY,
           relativePoints: [{ x: 0, y: 0 }],
@@ -73,9 +71,25 @@ onMounted(() => {
       lecture.top = dy
       lecture.height = dh
 
+      if (event.edges?.right) {
+        lecture.width += event.deltaRect!.right
+      }
+      else {
+        lecture.width -= event.deltaRect!.left
+        lecture.left += event.deltaRect!.left
+      }
+
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
     })
+}
+
+onMounted(() => {
+  // Set header width
+  headerWidth.value = headers.value[0].offsetWidth
+
+  // Apply interact.js
+  applyInteractJs()
 
   // Watch window size changes
   window.addEventListener('resize', () => {
