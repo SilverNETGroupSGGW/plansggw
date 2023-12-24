@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InteractEvent } from '@interactjs/types';
+import type { InteractEvent, ResizeEvent } from '@interactjs/types'
 import interact from 'interactjs'
 import type { Lecture } from '~/types'
 
@@ -39,6 +39,31 @@ watch(lectureCells, () => {
       const dy = Math.ceil(lecture.top + event.dy)
 
       lecture.top = dy
+
+      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
+      lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
+    })
+    .resizable({
+      origin: 'parent',
+      edges: { bottom: true },
+      modifiers: [
+        interact.modifiers.snap({
+          targets: [
+            interact.snappers.grid({ x: 16, y: 16 }),
+          ],
+          range: Number.POSITIVE_INFINITY,
+          relativePoints: [{ x: 0, y: 0 }],
+        }),
+      ],
+      inertia: true,
+    })
+    .on('resizemove', (event: ResizeEvent) => {
+      const lecture = lectures.at(-1)!
+      const dy = Math.ceil(lecture.top + event.deltaRect!.top)
+      const dh = Math.ceil(lecture.height + event.deltaRect!.height)
+
+      lecture.top = dy
+      lecture.height = dh
 
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
