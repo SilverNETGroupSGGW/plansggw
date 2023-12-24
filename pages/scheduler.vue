@@ -46,7 +46,7 @@ onMounted(() => {
     })
     .resizable({
       origin: 'parent',
-      edges: { bottom: true },
+      edges: { top: true, bottom: true },
       modifiers: [
         interact.modifiers.snap({
           targets: [
@@ -59,7 +59,6 @@ onMounted(() => {
     })
     .on('resizemove', (event: ResizeEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
-      console.log(lecture)
 
       const dy = Math.round(lecture.top + event.deltaRect!.top)
       const dh = Math.round(lecture.height + event.deltaRect!.height)
