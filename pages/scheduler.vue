@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 
 // Cells
 const headers = ref<HTMLTableCellElement[]>([])
-const headerWidth = ref(0) // constant
+const headerHeight = ref(0) // constant
 
 // Time range
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -22,8 +22,8 @@ const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
 onMounted(() => {
-  // Set header width
-  headerWidth.value = headers.value[0].offsetWidth
+  // Set header height
+  headerHeight.value = headers.value[0].offsetHeight
 
   // Apply interact.js
   const _interact = interact('.lecture')
@@ -32,7 +32,7 @@ onMounted(() => {
       modifiers: [
         interact.modifiers.snap({
           targets: [
-            interact.snappers.grid({ x: headerWidth.value, y: 16 }),
+            interact.snappers.grid({ x: 48, y: headerHeight.value }),
           ],
           range: Number.POSITIVE_INFINITY,
           relativePoints: [{ x: 0, y: 0 }],
@@ -49,17 +49,17 @@ onMounted(() => {
       lecture.left = dx
       lecture.top = dy
 
-      if (event.delta.x > 0) {
+      if (event.delta.y > 0) {
         lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
         lecture.group.shift()
       }
-      else if (event.delta.x < 0) {
+      else if (event.delta.y < 0) {
         lecture.group.unshift(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
         lecture.group.pop()
       }
 
-      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
-      lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
+      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.left / 48 * 5 * 60 * 1000))
+      lecture.end = new Date(lecture.start.getTime() + (lecture.width / 48 * 5 * 60 * 1000))
     })
     .resizable({
       origin: 'parent',
@@ -67,7 +67,7 @@ onMounted(() => {
       modifiers: [
         interact.modifiers.snap({
           targets: [
-            interact.snappers.grid({ x: headerWidth.value, y: 16 }),
+            interact.snappers.grid({ x: 48, y: headerHeight.value }),
           ],
           range: Number.POSITIVE_INFINITY,
           relativePoints: [{ x: 0, y: 0 }],
@@ -78,47 +78,38 @@ onMounted(() => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
       const dy = Math.round(lecture.top + event.deltaRect!.top)
-      const dh = Math.round(Math.ceil((lecture.height + event.deltaRect!.height) / 16) * 16)
+      const dh = Math.round(Math.ceil((lecture.height + event.deltaRect!.height) / headerHeight.value) * headerHeight.value)
+      const dw = Math.round(Math.ceil((lecture.width + event.deltaRect!.width) / 48) * 48)
 
       lecture.top = dy
+      lecture.width = dw
       lecture.height = dh
 
-      if (event.edges?.right) {
-        lecture.width += event.deltaRect!.right
-
-        if (event.deltaRect!.right > 0)
+      if (event.edges?.bottom) {
+        if (event.deltaRect!.bottom > 0)
           lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
 
-        else if (event.deltaRect!.right < 0)
+        else if (event.deltaRect!.bottom < 0)
           lecture.group.pop()
       }
-      else if (event.edges?.left) {
-        lecture.width -= event.deltaRect!.left
-        lecture.left += event.deltaRect!.left
-
-        if (event.deltaRect!.left > 0)
+      else if (event.edges?.top) {
+        if (event.deltaRect!.top < 0)
+          lecture.group.unshift(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
+        else if (event.deltaRect!.top > 0)
           lecture.group.shift()
-
-        else if (event.deltaRect!.left < 0)
-          lecture.group.push(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
       }
 
       lecture.group.sort()
 
-      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
-      lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
+      lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.left / 48 * 5 * 60 * 1000))
+      lecture.end = new Date(lecture.start.getTime() + (lecture.width / 48 * 5 * 60 * 1000))
     })
 
   // Watch window size changes
   window.addEventListener('resize', () => {
-    const _headerWidth = headers.value[0].offsetWidth
-    _interact.draggable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: _headerWidth, y: 16 })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
-    _interact.resizable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: _headerWidth, y: 16 })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
-
-    lectures.forEach((lecture) => {
-      lecture.width = _headerWidth * lecture.group.length
-      lecture.left = _headerWidth * (groups.value.indexOf(lecture.group[0]) + 1)
-    })
+    const _headerHeight = headers.value[0].offsetHeight
+    _interact.draggable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: 48, y: _headerHeight })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
+    _interact.resizable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: 48, y: _headerHeight })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
   })
 })
 </script>
@@ -148,20 +139,20 @@ onMounted(() => {
     <table class="w-full table-fixed border-b border-gray-200">
       <thead>
         <tr>
-          <th class="h-12 border-b border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
+          <th class="h-12 w-36 border-b border-r border-gray-200 text-center font-semibold text-blue-600">
             Grupa
           </th>
-          <th v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" ref="headers" :key="group" class="h-12 whitespace-nowrap border-b border-r border-gray-200 px-12 text-center font-semibold text-blue-600">
-            {{ group }}
+          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 text-center font-semibold text-blue-600">
+            {{ time }}
           </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
-        <tr v-for="time in timeRange" :key="time" class="border-b">
-          <td :id="time.replaceAll(' ', '').replaceAll(':', '@')" class="h-12 border-r border-gray-200 px-12 text-left font-semibold text-blue-600">
-            {{ time }}
+        <tr v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="border-b">
+          <td :id="group" class="h-[4.5rem] w-36 border-r border-gray-200 text-center font-semibold text-blue-600">
+            {{ group }}
           </td>
-          <td v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="h-12 border-r border-gray-200 px-12" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
+          <td v-for="time in timeRange" :key="time" class="h-[4.5rem] w-36 border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
         </tr>
       </tbody>
     </table>
