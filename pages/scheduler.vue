@@ -168,14 +168,14 @@ onMounted(() => {
       <thead>
         <tr>
           <th class="h-12 w-36 border-b border-r border-gray-200 text-center text-gray-700" />
-          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 text-center font-medium text-gray-700">
+          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 bg-gray-50 text-center font-medium text-gray-700">
             {{ time }}
           </th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
         <tr v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="border-b">
-          <td :id="group" class="h-[4.5rem] w-36 border-r border-gray-200 text-center text-xs text-gray-700">
+          <td :id="group" class="h-[4.5rem] w-36 border-r border-gray-200 bg-gray-50 text-center text-xs text-gray-700">
             {{ group }}
           </td>
           <td v-for="time in timeRange" :key="time" class="h-[4.5rem] w-36 border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />

@@ -1,5 +1,5 @@
 <template>
-  <nav class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-gray-50 px-7 h-16">
+  <nav class="flex h-16 w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-white px-7">
     <div class="flex items-center gap-4">
       <logo />
       <div>
