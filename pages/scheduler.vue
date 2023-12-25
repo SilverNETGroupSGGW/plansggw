@@ -154,17 +154,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-gray-50 px-12 py-9">
-    <div>
-      <h1 class="text-2xl font-bold leading-9 text-gray-900">
-        Kreator planu zajęć<br>
-      </h1>
-      <p class="text-base font-normal leading-normal text-gray-700">
-        Informatyka, semestr 1, rok akademicki 2023/2024
-      </p>
-    </div>
-  </div>
-
   <div class="relative overflow-x-scroll">
     <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
       <div class="flex flex-col gap-2 p-4">

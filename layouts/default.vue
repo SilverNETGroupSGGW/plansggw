@@ -1,8 +1,9 @@
 <template>
+  <layout-navbar />
   <div class="flex">
     <layout-sidebar />
 
-    <main class="h-[100dvh] w-full overflow-y-scroll">
+    <main class="h-[calc(100dvh-4rem)] w-full overflow-y-scroll">
       <slot />
     </main>
   </div>
