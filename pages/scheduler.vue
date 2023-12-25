@@ -8,7 +8,7 @@ const { generateTimeInterval } = useTime()
 
 // Cells
 const headers = ref<HTMLTableCellElement[]>([])
-let headerWidth = ref(0) // constant
+const headerWidth = ref(0) // constant
 
 // Time range
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -20,10 +20,12 @@ const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
-// Interact.js
-function applyInteractJs() {
+onMounted(() => {
   // Set header width
-  interact('.lecture')
+  headerWidth.value = headers.value[0].offsetWidth
+
+  // Apply interact.js
+  const _interact = interact('.lecture')
     .draggable({
       origin: 'parent',
       modifiers: [
@@ -82,18 +84,13 @@ function applyInteractJs() {
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
     })
-}
-
-onMounted(() => {
-  // Set header width
-  headerWidth.value = headers.value[0].offsetWidth
-
-  // Apply interact.js
-  applyInteractJs()
 
   // Watch window size changes
   window.addEventListener('resize', () => {
     const _headerWidth = headers.value[0].offsetWidth
+    _interact.draggable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: _headerWidth, y: 16 })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
+    _interact.resizable({ modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: _headerWidth, y: 16 })], range: Number.POSITIVE_INFINITY, relativePoints: [{ x: 0, y: 0 }] })] })
+
     lectures.forEach((lecture) => {
       lecture.width = _headerWidth * lecture.group.length
       lecture.left = _headerWidth * (['ISI-1', 'ISI-2', 'ISK', 'TM'].indexOf(lecture.group[0]) + 1)
