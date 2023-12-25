@@ -75,7 +75,7 @@ onMounted(() => {
     .on('dragmove', (event: InteractEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
-      const dx = Math.ceil(lecture.left + event.dx)
+      const dx = Math.ceil((lecture.left + event.dx) / 48) * 48
       const dy = Math.ceil(lecture.top + event.dy)
 
       lecture.left = dx
@@ -113,7 +113,7 @@ onMounted(() => {
     .on('resizemove', (event: ResizeEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
-      const dx = Math.round(lecture.left + event.deltaRect!.left)
+      const dx = Math.ceil((lecture.left + event.deltaRect!.left) / 48) * 48
       const dw = Math.round(Math.ceil((lecture.width + event.deltaRect!.width) / 48) * 48)
 
       lecture.left = dx
@@ -168,7 +168,7 @@ onMounted(() => {
       <thead>
         <tr>
           <th class="h-12 w-36 border-b border-r border-gray-200 text-center text-gray-700" />
-          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 text-center font-medium text-blue-600">
+          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 text-center font-medium text-gray-700">
             {{ time }}
           </th>
         </tr>
