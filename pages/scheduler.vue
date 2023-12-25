@@ -49,6 +49,15 @@ onMounted(() => {
       lecture.left = dx
       lecture.top = dy
 
+      if (event.delta.x > 0) {
+        lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
+        lecture.group.shift()
+      }
+      else if (event.delta.x < 0) {
+        lecture.group.unshift(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
+        lecture.group.pop()
+      }
+
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
     })
