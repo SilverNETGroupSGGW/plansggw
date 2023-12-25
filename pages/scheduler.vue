@@ -7,8 +7,23 @@ const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
 
 // Cells
+const groups = ref(['ISI-1', 'ISI-2', 'ISK', 'TM'])
+
 const headers = ref<HTMLTableCellElement[]>([])
 const headerHeight = ref(0) // constant
+
+function getBackgroundClass(lecture: Lecture) {
+  switch (lecture.group[0]) {
+    case 'ISI-1':
+      return 'bg-blue-600'
+    case 'ISI-2':
+      return 'bg-green-600'
+    case 'ISK':
+      return 'bg-yellow-600'
+    case 'TM':
+      return 'bg-red-600'
+  }
+}
 
 // Time range
 const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
@@ -16,7 +31,6 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
     `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
 
 // Lectures
-const groups = ref(['ISI-1', 'ISI-2', 'ISK', 'TM'])
 const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
@@ -127,7 +141,7 @@ onMounted(() => {
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute z-10 box-border bg-blue-600">
+    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute" :class="getBackgroundClass(lecture)">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
