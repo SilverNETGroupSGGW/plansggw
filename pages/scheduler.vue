@@ -16,6 +16,7 @@ const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Da
     `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
 
 // Lectures
+const groups = ref(['ISI-1', 'ISI-2', 'ISK', 'TM'])
 const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
@@ -75,11 +76,25 @@ onMounted(() => {
 
       if (event.edges?.right) {
         lecture.width += event.deltaRect!.right
+
+        if (event.deltaRect!.right > 0)
+          lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
+
+        else if (event.deltaRect!.right < 0)
+          lecture.group.pop()
       }
-      else {
+      else if (event.edges?.left) {
         lecture.width -= event.deltaRect!.left
         lecture.left += event.deltaRect!.left
+
+        if (event.deltaRect!.left > 0)
+          lecture.group.shift()
+
+        else if (event.deltaRect!.left < 0)
+          lecture.group.push(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
       }
+
+      lecture.group.sort()
 
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.top / 16 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.height / 16 * 5 * 60 * 1000))
@@ -93,7 +108,7 @@ onMounted(() => {
 
     lectures.forEach((lecture) => {
       lecture.width = _headerWidth * lecture.group.length
-      lecture.left = _headerWidth * (['ISI-1', 'ISI-2', 'ISK', 'TM'].indexOf(lecture.group[0]) + 1)
+      lecture.left = _headerWidth * (groups.value.indexOf(lecture.group[0]) + 1)
     })
   })
 })
