@@ -6,6 +6,9 @@ import type { Lecture } from '~/types'
 const { chunk } = useArray<Date>()
 const { generateTimeInterval } = useTime()
 
+// State
+const isDragging = ref(false)
+
 // Cells
 const groups = ref(['ISI-1', 'ISI-2', 'ISK', 'TM'])
 
@@ -54,6 +57,21 @@ onMounted(() => {
       ],
       inertia: false,
     })
+    .on('dragstart', (event: InteractEvent) => {
+      const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
+
+      if (!isDragging.value) {
+        isDragging.value = true
+        lectures.push({
+          ...lecture,
+          id: `ghost-${lecture.id}`,
+          group: [...lecture.group],
+          start: new Date(lecture.start),
+          end: new Date(lecture.end),
+          ghost: true,
+        })
+      }
+    })
     .on('dragmove', (event: InteractEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
@@ -74,6 +92,10 @@ onMounted(() => {
 
       lecture.start = new Date(new Date(2023, 0, 1, 7, 45, 0, 0).getTime() + (lecture.left / 48 * 5 * 60 * 1000))
       lecture.end = new Date(lecture.start.getTime() + (lecture.width / 48 * 5 * 60 * 1000))
+    })
+    .on('dragend', () => {
+      isDragging.value = false
+      lectures.splice(lectures.findIndex(lecture => lecture.ghost), 1)
     })
     .resizable({
       origin: 'parent',
@@ -144,7 +166,7 @@ onMounted(() => {
   </div>
 
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute" :class="getBackgroundClass(lecture)">
+    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
       <div class="flex flex-col gap-2 p-4">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>

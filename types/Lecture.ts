@@ -3,8 +3,11 @@ export interface Lecture {
   left: number
   width: number
   height: number
+  z?: number
 
-  id: number
+  id: number | string /* ghost id */
+  ghost?: boolean
+
   start: Date
   end: Date
   group: string[]
