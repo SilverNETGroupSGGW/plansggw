@@ -91,15 +91,15 @@ onMounted(() => {
     .on('resizemove', (event: ResizeEvent) => {
       const lecture = lectures.find(lecture => `lecture-${lecture.id.toString()}` === event.target.id)!
 
-      const dy = Math.round(lecture.top + event.deltaRect!.top)
-      const dh = Math.round(Math.ceil((lecture.height + event.deltaRect!.height) / headerHeight.value) * headerHeight.value)
+      const dx = Math.round(lecture.left + event.deltaRect!.left)
       const dw = Math.round(Math.ceil((lecture.width + event.deltaRect!.width) / 48) * 48)
 
-      lecture.top = dy
+      lecture.left = dx
       lecture.width = dw
-      lecture.height = dh
 
       if (event.edges?.bottom) {
+        lecture.height += event.deltaRect!.bottom
+
         if (event.deltaRect!.bottom > 0)
           lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
 
@@ -107,6 +107,9 @@ onMounted(() => {
           lecture.group.pop()
       }
       else if (event.edges?.top) {
+        lecture.height -= event.deltaRect!.top
+        lecture.top += event.deltaRect!.top
+
         if (event.deltaRect!.top < 0)
           lecture.group.unshift(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
         else if (event.deltaRect!.top > 0)
