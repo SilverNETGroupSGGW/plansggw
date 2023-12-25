@@ -155,8 +155,8 @@ onMounted(() => {
 
 <template>
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
-      <div class="flex flex-col gap-2 p-4">
+    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute pb-0.5 pr-0.5">
+      <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
           <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
