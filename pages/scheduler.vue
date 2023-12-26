@@ -29,7 +29,7 @@ function getBackgroundClass(lecture: Lecture) {
 }
 
 // Time range
-const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
+const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 10), 15), 2)]
   .map(([start, end]) =>
     `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
 
@@ -78,6 +78,9 @@ onMounted(() => {
       const dx = Math.ceil((lecture.left + event.dx) / 48) * 48
       const dy = Math.ceil(lecture.top + event.dy)
 
+      if (dx < 144 || dy < 72 || dy > ((groups.value.length + 1) * 72) - (lecture.group.length * 72))
+        return
+
       lecture.left = dx
       lecture.top = dy
 
@@ -120,7 +123,11 @@ onMounted(() => {
       lecture.width = dw
 
       if (event.edges?.bottom) {
-        lecture.height += event.deltaRect!.bottom
+        const dh = lecture.height + event.deltaRect!.bottom
+        if (dh < 72)
+          return
+
+        lecture.height = dh
 
         if (event.deltaRect!.bottom > 0)
           lecture.group.push(groups.value[groups.value.indexOf(lecture.group[lecture.group.length - 1]) + 1])
@@ -129,7 +136,12 @@ onMounted(() => {
           lecture.group.pop()
       }
       else if (event.edges?.top) {
-        lecture.height -= event.deltaRect!.top
+        const dh = lecture.height - event.deltaRect!.top
+        if (dh < 72)
+          return
+
+        lecture.height = dh
+
         lecture.top += event.deltaRect!.top
 
         if (event.deltaRect!.top < 0)
@@ -155,16 +167,16 @@ onMounted(() => {
 
 <template>
   <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute pb-0.5 pr-0.5">
-      <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
-        <div class="flex flex-col gap-1">
-          <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
-          <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+    <table class="relative w-full table-fixed border-b border-gray-200">
+      <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute pb-0.5 pr-0.5">
+        <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
+            <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <table class="w-full table-fixed border-b border-gray-200">
       <thead>
         <tr>
           <th class="h-12 w-36 border-b border-r border-gray-200 text-center text-gray-700" />
