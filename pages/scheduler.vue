@@ -2,12 +2,30 @@
 import type { Lecture } from '~/types'
 
 // State
+const rafId = ref<number>(null)
 const isDragging = ref(false)
+const isResizing = ref(false)
+const resizeEdge = ref('')
+const currentLecture = ref<Lecture | null>(null)
+const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
+const dragStart = ref({ x: 0, y: 0 })
 
 // Cells
 const groupCells = ref<HTMLDivElement[]>([])
-const groups = ref(['ISI-1', 'ISI-2', 'ISK', 'TM'])
 
+// Lectures
+const lectures = reactive<Lecture[]>([])
+const lectureCells = ref<HTMLDivElement[]>([])
+
+// Composables
+const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
+
+// Time range
+const timeRange: Date[] = []
+for (let i = 0; i < 48; i++)
+  timeRange.push(new Date(new Date(2023, 0, 1, 8, 0, 0, 0).getTime() + (i * 15 * 60 * 1000)))
+
+// Helper function to get background class
 function getBackgroundClass(lecture: Lecture) {
   switch (lecture.group[0]) {
     case 'ISI-1':
@@ -20,21 +38,6 @@ function getBackgroundClass(lecture: Lecture) {
       return 'bg-red-600'
   }
 }
-
-// Time range
-const timeRange: Date[] = []
-
-// 8:00 to 20:00 in 15 minutes interval
-for (let i = 0; i < 48; i++)
-  timeRange.push(new Date(new Date(2023, 0, 1, 8, 0, 0, 0).getTime() + (i * 15 * 60 * 1000)))
-
-// Lectures
-const lectures = reactive<Lecture[]>([])
-const lectureCells = ref<HTMLDivElement[]>([])
-const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
-
-// Drag
-const dragStart = ref({ x: 0, y: 0 })
 
 function onDragDown(event: PointerEvent) {
   isDragging.value = true
@@ -49,21 +52,26 @@ function onDragMove(event: PointerEvent) {
   if (!isDragging.value)
     return
 
-  // snap to 48px grid in X axis
-  const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
+  if (rafId.value)
+    window.cancelAnimationFrame(rafId.value)
 
-  // snap to groupCells height in Y axis
-  const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+  rafId.value = window.requestAnimationFrame(() => {
+    // snap to 48px grid in X axis
+    const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
 
-  if (deltaX !== 0 || deltaY !== 0) {
-    for (const lecture of lectures) {
-      lecture.left += deltaX
-      lecture.top += deltaY
+    // snap to groupCells height in Y axis
+    const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+
+    if (deltaX !== 0 || deltaY !== 0) {
+      for (const lecture of lectures) {
+        lecture.left += deltaX
+        lecture.top += deltaY
+      }
+
+      // Update dragStart based on the actual movement of the element
+      dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
     }
-
-    // Update dragStart based on the actual movement of the element
-    dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
-  }
+  })
 }
 
 function onDragUp() {
@@ -72,19 +80,17 @@ function onDragUp() {
   // Remove event listeners from window
   window.removeEventListener('pointermove', onDragMove)
   window.removeEventListener('pointerup', onDragUp)
+
+  if (rafId.value) {
+    window.cancelAnimationFrame(rafId.value)
+    rafId.value = null
+  }
 }
 
-// State
-const isResizing = ref(false)
-const resizeEdge = ref('')
-
 // Resize
-const currentLecture = ref<Lecture | null>(null)
-const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
-
 function _onPointerDown(event: PointerEvent, lecture: Lecture) {
   // Determine if we're dragging or resizing
-  const rect = event.target.getBoundingClientRect()
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
   if (Math.abs(event.clientX - rect.left) < 16 || Math.abs(event.clientX - rect.right) < 16 || Math.abs(event.clientY - rect.top) < 16 || Math.abs(event.clientY - rect.bottom) < 16) {
     // We're resizing
     onResizeDown(event, lecture)
@@ -101,7 +107,7 @@ function onResizeDown(event: PointerEvent, lecture: Lecture) {
   currentLecture.value = lecture
 
   // Determine which edge we're resizing
-  const rect = event.target.getBoundingClientRect()
+  const rect = (event.target as HTMLElement).getBoundingClientRect()
   if (Math.abs(event.clientX - rect.left) < 16)
     resizeEdge.value = 'left'
   else if (Math.abs(event.clientX - rect.right) < 16)
@@ -120,26 +126,31 @@ function onResizeMove(event: PointerEvent) {
   if (!isResizing.value || !currentLecture.value)
     return
 
-  if (resizeEdge.value === 'left') {
-    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-    const newWidth = resizeStart.value.width - deltaX
-    currentLecture.value.left = currentLecture.value.left + (currentLecture.value.width - newWidth)
-    currentLecture.value.width = newWidth
-  }
-  else if (resizeEdge.value === 'right') {
-    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-    currentLecture.value.width = resizeStart.value.width + deltaX
-  }
-  else if (resizeEdge.value === 'top') {
-    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-    const newHeight = resizeStart.value.height - deltaY
-    currentLecture.value.top = currentLecture.value.top + (currentLecture.value.height - newHeight)
-    currentLecture.value.height = newHeight
-  }
-  else if (resizeEdge.value === 'bottom') {
-    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-    currentLecture.value.height = resizeStart.value.height + deltaY
-  }
+  if (rafId.value)
+    window.cancelAnimationFrame(rafId.value)
+
+  rafId.value = window.requestAnimationFrame(() => {
+    if (resizeEdge.value === 'left') {
+      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+      const newWidth = resizeStart.value.width - deltaX
+      currentLecture.value.left = currentLecture.value.left + (currentLecture.value.width - newWidth)
+      currentLecture.value.width = newWidth
+    }
+    else if (resizeEdge.value === 'right') {
+      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+      currentLecture.value.width = resizeStart.value.width + deltaX
+    }
+    else if (resizeEdge.value === 'top') {
+      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      const newHeight = resizeStart.value.height - deltaY
+      currentLecture.value.top = currentLecture.value.top + (currentLecture.value.height - newHeight)
+      currentLecture.value.height = newHeight
+    }
+    else if (resizeEdge.value === 'bottom') {
+      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      currentLecture.value.height = resizeStart.value.height + deltaY
+    }
+  })
 }
 
 function onResizeUp() {
@@ -149,6 +160,11 @@ function onResizeUp() {
   // Remove event listeners from window
   window.removeEventListener('pointermove', onResizeMove)
   window.removeEventListener('pointerup', onResizeUp)
+
+  if (rafId.value) {
+    window.cancelAnimationFrame(rafId.value)
+    rafId.value = null
+  }
 }
 </script>
 
