@@ -3,9 +3,6 @@ import type { InteractEvent, ResizeEvent } from '@interactjs/types'
 import interact from 'interactjs'
 import type { Lecture } from '~/types'
 
-const { chunk } = useArray<Date>()
-const { generateTimeInterval } = useTime()
-
 // State
 const isDragging = ref(false)
 
@@ -29,9 +26,11 @@ function getBackgroundClass(lecture: Lecture) {
 }
 
 // Time range
-const timeRange = [...chunk(generateTimeInterval(new Date(2023, 0, 1, 8), new Date(2023, 0, 1, 20), 15), 2)]
-  .map(([start, end]) =>
-    `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}`)
+const timeRange: Date[] = []
+
+// 8:00 to 20:00 in 15 minutes interval
+for (let i = 0; i < 48; i++)
+  timeRange.push(new Date(new Date(2023, 0, 1, 8, 0, 0, 0).getTime() + (i * 15 * 60 * 1000)))
 
 // Lectures
 const lectures = reactive<Lecture[]>([])
@@ -78,6 +77,9 @@ onMounted(() => {
       const dx = Math.ceil((lecture.left + event.dx) / 48) * 48
       const dy = Math.ceil(lecture.top + event.dy)
 
+      if (dx < 0 || dy < 0)
+        return
+
       lecture.left = dx
       lecture.top = dy
 
@@ -116,6 +118,9 @@ onMounted(() => {
       const dx = Math.ceil((lecture.left + event.deltaRect!.left) / 48) * 48
       const dw = Math.round(Math.ceil((lecture.width + event.deltaRect!.width) / 48) * 48)
 
+      if (dx < 0)
+        return
+
       lecture.left = dx
       lecture.width = dw
 
@@ -129,8 +134,12 @@ onMounted(() => {
           lecture.group.pop()
       }
       else if (event.edges?.top) {
+        const top = event.deltaRect!.top
+        if (top < 0)
+          return
+
         lecture.height -= event.deltaRect!.top
-        lecture.top += event.deltaRect!.top
+        lecture.top += top
 
         if (event.deltaRect!.top < 0)
           lecture.group.unshift(groups.value[groups.value.indexOf(lecture.group[0]) - 1])
@@ -154,33 +163,54 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="relative overflow-x-scroll">
-    <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute pb-0.5 pr-0.5">
-      <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
-        <div class="flex flex-col gap-1">
-          <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
-          <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+  <div class="h-full overflow-x-scroll">
+    <div class="flex w-full flex-col">
+      <div class="flex flex-col">
+        <div class="flex">
+          <div class="flex h-12 w-[7.5rem] shrink-0" />
+          <div v-for="(time, index) in timeRange" :key="index" ref="headers" class="flex h-12 w-36 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700">
+            <div>{{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</div>
+          </div>
+        </div>
+
+        <div class="flex">
+          <div class="flex h-12 w-36 shrink-0 border-r" />
+          <div v-for="(time, index) in timeRange" :key="index" ref="headers" class="flex h-12 w-36 shrink-0 items-center justify-between whitespace-nowrap border-b border-r border-gray-200 text-center font-medium text-gray-700" />
+        </div>
+      </div>
+
+      <!-- <div class="flex h-full flex-col">
+        <div v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="flex h-full">
+          <div :id="group" class="flex h-full w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
+            {{ group }}
+          </div>
+          <div v-for="(time, index) in timeRange" :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" />
+        </div>
+      </div> -->
+    </div>
+
+    <!-- here -->
+    <div class="flex h-[calc(100vh-175px)]">
+      <div class="flex h-full w-fit flex-col">
+        <div v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :id="group" :key="group" ref="headers" class="flex h-[calc(100%/4)] w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
+          {{ group }}
+        </div>
+      </div>
+
+      <div class="relative flex flex-col">
+        <div v-for="lecture in lectures" :id="`lecture-${lecture.id?.toString()}`" ref="lectureCells" :key="lecture.id" :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="lecture absolute pb-0.5 pr-0.5">
+          <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
+              <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="flex h-1/4">
+          <div v-for="(time, index) in timeRange" :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
         </div>
       </div>
     </div>
-
-    <table class="w-full table-fixed border-b border-gray-200">
-      <thead>
-        <tr>
-          <th class="h-12 w-36 border-b border-r border-gray-200 text-center text-gray-700" />
-          <th v-for="time in timeRange" :key="time" ref="headers" class="h-[4.5rem] w-36 whitespace-nowrap border-b border-r border-gray-200 bg-gray-50 text-center font-medium text-gray-700">
-            {{ time }}
-          </th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <tr v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="border-b">
-          <td :id="group" class="h-[4.5rem] w-36 border-r border-gray-200 bg-gray-50 text-center text-xs text-gray-700">
-            {{ group }}
-          </td>
-          <td v-for="time in timeRange" :key="time" class="h-[4.5rem] w-36 border-r border-gray-200" :data-group="group" :data-time="time.replaceAll(' ', '').replaceAll(':', '@')" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>

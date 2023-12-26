@@ -61,7 +61,7 @@ export default function useMouse(lectures: Lecture[]) {
       cancelAnimationFrame(rafId)
 
     rafId = requestAnimationFrame(() => {
-      const cell = event.target as HTMLTableCellElement
+      const cell = event.target as HTMLDivElement
       if (cell.isEqualNode(prevCell))
         return
 
