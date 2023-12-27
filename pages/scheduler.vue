@@ -3,9 +3,10 @@ import type { Lecture } from '~/types'
 
 // State
 let rafId: number | null = null
+const initialResizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
 const isDragging = ref(false)
 const isResizing = ref(false)
-const resizeEdge = ref('')
+const resizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
 const currentLecture = ref<Lecture | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 const dragStart = ref({ x: 0, y: 0 })
@@ -57,8 +58,12 @@ function onDragMove(event: PointerEvent) {
 
     if (deltaX !== 0 || deltaY !== 0) {
       for (const lecture of lectures) {
-        lecture.x += deltaX
-        lecture.y += deltaY
+        const newX = lecture.x + deltaX
+        const newY = lecture.y + deltaY
+
+        // Set boundaries, x and y can't be smaller than 0
+        lecture.x = newX >= 0 ? newX : 0
+        lecture.y = newY >= 0 ? newY : 0
       }
 
       // Update dragStart based on the actual movement of the element
@@ -96,14 +101,30 @@ function onResizeDown(event: PointerEvent, lecture: Lecture) {
 
   // Determine which edge we're resizing
   const rect = (event.target as HTMLElement).getBoundingClientRect()
-  if (Math.abs(event.clientX - rect.left) < 16)
+  const nearLeft = Math.abs(event.clientX - rect.left) < 16
+  const nearRight = Math.abs(event.clientX - rect.right) < 16
+  const nearTop = Math.abs(event.clientY - rect.top) < 16
+  const nearBottom = Math.abs(event.clientY - rect.bottom) < 16
+
+  if (nearTop && nearLeft)
+    resizeEdge.value = 'top-left'
+  else if (nearTop && nearRight)
+    resizeEdge.value = 'top-right'
+  else if (nearBottom && nearLeft)
+    resizeEdge.value = 'bottom-left'
+  else if (nearBottom && nearRight)
+    resizeEdge.value = 'bottom-right'
+  else if (nearLeft)
     resizeEdge.value = 'left'
-  else if (Math.abs(event.clientX - rect.right) < 16)
+  else if (nearRight)
     resizeEdge.value = 'right'
-  else if (Math.abs(event.clientY - rect.top) < 16)
+  else if (nearTop)
     resizeEdge.value = 'top'
-  else if (Math.abs(event.clientY - rect.bottom) < 16)
+  else if (nearBottom)
     resizeEdge.value = 'bottom'
+
+  // Store the initial resize direction
+  initialResizeEdge.value = resizeEdge.value
 
   // Add event listeners to window
   window.addEventListener('pointermove', onResizeMove)
@@ -118,25 +139,69 @@ function onResizeMove(event: PointerEvent) {
     cancelAnimationFrame(rafId)
 
   rafId = requestAnimationFrame(() => {
-    if (resizeEdge.value === 'left') {
-      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-      const newWidth = resizeStart.value.width - deltaX
-      currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
-      currentLecture.value!.width = newWidth
-    }
-    else if (resizeEdge.value === 'right') {
-      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-      currentLecture.value!.width = resizeStart.value.width + deltaX
-    }
-    else if (resizeEdge.value === 'top') {
-      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-      const newHeight = resizeStart.value.height - deltaY
-      currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
-      currentLecture.value!.height = newHeight
-    }
-    else if (resizeEdge.value === 'bottom') {
-      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-      currentLecture.value!.height = resizeStart.value.height + deltaY
+    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+    let newWidth, newHeight, newX, newY
+
+    switch (initialResizeEdge.value) {
+      case 'top-left':
+        newWidth = Math.max(0, resizeStart.value.width - deltaX)
+        newX = Math.max(0, currentLecture.value!.x + (currentLecture.value!.width - newWidth))
+        newHeight = Math.max(0, resizeStart.value.height - deltaY)
+        newY = Math.max(0, currentLecture.value!.y + (currentLecture.value!.height - newHeight))
+        if (newX !== 0)
+          currentLecture.value!.width = newWidth
+        if (newY !== 0)
+          currentLecture.value!.height = newHeight
+        currentLecture.value!.x = newX
+        currentLecture.value!.y = newY
+        break
+      case 'top-right':
+        newWidth = Math.max(0, resizeStart.value.width + deltaX)
+        newHeight = Math.max(0, resizeStart.value.height - deltaY)
+        newY = Math.max(0, currentLecture.value!.y + (currentLecture.value!.height - newHeight))
+        currentLecture.value!.width = newWidth
+        if (newY !== 0)
+          currentLecture.value!.height = newHeight
+        currentLecture.value!.y = newY
+        break
+      case 'bottom-left':
+        newWidth = Math.max(0, resizeStart.value.width - deltaX)
+        newX = Math.max(0, currentLecture.value!.x + (currentLecture.value!.width - newWidth))
+        newHeight = Math.max(0, resizeStart.value.height + deltaY)
+        if (newX !== 0)
+          currentLecture.value!.width = newWidth
+        currentLecture.value!.height = newHeight
+        currentLecture.value!.x = newX
+        break
+      case 'bottom-right':
+        newWidth = Math.max(0, resizeStart.value.width + deltaX)
+        newHeight = Math.max(0, resizeStart.value.height + deltaY)
+        currentLecture.value!.width = newWidth
+        currentLecture.value!.height = newHeight
+        break
+      case 'left':
+        newWidth = Math.max(0, resizeStart.value.width - deltaX)
+        newX = Math.max(0, currentLecture.value!.x + (currentLecture.value!.width - newWidth))
+        if (newX !== 0)
+          currentLecture.value!.width = newWidth
+        currentLecture.value!.x = newX
+        break
+      case 'right':
+        newWidth = Math.max(0, resizeStart.value.width + deltaX)
+        currentLecture.value!.width = newWidth
+        break
+      case 'top':
+        newHeight = Math.max(0, resizeStart.value.height - deltaY)
+        newY = Math.max(0, currentLecture.value!.y + (currentLecture.value!.height - newHeight))
+        if (newY !== 0)
+          currentLecture.value!.height = newHeight
+        currentLecture.value!.y = newY
+        break
+      case 'bottom':
+        newHeight = Math.max(0, resizeStart.value.height + deltaY)
+        currentLecture.value!.height = newHeight
+        break
     }
   })
 }
@@ -148,6 +213,8 @@ function onResizeUp() {
   // Remove event listeners from window
   window.removeEventListener('pointermove', onResizeMove)
   window.removeEventListener('pointerup', onResizeUp)
+
+  initialResizeEdge.value = null
 }
 </script>
 
