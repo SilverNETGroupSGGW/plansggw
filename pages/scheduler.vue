@@ -249,7 +249,7 @@ function onResizeUp() {
       </div>
     </div>
 
-    <div class="flex max-h-[calc(100vh-175px)]">
+    <div class="flex h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
         <div v-for="group in groups" v-once :id="group" ref="groupCells" :key="group" :style="{ height: `${100 / groups.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
           {{ group }}
