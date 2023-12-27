@@ -11,8 +11,19 @@ const currentLecture = ref<Lecture | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 const dragStart = ref({ x: 0, y: 0 })
 
-// Cells
+// Elements
 const groupCells = ref<HTMLDivElement[]>([])
+const container = ref<HTMLDivElement | null>(null)
+
+onMounted(() => {
+  document.addEventListener('pointermove', onDragMove)
+})
+
+function onPointerEnter(event: PointerEvent) {
+  if (event.buttons === 1) { // Check if the left button is pressed
+    isDragging.value = true
+  }
+}
 
 // Lectures
 const groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -46,6 +57,21 @@ function onDragMove(event: PointerEvent) {
   if (!isDragging.value)
     return
 
+  // Get the container's boundaries
+  const containerRect = container.value!.getBoundingClientRect()
+
+  // Check if the cursor is within the container's boundaries
+  if (
+    event.clientX < containerRect.left
+    || event.clientX > containerRect.right
+    || event.clientY < containerRect.top
+    || event.clientY > containerRect.bottom
+  ) {
+    // If it's not, stop the dragging operation
+    isDragging.value = false
+    return
+  }
+
   if (rafId !== null)
     cancelAnimationFrame(rafId)
 
@@ -61,9 +87,9 @@ function onDragMove(event: PointerEvent) {
         const newX = lecture.x + deltaX
         const newY = lecture.y + deltaY
 
-        // Set boundaries, x and y can't be smaller than 0
-        lecture.x = newX >= 0 ? newX : 0
-        lecture.y = newY >= 0 ? newY : 0
+        // Set boundaries, x and y can't be smaller than 0 or larger than maxX and maxY
+        lecture.x = newX >= 0 ? (newX <= container.value!.offsetWidth ? newX : container.value!.offsetWidth) : 0
+        lecture.y = newY >= 0 ? (newY <= container.value!.offsetHeight ? newY : container.value!.offsetHeight) : 0
       }
 
       // Update dragStart based on the actual movement of the element
@@ -259,8 +285,10 @@ function onResizeUp() {
           </div>
         </div>
 
-        <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
-          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
+        <div ref="container" class="h-full" @pointerenter="onPointerEnter">
+          <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
+            <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
+          </div>
         </div>
       </div>
     </div>
