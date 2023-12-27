@@ -2,7 +2,6 @@
 import type { Lecture } from '~/types'
 
 // State
-const rafId = ref<number | null>(null)
 const isDragging = ref(false)
 const isResizing = ref(false)
 const resizeEdge = ref('')
@@ -14,8 +13,17 @@ const dragStart = ref({ x: 0, y: 0 })
 const groupCells = ref<HTMLDivElement[]>([])
 
 // Lectures
-const groups = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
-const lectures = reactive<Lecture[]>([])
+const groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+const lectures = reactive<Lecture[]>([{
+  width: 48,
+  height: 131,
+  end: new Date(2023, 0, 1, 9, 30, 0, 0),
+  start: new Date(2023, 0, 1, 8, 0, 0, 0),
+  group: ['1', '2'],
+  id: 1,
+  x: 0,
+  y: 0,
+}])
 const lectureCells = ref<HTMLDivElement[]>([])
 
 // Time range
@@ -36,26 +44,21 @@ function onDragMove(event: PointerEvent) {
   if (!isDragging.value)
     return
 
-  if (rafId.value)
-    window.cancelAnimationFrame(rafId.value)
+  // snap to 48px grid in X axis
+  const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
 
-  rafId.value = window.requestAnimationFrame(() => {
-    // snap to 48px grid in X axis
-    const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
+  // snap to groupCells height in Y axis
+  const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
-    // snap to groupCells height in Y axis
-    const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-
-    if (deltaX !== 0 || deltaY !== 0) {
-      for (const lecture of lectures) {
-        lecture.x += deltaX
-        lecture.y += deltaY
-      }
-
-      // Update dragStart based on the actual movement of the element
-      dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
+  if (deltaX !== 0 || deltaY !== 0) {
+    for (const lecture of lectures) {
+      lecture.x += deltaX
+      lecture.y += deltaY
     }
-  })
+
+    // Update dragStart based on the actual movement of the element
+    dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
+  }
 }
 
 function onDragUp() {
@@ -64,11 +67,6 @@ function onDragUp() {
   // Remove event listeners from window
   window.removeEventListener('pointermove', onDragMove)
   window.removeEventListener('pointerup', onDragUp)
-
-  if (rafId.value) {
-    window.cancelAnimationFrame(rafId.value)
-    rafId.value = null
-  }
 }
 
 // Resize
@@ -110,31 +108,26 @@ function onResizeMove(event: PointerEvent) {
   if (!isResizing.value || !currentLecture.value)
     return
 
-  if (rafId.value)
-    window.cancelAnimationFrame(rafId.value)
-
-  rafId.value = window.requestAnimationFrame(() => {
-    if (resizeEdge.value === 'left') {
-      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-      const newWidth = resizeStart.value.width - deltaX
-      currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
-      currentLecture.value!.width = newWidth
-    }
-    else if (resizeEdge.value === 'right') {
-      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-      currentLecture.value!.width = resizeStart.value.width + deltaX
-    }
-    else if (resizeEdge.value === 'top') {
-      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-      const newHeight = resizeStart.value.height - deltaY
-      currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
-      currentLecture.value!.height = newHeight
-    }
-    else if (resizeEdge.value === 'bottom') {
-      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-      currentLecture.value!.height = resizeStart.value.height + deltaY
-    }
-  })
+  if (resizeEdge.value === 'left') {
+    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+    const newWidth = resizeStart.value.width - deltaX
+    currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
+    currentLecture.value!.width = newWidth
+  }
+  else if (resizeEdge.value === 'right') {
+    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+    currentLecture.value!.width = resizeStart.value.width + deltaX
+  }
+  else if (resizeEdge.value === 'top') {
+    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+    const newHeight = resizeStart.value.height - deltaY
+    currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
+    currentLecture.value!.height = newHeight
+  }
+  else if (resizeEdge.value === 'bottom') {
+    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+    currentLecture.value!.height = resizeStart.value.height + deltaY
+  }
 }
 
 function onResizeUp() {
@@ -144,11 +137,6 @@ function onResizeUp() {
   // Remove event listeners from window
   window.removeEventListener('pointermove', onResizeMove)
   window.removeEventListener('pointerup', onResizeUp)
-
-  if (rafId.value) {
-    window.cancelAnimationFrame(rafId.value)
-    rafId.value = null
-  }
 }
 </script>
 
@@ -180,18 +168,16 @@ function onResizeUp() {
 
       <div class="relative flex flex-col">
         <div
-          v-for="lecture in lectures"
-          :id="`lecture-${lecture.id?.toString()}`"
+          :id="`lecture-${lectures[0].id?.toString()}`"
           ref="lectureCells"
-          :key="lecture.id"
-          :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px` }"
+          :style="{ transform: `translate(${lectures[0].x}px, ${lectures[0].y}px)`, width: `${lectures[0].width}px`, height: `${lectures[0].height}px` }"
           class="absolute pb-0.5 pr-0.5 hover:cursor-move"
-          @pointerdown.prevent="onPointerDown($event, lecture)"
+          @pointerdown.prevent="onPointerDown($event, lectures[0])"
         >
-          <div class="flex h-full flex-col gap-2 rounded-md p-4 bg-blue-700" :class="[{ 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
+          <div class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lectures[0].ghost, 'z-[1]': !lectures[0].ghost }]">
             <div class="flex flex-col gap-1">
-              <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
-              <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+              <span class="text-sm font-semibold text-white">{{ lectures[0].group.join(', ') }}</span>
+              <span class="select-none text-xs font-normal text-white">{{ lectures[0].start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lectures[0].end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
             </div>
           </div>
         </div>
