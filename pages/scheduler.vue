@@ -109,10 +109,10 @@ function onResizeDown(event: PointerEvent, lecture: Lecture) {
   else {
     // Determine which edge we're resizing
     const rect = (event.target as HTMLElement).getBoundingClientRect()
-    const nearLeft = Math.abs(event.clientX - rect.left) < 16
-    const nearRight = Math.abs(event.clientX - rect.right) < 16
-    const nearTop = Math.abs(event.clientY - rect.top) < 16
-    const nearBottom = Math.abs(event.clientY - rect.bottom) < 16
+    const nearLeft = Math.abs(event.clientX - rect.left) < 4
+    const nearRight = Math.abs(event.clientX - rect.right) < 4
+    const nearTop = Math.abs(event.clientY - rect.top) < 4
+    const nearBottom = Math.abs(event.clientY - rect.bottom) < 4
 
     if (nearTop && nearLeft)
       resizeEdge.value = 'top-left'
@@ -302,9 +302,9 @@ function onCreateMove(event: PointerEvent) {
       <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove">
         <div v-for="(lecture, index) in lectures" ref="lectureCells" :key="index" :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, lecture)">
           <div :id="`lecture-${lecture.id?.toString()}`" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
-            <div class="flex flex-col gap-1">
-              <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
-              <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+            <div :id="`lecture-${lecture.id?.toString()}`" class="flex flex-col gap-1">
+              <span :id="`lecture-${lecture.id?.toString()}`" class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
+              <span :id="`lecture-${lecture.id?.toString()}`" class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
             </div>
           </div>
         </div>
