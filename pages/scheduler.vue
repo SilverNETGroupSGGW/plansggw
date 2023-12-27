@@ -4,6 +4,7 @@ import type { Lecture } from '~/types'
 // State
 let rafId: number | null = null
 const initialResizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
+const isCreating = ref(false)
 const isDragging = ref(false)
 const isResizing = ref(false)
 const resizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
@@ -17,16 +18,7 @@ const groupCells = ref<HTMLDivElement[]>([])
 
 // Lectures
 const groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-const lectures = reactive<Lecture[]>([{
-  width: 48,
-  height: 131,
-  end: new Date(2023, 0, 1, 9, 30, 0, 0),
-  start: new Date(2023, 0, 1, 8, 0, 0, 0),
-  group: ['1', '2'],
-  id: 1,
-  x: 0,
-  y: 0,
-}])
+const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 
 // Time range
@@ -109,29 +101,34 @@ function onResizeDown(event: PointerEvent, lecture: Lecture) {
   resizeStart.value = { x: event.clientX, y: event.clientY, width: lecture.width, height: lecture.height }
   currentLecture.value = lecture
 
-  // Determine which edge we're resizing
-  const rect = (event.target as HTMLElement).getBoundingClientRect()
-  const nearLeft = Math.abs(event.clientX - rect.left) < 16
-  const nearRight = Math.abs(event.clientX - rect.right) < 16
-  const nearTop = Math.abs(event.clientY - rect.top) < 16
-  const nearBottom = Math.abs(event.clientY - rect.bottom) < 16
-
-  if (nearTop && nearLeft)
-    resizeEdge.value = 'top-left'
-  else if (nearTop && nearRight)
-    resizeEdge.value = 'top-right'
-  else if (nearBottom && nearLeft)
-    resizeEdge.value = 'bottom-left'
-  else if (nearBottom && nearRight)
+  if (isCreating) {
     resizeEdge.value = 'bottom-right'
-  else if (nearLeft)
-    resizeEdge.value = 'left'
-  else if (nearRight)
-    resizeEdge.value = 'right'
-  else if (nearTop)
-    resizeEdge.value = 'top'
-  else if (nearBottom)
-    resizeEdge.value = 'bottom'
+  }
+  else {
+    // Determine which edge we're resizing
+    const rect = (event.target as HTMLElement).getBoundingClientRect()
+    const nearLeft = Math.abs(event.clientX - rect.left) < 16
+    const nearRight = Math.abs(event.clientX - rect.right) < 16
+    const nearTop = Math.abs(event.clientY - rect.top) < 16
+    const nearBottom = Math.abs(event.clientY - rect.bottom) < 16
+
+    if (nearTop && nearLeft)
+      resizeEdge.value = 'top-left'
+    else if (nearTop && nearRight)
+      resizeEdge.value = 'top-right'
+    else if (nearBottom && nearLeft)
+      resizeEdge.value = 'bottom-left'
+    else if (nearBottom && nearRight)
+      resizeEdge.value = 'bottom-right'
+    else if (nearLeft)
+      resizeEdge.value = 'left'
+    else if (nearRight)
+      resizeEdge.value = 'right'
+    else if (nearTop)
+      resizeEdge.value = 'top'
+    else if (nearBottom)
+      resizeEdge.value = 'bottom'
+  }
 
   // Store the initial resize direction
   initialResizeEdge.value = resizeEdge.value
@@ -221,6 +218,7 @@ function onResizeMove(event: PointerEvent) {
 
 function onResizeUp() {
   isResizing.value = false
+  isCreating.value = false
   currentLecture.value = null
 
   // Remove event listeners from window
@@ -228,6 +226,49 @@ function onResizeUp() {
   window.removeEventListener('pointerup', onResizeUp)
 
   initialResizeEdge.value = null
+}
+
+// Create
+function onCreateMove(event: PointerEvent) {
+  const target = event.target as HTMLElement
+
+  // Prevent creating a new lecture when clicking on an existing lecture
+  if (target.id.startsWith('lecture-'))
+    return
+
+  let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 48 + 12) / 48) * 48
+  let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top - groupCells.value[0].offsetHeight + 12) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+
+  // Check if x or y is outside the bounds and set them to the closest boundary
+  const containerRect = container.value!.getBoundingClientRect()
+  if (x < 0)
+    x = 0
+  if (y < 0)
+    y = 0
+  if (x > containerRect.width - 48)
+    x = containerRect.width - 48
+  if (y > containerRect.height - groupCells.value[0].offsetHeight)
+    y = containerRect.height - groupCells.value[0].offsetHeight
+
+  const newLecture: Lecture = {
+    x,
+    y,
+    width: 48,
+    height: groupCells.value[0].offsetHeight,
+    group: ['1'],
+    start: new Date(),
+    end: new Date(),
+    id: 1,
+  }
+
+  resizeEdge.value = 'bottom-right'
+  currentLecture.value = newLecture
+
+  // Add the new lecture to the lectures array
+  lectures.push(newLecture)
+
+  // Trigger the resize event
+  onResizeDown(event, newLecture)
 }
 </script>
 
@@ -256,18 +297,12 @@ function onResizeUp() {
         </div>
       </div>
 
-      <div ref="container" class="relative flex flex-col">
-        <div
-          :id="`lecture-${lectures[0].id?.toString()}`"
-          ref="lectureCells"
-          :style="{ transform: `translate(${lectures[0].x}px, ${lectures[0].y}px)`, width: `${lectures[0].width}px`, height: `${lectures[0].height}px` }"
-          class="absolute pb-0.5 pr-0.5 hover:cursor-move"
-          @pointerdown.prevent="onPointerDown($event, lectures[0])"
-        >
-          <div class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lectures[0].ghost, 'z-[1]': !lectures[0].ghost }]">
+      <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove">
+        <div v-for="(lecture, index) in lectures" ref="lectureCells" :key="index" :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, lecture)">
+          <div :id="`lecture-${lecture.id?.toString()}`" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
             <div class="flex flex-col gap-1">
-              <span class="text-sm font-semibold text-white">{{ lectures[0].group.join(', ') }}</span>
-              <span class="select-none text-xs font-normal text-white">{{ lectures[0].start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lectures[0].end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+              <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
+              <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
             </div>
           </div>
         </div>
