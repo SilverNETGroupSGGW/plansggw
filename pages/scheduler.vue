@@ -2,6 +2,7 @@
 import type { Lecture } from '~/types'
 
 // State
+let rafId: number | null = null
 const isDragging = ref(false)
 const isResizing = ref(false)
 const resizeEdge = ref('')
@@ -44,21 +45,26 @@ function onDragMove(event: PointerEvent) {
   if (!isDragging.value)
     return
 
-  // snap to 48px grid in X axis
-  const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
+  if (rafId !== null)
+    cancelAnimationFrame(rafId)
 
-  // snap to groupCells height in Y axis
-  const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+  rafId = requestAnimationFrame(() => {
+    // snap to 48px grid in X axis
+    const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
 
-  if (deltaX !== 0 || deltaY !== 0) {
-    for (const lecture of lectures) {
-      lecture.x += deltaX
-      lecture.y += deltaY
+    // snap to groupCells height in Y axis
+    const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+
+    if (deltaX !== 0 || deltaY !== 0) {
+      for (const lecture of lectures) {
+        lecture.x += deltaX
+        lecture.y += deltaY
+      }
+
+      // Update dragStart based on the actual movement of the element
+      dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
     }
-
-    // Update dragStart based on the actual movement of the element
-    dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
-  }
+  })
 }
 
 function onDragUp() {
@@ -108,26 +114,31 @@ function onResizeMove(event: PointerEvent) {
   if (!isResizing.value || !currentLecture.value)
     return
 
-  if (resizeEdge.value === 'left') {
-    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-    const newWidth = resizeStart.value.width - deltaX
-    currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
-    currentLecture.value!.width = newWidth
-  }
-  else if (resizeEdge.value === 'right') {
-    const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-    currentLecture.value!.width = resizeStart.value.width + deltaX
-  }
-  else if (resizeEdge.value === 'top') {
-    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-    const newHeight = resizeStart.value.height - deltaY
-    currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
-    currentLecture.value!.height = newHeight
-  }
-  else if (resizeEdge.value === 'bottom') {
-    const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-    currentLecture.value!.height = resizeStart.value.height + deltaY
-  }
+  if (rafId !== null)
+    cancelAnimationFrame(rafId)
+
+  rafId = requestAnimationFrame(() => {
+    if (resizeEdge.value === 'left') {
+      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+      const newWidth = resizeStart.value.width - deltaX
+      currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
+      currentLecture.value!.width = newWidth
+    }
+    else if (resizeEdge.value === 'right') {
+      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+      currentLecture.value!.width = resizeStart.value.width + deltaX
+    }
+    else if (resizeEdge.value === 'top') {
+      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      const newHeight = resizeStart.value.height - deltaY
+      currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
+      currentLecture.value!.height = newHeight
+    }
+    else if (resizeEdge.value === 'bottom') {
+      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      currentLecture.value!.height = resizeStart.value.height + deltaY
+    }
+  })
 }
 
 function onResizeUp() {
@@ -158,7 +169,6 @@ function onResizeUp() {
       </div>
     </div>
 
-    <!-- here -->
     <div class="flex h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
         <div v-for="group in groups" v-once :id="group" ref="groupCells" :key="group" :style="{ height: `${100 / groups.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
