@@ -2,11 +2,12 @@
 import type { Lecture } from '~/types'
 
 // State
-const rafId = ref<number>(null)
+const rafId = ref<number | null>(null)
 const isDragging = ref(false)
 const isResizing = ref(false)
 const resizeEdge = ref('')
 const currentLecture = ref<Lecture | null>(null)
+  const previewLecture = ref<Lecture | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 const dragStart = ref({ x: 0, y: 0 })
 
@@ -14,30 +15,14 @@ const dragStart = ref({ x: 0, y: 0 })
 const groupCells = ref<HTMLDivElement[]>([])
 
 // Lectures
+const groups = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
 const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
-
-// Composables
-const { onPointerDown, onPointerMove, onPointerUp } = useMouse(lectures)
 
 // Time range
 const timeRange: Date[] = []
 for (let i = 0; i < 48; i++)
   timeRange.push(new Date(new Date(2023, 0, 1, 8, 0, 0, 0).getTime() + (i * 15 * 60 * 1000)))
-
-// Helper function to get background class
-function getBackgroundClass(lecture: Lecture) {
-  switch (lecture.group[0]) {
-    case 'ISI-1':
-      return 'bg-blue-600'
-    case 'ISI-2':
-      return 'bg-green-600'
-    case 'ISK':
-      return 'bg-yellow-600'
-    case 'TM':
-      return 'bg-red-600'
-  }
-}
 
 function onDragDown(event: PointerEvent) {
   isDragging.value = true
@@ -64,8 +49,8 @@ function onDragMove(event: PointerEvent) {
 
     if (deltaX !== 0 || deltaY !== 0) {
       for (const lecture of lectures) {
-        lecture.left += deltaX
-        lecture.top += deltaY
+        lecture.x += deltaX
+        lecture.y += deltaY
       }
 
       // Update dragStart based on the actual movement of the element
@@ -88,7 +73,7 @@ function onDragUp() {
 }
 
 // Resize
-function _onPointerDown(event: PointerEvent, lecture: Lecture) {
+function onPointerDown(event: PointerEvent, lecture: Lecture) {
   // Determine if we're dragging or resizing
   const rect = (event.target as HTMLElement).getBoundingClientRect()
   if (Math.abs(event.clientX - rect.left) < 16 || Math.abs(event.clientX - rect.right) < 16 || Math.abs(event.clientY - rect.top) < 16 || Math.abs(event.clientY - rect.bottom) < 16) {
@@ -133,22 +118,22 @@ function onResizeMove(event: PointerEvent) {
     if (resizeEdge.value === 'left') {
       const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
       const newWidth = resizeStart.value.width - deltaX
-      currentLecture.value.left = currentLecture.value.left + (currentLecture.value.width - newWidth)
-      currentLecture.value.width = newWidth
+      currentLecture.value!.x = currentLecture.value!.x + (currentLecture.value!.width - newWidth)
+      currentLecture.value!.width = newWidth
     }
     else if (resizeEdge.value === 'right') {
       const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
-      currentLecture.value.width = resizeStart.value.width + deltaX
+      currentLecture.value!.width = resizeStart.value.width + deltaX
     }
     else if (resizeEdge.value === 'top') {
       const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
       const newHeight = resizeStart.value.height - deltaY
-      currentLecture.value.top = currentLecture.value.top + (currentLecture.value.height - newHeight)
-      currentLecture.value.height = newHeight
+      currentLecture.value!.y = currentLecture.value!.y + (currentLecture.value!.height - newHeight)
+      currentLecture.value!.height = newHeight
     }
     else if (resizeEdge.value === 'bottom') {
       const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
-      currentLecture.value.height = resizeStart.value.height + deltaY
+      currentLecture.value!.height = resizeStart.value.height + deltaY
     }
   })
 }
@@ -189,7 +174,7 @@ function onResizeUp() {
     <!-- here -->
     <div class="flex h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :id="group" ref="groupCells" :key="group" class="flex h-[calc(100%/4)] w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
+        <div v-for="group in groups" :id="group" ref="groupCells" :key="group" :style="{ height: `${100 / groups.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
           {{ group }}
         </div>
       </div>
@@ -200,11 +185,11 @@ function onResizeUp() {
           :id="`lecture-${lecture.id?.toString()}`"
           ref="lectureCells"
           :key="lecture.id"
-          :style="{ top: `${lecture.top}px`, left: `${lecture.left}px`, width: `${lecture.width}px`, height: `${lecture.height}px` }"
+          :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px` }"
           class="absolute pb-0.5 pr-0.5 hover:cursor-move"
-          @pointerdown.prevent="_onPointerDown($event, lecture)"
+          @pointerdown.prevent="onPointerDown($event, lecture)"
         >
-          <div class="flex h-full flex-col gap-2 rounded-md p-4" :class="[getBackgroundClass(lecture), { 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
+          <div class="flex h-full flex-col gap-2 rounded-md p-4 bg-blue-700" :class="[{ 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
             <div class="flex flex-col gap-1">
               <span class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
               <span class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
@@ -212,8 +197,8 @@ function onResizeUp() {
           </div>
         </div>
 
-        <div v-for="group in ['ISI-1', 'ISI-2', 'ISK', 'TM']" :key="group" class="flex h-1/4">
-          <div v-for="(time, index) in timeRange" :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" @pointerdown.prevent="onPointerDown" @pointermove.prevent="onPointerMove" @pointerup.prevent="onPointerUp" />
+        <div v-for="group in groups" :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
+          <div v-for="(time, index) in timeRange" :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>

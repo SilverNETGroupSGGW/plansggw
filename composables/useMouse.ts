@@ -5,13 +5,13 @@ const { parseTime } = useTime()
 export default function useMouse(lectures: Lecture[]) {
   const isDragging = ref(false)
   const millis = { start: 0, end: 0 }
-  const spannedCells = { start: undefined as HTMLTableCellElement | undefined, end: undefined as HTMLTableCellElement | undefined }
+  const spannedCells = { start: undefined as HTMLDivElement | undefined, end: undefined as HTMLDivElement | undefined }
 
   let currentGroup: string | null = null
   const spannedGroups: Set<string> = new Set()
 
   let rafId: number | null = null
-  let prevCell: HTMLTableCellElement | null = null
+  let prevCell: HTMLDivElement | null = null
 
   function onPointerDown(event: PointerEvent) {
     if (event.button !== 0)
@@ -30,8 +30,8 @@ export default function useMouse(lectures: Lecture[]) {
       const data: Lecture = {
         id: lectures.length === 0 ? 0 : lectures.length,
 
-        top: spannedCells.start!.offsetTop,
-        left: spannedCells.start!.offsetLeft,
+        x: spannedCells.start!.offsetLeft,
+        y: spannedCells.start!.offsetTop,
 
         width: spannedCells.end!.offsetLeft - spannedCells.start!.offsetLeft + spannedCells.end!.offsetWidth,
         height: spannedCells.end!.offsetTop - spannedCells.start!.offsetTop + spannedCells.end!.offsetHeight,

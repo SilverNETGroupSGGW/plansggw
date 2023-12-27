@@ -1,9 +1,9 @@
 export interface Lecture {
-  top: number
-  left: number
+  x: number
+  y: number
+
   width: number
   height: number
-  z?: number
 
   id: number | string /* ghost id */
   ghost?: boolean
