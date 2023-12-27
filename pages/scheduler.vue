@@ -12,18 +12,8 @@ const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 const dragStart = ref({ x: 0, y: 0 })
 
 // Elements
-const groupCells = ref<HTMLDivElement[]>([])
 const container = ref<HTMLDivElement | null>(null)
-
-onMounted(() => {
-  document.addEventListener('pointermove', onDragMove)
-})
-
-function onPointerEnter(event: PointerEvent) {
-  if (event.buttons === 1) { // Check if the left button is pressed
-    isDragging.value = true
-  }
-}
+const groupCells = ref<HTMLDivElement[]>([])
 
 // Lectures
 const groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -41,8 +31,12 @@ const lectureCells = ref<HTMLDivElement[]>([])
 
 // Time range
 const timeRange: Date[] = []
-for (let i = 0; i < 48; i++)
-  timeRange.push(new Date(new Date(2023, 0, 1, 8, 0, 0, 0).getTime() + (i * 15 * 60 * 1000)))
+const initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
+
+while (initialDate.getHours() < 20) {
+  timeRange.push(new Date(initialDate.getTime()))
+  initialDate.setMinutes(initialDate.getMinutes() + 15)
+}
 
 function onDragDown(event: PointerEvent) {
   isDragging.value = true
@@ -56,21 +50,6 @@ function onDragDown(event: PointerEvent) {
 function onDragMove(event: PointerEvent) {
   if (!isDragging.value)
     return
-
-  // Get the container's boundaries
-  const containerRect = container.value!.getBoundingClientRect()
-
-  // Check if the cursor is within the container's boundaries
-  if (
-    event.clientX < containerRect.left
-    || event.clientX > containerRect.right
-    || event.clientY < containerRect.top
-    || event.clientY > containerRect.bottom
-  ) {
-    // If it's not, stop the dragging operation
-    isDragging.value = false
-    return
-  }
 
   if (rafId !== null)
     cancelAnimationFrame(rafId)
@@ -87,9 +66,14 @@ function onDragMove(event: PointerEvent) {
         const newX = lecture.x + deltaX
         const newY = lecture.y + deltaY
 
-        // Set boundaries, x and y can't be smaller than 0 or larger than maxX and maxY
-        lecture.x = newX >= 0 ? (newX <= container.value!.offsetWidth ? newX : container.value!.offsetWidth) : 0
-        lecture.y = newY >= 0 ? (newY <= container.value!.offsetHeight ? newY : container.value!.offsetHeight) : 0
+        // Calculate the total height of groupCells
+        const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
+
+        // Set boundaries, x and y can't be smaller than 0
+        // newY can't be larger than totalHeight - lecture.height
+        // newX can't be larger than container.value.offsetWidth - lecture.width
+        lecture.x = newX >= 0 ? (newX <= container.value!.offsetWidth - lecture.width ? newX : container.value!.offsetWidth - lecture.width) : 0
+        lecture.y = newY >= 0 ? (newY <= totalHeight - lecture.height ? newY : totalHeight - lecture.height) : 0
       }
 
       // Update dragStart based on the actual movement of the element
@@ -169,6 +153,9 @@ function onResizeMove(event: PointerEvent) {
     const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
     let newWidth, newHeight, newX, newY
 
+    const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
+    const minCellHeight = groupCells.value[0].offsetHeight // Assuming all cells have the same height
+
     switch (initialResizeEdge.value) {
       case 'top-left':
         newWidth = Math.max(0, resizeStart.value.width - deltaX)
@@ -184,7 +171,7 @@ function onResizeMove(event: PointerEvent) {
         break
       case 'top-right':
         newWidth = Math.max(0, resizeStart.value.width + deltaX)
-        newHeight = Math.max(0, resizeStart.value.height - deltaY)
+        newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
         newY = Math.max(0, currentLecture.value!.y + (currentLecture.value!.height - newHeight))
         currentLecture.value!.width = newWidth
         if (newY !== 0)
@@ -201,8 +188,8 @@ function onResizeMove(event: PointerEvent) {
         currentLecture.value!.x = newX
         break
       case 'bottom-right':
-        newWidth = Math.max(0, resizeStart.value.width + deltaX)
-        newHeight = Math.max(0, resizeStart.value.height + deltaY)
+        newWidth = Math.min(container.value!.offsetWidth, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
+        newHeight = Math.min(totalHeight, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
         currentLecture.value!.width = newWidth
         currentLecture.value!.height = newHeight
         break
@@ -214,18 +201,18 @@ function onResizeMove(event: PointerEvent) {
         currentLecture.value!.x = newX
         break
       case 'right':
-        newWidth = Math.max(0, resizeStart.value.width + deltaX)
+        newWidth = Math.min(container.value!.offsetWidth, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
         currentLecture.value!.width = newWidth
         break
       case 'top':
-        newHeight = Math.max(0, resizeStart.value.height - deltaY)
+        newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
         newY = Math.max(0, currentLecture.value!.y + (currentLecture.value!.height - newHeight))
         if (newY !== 0)
           currentLecture.value!.height = newHeight
         currentLecture.value!.y = newY
         break
       case 'bottom':
-        newHeight = Math.max(0, resizeStart.value.height + deltaY)
+        newHeight = Math.min(totalHeight, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
         currentLecture.value!.height = newHeight
         break
     }
@@ -234,7 +221,6 @@ function onResizeMove(event: PointerEvent) {
 
 function onResizeUp() {
   isResizing.value = false
-  isDragging.value = false
   currentLecture.value = null
 
   // Remove event listeners from window
@@ -263,14 +249,14 @@ function onResizeUp() {
       </div>
     </div>
 
-    <div class="flex h-[calc(100vh-175px)]">
+    <div class="flex max-h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
         <div v-for="group in groups" v-once :id="group" ref="groupCells" :key="group" :style="{ height: `${100 / groups.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r border-t border-gray-200 text-center text-xs text-gray-700">
           {{ group }}
         </div>
       </div>
 
-      <div class="relative flex flex-col">
+      <div ref="container" class="relative flex flex-col">
         <div
           :id="`lecture-${lectures[0].id?.toString()}`"
           ref="lectureCells"
@@ -286,10 +272,8 @@ function onResizeUp() {
           </div>
         </div>
 
-        <div ref="container" class="h-full" @pointerenter="onPointerEnter">
-          <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
-            <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
-          </div>
+        <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
+          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>
