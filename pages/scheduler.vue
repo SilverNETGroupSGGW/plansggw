@@ -33,6 +33,7 @@ while (initialDate.getHours() < 20) {
 function onDragDown(event: PointerEvent) {
   isDragging.value = true
   dragStart.value = { x: event.clientX, y: event.clientY }
+  currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
 
   // Add event listeners to window
   window.addEventListener('pointermove', onDragMove)
@@ -46,6 +47,8 @@ function onDragMove(event: PointerEvent) {
   if (rafId !== null)
     cancelAnimationFrame(rafId)
 
+  currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
+
   rafId = requestAnimationFrame(() => {
     // snap to 48px grid in X axis
     const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
@@ -54,19 +57,17 @@ function onDragMove(event: PointerEvent) {
     const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
     if (deltaX !== 0 || deltaY !== 0) {
-      for (const lecture of lectures) {
-        const newX = lecture.x + deltaX
-        const newY = lecture.y + deltaY
+      const newX = currentLecture.value!.x + deltaX
+      const newY = currentLecture.value!.y + deltaY
 
-        // Calculate the total height of groupCells
-        const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
+      // Calculate the total height of groupCells
+      const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
 
-        // Set boundaries, x and y can't be smaller than 0
-        // newY can't be larger than totalHeight - lecture.height
-        // newX can't be larger than container.value.offsetWidth - lecture.width
-        lecture.x = newX >= 0 ? (newX <= container.value!.offsetWidth - lecture.width ? newX : container.value!.offsetWidth - lecture.width) : 0
-        lecture.y = newY >= 0 ? (newY <= totalHeight - lecture.height ? newY : totalHeight - lecture.height) : 0
-      }
+      // Set boundaries, x and y can't be smaller than 0
+      // newY can't be larger than totalHeight - currentLecture.value!.height
+      // newX can't be larger than container.value.offsetWidth - currentLecture.value!.width
+      currentLecture.value!.x = newX >= 0 ? (newX <= container.value!.offsetWidth - currentLecture.value!.width ? newX : container.value!.offsetWidth - currentLecture.value!.width) : 0
+      currentLecture.value!.y = newY >= 0 ? (newY <= totalHeight - currentLecture.value!.height ? newY : totalHeight - currentLecture.value!.height) : 0
 
       // Update dragStart based on the actual movement of the element
       dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
@@ -76,6 +77,7 @@ function onDragMove(event: PointerEvent) {
 
 function onDragUp() {
   isDragging.value = false
+  currentLecture.value = null
 
   // Remove event listeners from window
   window.removeEventListener('pointermove', onDragMove)
@@ -258,7 +260,7 @@ function onCreateMove(event: PointerEvent) {
     group: ['1'],
     start: new Date(),
     end: new Date(),
-    id: 1,
+    id: lectures.length + 1,
   }
 
   resizeEdge.value = 'bottom-right'
