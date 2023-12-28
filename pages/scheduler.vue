@@ -24,7 +24,7 @@ const { onCreateMove } = useCreate(lectures, container, groupCells)
 </script>
 
 <template>
-  <div class="h-full overflow-x-scroll">
+  <div class="h-full overflow-x-scroll select-none">
     <div class="flex w-full flex-col">
       <div class="flex flex-col">
         <div class="flex">
