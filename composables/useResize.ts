@@ -84,60 +84,70 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
       switch (initialResizeEdge.value) {
         case 'top-left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = Math.max(0, mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth))
+          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
           newHeight = Math.max(0, resizeStart.value.height - deltaY)
-          newY = Math.max(0, mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight))
-          if (newX !== 0)
+          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
+          if (newX >= 0 && newY >= 0) {
             mouse.currentLecture!.width = newWidth
-          if (newY !== 0)
             mouse.currentLecture!.height = newHeight
-          mouse.currentLecture!.x = newX
-          mouse.currentLecture!.y = newY
+            mouse.currentLecture!.x = newX
+            mouse.currentLecture!.y = newY
+          }
           break
         case 'top-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
           newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
-          newY = Math.max(0, mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight))
+          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
           mouse.currentLecture!.width = newWidth
-          if (newY !== 0)
+          if (newY >= 0) {
             mouse.currentLecture!.height = newHeight
-          mouse.currentLecture!.y = newY
+            mouse.currentLecture!.y = newY
+          }
           break
         case 'bottom-left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = Math.max(0, mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth))
+          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
           newHeight = Math.max(0, resizeStart.value.height + deltaY)
-          if (newX !== 0)
+          if (newX >= 0 && newX + newWidth <= container.value!.offsetWidth) {
             mouse.currentLecture!.width = newWidth
-          mouse.currentLecture!.height = newHeight
-          mouse.currentLecture!.x = newX
+            mouse.currentLecture!.x = newX
+          }
+          if (mouse.currentLecture!.y + newHeight <= totalHeight)
+            mouse.currentLecture!.height = newHeight
+
           break
         case 'bottom-right':
-          newWidth = Math.min(container.value!.offsetWidth, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
-          newHeight = Math.min(totalHeight, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
-          mouse.currentLecture!.width = newWidth
-          mouse.currentLecture!.height = newHeight
+          newWidth = Math.max(0, resizeStart.value.width + deltaX)
+          newHeight = Math.max(0, resizeStart.value.height + deltaY)
+          if (mouse.currentLecture!.x + newWidth <= container.value!.offsetWidth)
+            mouse.currentLecture!.width = newWidth
+
+          if (mouse.currentLecture!.y + newHeight <= totalHeight)
+            mouse.currentLecture!.height = newHeight
+
           break
         case 'left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = Math.max(0, mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth))
-          if (newX !== 0)
+          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
+          if (newX >= 0) {
             mouse.currentLecture!.width = newWidth
-          mouse.currentLecture!.x = newX
+            mouse.currentLecture!.x = newX
+          }
           break
         case 'right':
-          newWidth = Math.min(container.value!.offsetWidth, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
+          newWidth = Math.min(container.value!.offsetWidth - mouse.currentLecture!.x, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
           mouse.currentLecture!.width = newWidth
           break
         case 'top':
           newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
-          newY = Math.max(0, mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight))
-          if (newY !== 0)
+          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
+          if (newY >= 0) {
             mouse.currentLecture!.height = newHeight
-          mouse.currentLecture!.y = newY
+            mouse.currentLecture!.y = newY
+          }
           break
         case 'bottom':
-          newHeight = Math.min(totalHeight, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
+          newHeight = Math.min(totalHeight - mouse.currentLecture!.y, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
           mouse.currentLecture!.height = newHeight
           break
       }
