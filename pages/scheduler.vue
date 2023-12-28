@@ -47,7 +47,8 @@ function onDragMove(event: PointerEvent) {
   if (rafId !== null)
     cancelAnimationFrame(rafId)
 
-  currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
+  if (!currentLecture.value)
+    currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
 
   rafId = requestAnimationFrame(() => {
     // snap to 48px grid in X axis
