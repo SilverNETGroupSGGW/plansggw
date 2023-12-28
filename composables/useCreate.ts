@@ -47,7 +47,7 @@ export default function useCreate(lectures: Lecture[], container: Ref<HTMLElemen
     lectures.push(newLecture)
 
     // Trigger the resize event
-    onResizeDown(event, newLecture)
+    onResizeDown(event, newLecture, true)
   }
 
   return {

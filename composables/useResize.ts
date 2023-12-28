@@ -19,7 +19,7 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
     const rect = (event.target as HTMLElement).getBoundingClientRect()
     if (Math.abs(event.clientX - rect.left) < 16 || Math.abs(event.clientX - rect.right) < 16 || Math.abs(event.clientY - rect.top) < 16 || Math.abs(event.clientY - rect.bottom) < 16) {
       // We're resizing
-      onResizeDown(event, lecture)
+      onResizeDown(event, lecture, false)
     }
     else {
       // We're dragging
@@ -27,15 +27,12 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
     }
   }
 
-  function onResizeDown(event: PointerEvent, lecture: Lecture) {
+  function onResizeDown(event: PointerEvent, lecture: Lecture, isCreating: boolean) {
     isResizing.value = true
     resizeStart.value = { x: event.clientX, y: event.clientY, width: lecture.width, height: lecture.height }
     mouse.currentLecture = lecture
 
-    if (isCreating) {
-      mouse.resizeEdge = 'bottom-right'
-    }
-    else {
+    if (!isCreating) {
       // Determine which edge we're resizing
       const rect = (event.target as HTMLElement).getBoundingClientRect()
       const nearLeft = Math.abs(event.clientX - rect.left) < 16
