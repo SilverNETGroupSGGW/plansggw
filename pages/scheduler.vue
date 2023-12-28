@@ -222,6 +222,8 @@ function onResizeMove(event: PointerEvent) {
 function onResizeUp() {
   isResizing.value = false
   isCreating.value = false
+  // Drop the ghost class
+  currentLecture.value!.ghost = false
   currentLecture.value = null
 
   // Remove event listeners from window
@@ -262,6 +264,7 @@ function onCreateMove(event: PointerEvent) {
     start: new Date(),
     end: new Date(),
     id: lectures.length + 1,
+    ghost: true
   }
 
   resizeEdge.value = 'bottom-right'
