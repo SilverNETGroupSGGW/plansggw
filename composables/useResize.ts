@@ -67,17 +67,22 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
   }
 
   function onResizeMove(event: PointerEvent) {
+    // Early return if not resizing or no current lecture
     if (!isResizing.value || !mouse.currentLecture)
       return
 
+    // Cancel any existing animation frame request
     if (rafId !== null)
       cancelAnimationFrame(rafId)
 
     rafId = requestAnimationFrame(() => {
+      // Calculate the change in x and y positions
       const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
       const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+
       let newWidth, newHeight, newX, newY
 
+      // Calculate the total height of the group cells
       const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
       const minCellHeight = groupCells.value[0].offsetHeight // Assuming all cells have the same height
 
@@ -96,7 +101,7 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
           break
         case 'top-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
-          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
+          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
           newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
           mouse.currentLecture!.width = newWidth
           if (newY >= 0) {
@@ -135,11 +140,11 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
           }
           break
         case 'right':
-          newWidth = Math.min(container.value!.offsetWidth - mouse.currentLecture!.x, Math.max(0, resizeStart.value.width + deltaX)) // Set the maximum width to container.value.offsetWidth
+          newWidth = Math.min(container.value!.offsetWidth - mouse.currentLecture!.x, Math.max(0, resizeStart.value.width + deltaX))
           mouse.currentLecture!.width = newWidth
           break
         case 'top':
-          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY) // Set the minimum height to minCellHeight
+          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
           newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
           if (newY >= 0) {
             mouse.currentLecture!.height = newHeight
@@ -147,7 +152,7 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
           }
           break
         case 'bottom':
-          newHeight = Math.min(totalHeight - mouse.currentLecture!.y, Math.max(minCellHeight, resizeStart.value.height + deltaY)) // Set the minimum height to minCellHeight and maximum height to totalHeight
+          newHeight = Math.min(totalHeight - mouse.currentLecture!.y, Math.max(minCellHeight, resizeStart.value.height + deltaY))
           mouse.currentLecture!.height = newHeight
           break
       }
