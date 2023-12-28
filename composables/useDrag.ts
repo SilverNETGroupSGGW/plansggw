@@ -7,6 +7,9 @@ export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement 
   const dragStart = ref({ x: 0, y: 0 })
 
   function onDragDown(event: PointerEvent) {
+    if (event.button !== 0)
+      return
+
     isDragging.value = true
     dragStart.value = { x: event.clientX, y: event.clientY }
     currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!

@@ -6,6 +6,9 @@ export default function useCreate(lectures: Lecture[], container: Ref<HTMLElemen
   const { onResizeDown } = useResize(lectures, container, groupCells)
 
   function onCreateMove(event: PointerEvent) {
+    if (event.button !== 0)
+      return
+
     const target = event.target as HTMLElement
 
     // Prevent creating a new lecture when clicking on an existing lecture
