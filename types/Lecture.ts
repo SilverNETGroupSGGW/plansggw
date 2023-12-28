@@ -7,6 +7,8 @@ export interface Lecture {
 
   id: number | string /* ghost id */
   ghost?: boolean
+  overlap?: boolean
+  zIndex?: number
 
   start: Date
   end: Date

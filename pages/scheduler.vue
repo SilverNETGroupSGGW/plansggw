@@ -72,6 +72,22 @@ function onDragMove(event: PointerEvent) {
 
       // Update dragStart based on the actual movement of the element
       dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
+
+      currentLecture.value!.overlap = false
+
+      // Check for overlap with other lectures
+      for (const lecture of lectures) {
+        if (lecture.id !== currentLecture.value!.id) {
+          if (newX < lecture.x + lecture.width
+            && newX + currentLecture.value!.width > lecture.x
+            && newY < lecture.y + lecture.height
+            && newY + currentLecture.value!.height > lecture.y) {
+            // Overlap detected
+            currentLecture.value!.overlap = true
+            break
+          }
+        }
+      }
     }
   })
 }
@@ -264,7 +280,7 @@ function onCreateMove(event: PointerEvent) {
     start: new Date(),
     end: new Date(),
     id: lectures.length + 1,
-    ghost: true
+    ghost: true,
   }
 
   resizeEdge.value = 'bottom-right'
@@ -304,8 +320,8 @@ function onCreateMove(event: PointerEvent) {
       </div>
 
       <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove">
-        <div v-for="(lecture, index) in lectures" ref="lectureCells" :key="index" :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, lecture)">
-          <div :id="`lecture-${lecture.id?.toString()}`" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lecture.ghost, 'z-[1]': !lecture.ghost }]">
+        <div v-for="(lecture, index) in lectures" ref="lectureCells" :key="index" :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px`, zIndex: lecture.overlap ? lecture.zIndex : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, lecture)">
+          <div :id="`lecture-${lecture.id?.toString()}`" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lecture.ghost, 'border-2 border-white': lecture.overlap }]" :style="{ zIndex: lecture.overlap ? 1 : 0 }">
             <div :id="`lecture-${lecture.id?.toString()}`" class="flex flex-col gap-1">
               <span :id="`lecture-${lecture.id?.toString()}`" class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
               <span :id="`lecture-${lecture.id?.toString()}`" class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
