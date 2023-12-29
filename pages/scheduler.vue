@@ -6,7 +6,7 @@ const container = ref<HTMLDivElement | null>(null)
 const groupCells = ref<HTMLDivElement[]>([])
 
 // Lectures
-const groups = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+const groups = ['ISI-1', 'ISI-2', 'ISK', 'TM']
 const lectures = reactive<Lecture[]>([])
 const lectureCells = ref<HTMLDivElement[]>([])
 
