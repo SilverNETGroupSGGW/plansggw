@@ -1,9 +1,9 @@
-import type { Lecture } from '~/types'
+import type { Subject } from '~/types'
 
-export default function useResize(lectures: Lecture[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
+export default function useResize(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
   const mouse = useMouse()
 
-  const { onDragDown } = useDrag(lectures, container, groupCells)
+  const { onDragDown } = useDrag(subjects, container, groupCells)
 
   let rafId: number | null = null
   const initialResizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
@@ -11,7 +11,7 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
   const isResizing = ref(false)
   const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 
-  function onPointerDown(event: PointerEvent, lecture: Lecture) {
+  function onPointerDown(event: PointerEvent, subject: Subject) {
     if (event.button !== 0)
       return
 
@@ -19,7 +19,7 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
     const rect = (event.target as HTMLElement).getBoundingClientRect()
     if (Math.abs(event.clientX - rect.left) < 16 || Math.abs(event.clientX - rect.right) < 16 || Math.abs(event.clientY - rect.top) < 16 || Math.abs(event.clientY - rect.bottom) < 16) {
       // We're resizing
-      onResizeDown(event, lecture, false)
+      onResizeDown(event, subject, false)
     }
     else {
       // We're dragging
@@ -27,10 +27,10 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
     }
   }
 
-  function onResizeDown(event: PointerEvent, lecture: Lecture, isCreating: boolean) {
+  function onResizeDown(event: PointerEvent, subject: Subject, isCreating: boolean) {
     isResizing.value = true
-    resizeStart.value = { x: event.clientX, y: event.clientY, width: lecture.width, height: lecture.height }
-    mouse.currentLecture = lecture
+    resizeStart.value = { x: event.clientX, y: event.clientY, width: subject.width!, height: subject.height! }
+    mouse.currentSubject = subject
 
     if (!isCreating) {
       // Determine which edge we're resizing
@@ -67,8 +67,8 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
   }
 
   function onResizeMove(event: PointerEvent) {
-    // Early return if not resizing or no current lecture
-    if (!isResizing.value || !mouse.currentLecture)
+    // Early return if not resizing or no current subject
+    if (!isResizing.value || !mouse.currentSubject)
       return
 
     // Cancel any existing animation frame request
@@ -89,71 +89,71 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
       switch (initialResizeEdge.value) {
         case 'top-left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
+          newX = mouse.currentSubject!.x! + (mouse.currentSubject!.width! - newWidth)
           newHeight = Math.max(0, resizeStart.value.height - deltaY)
-          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
+          newY = mouse.currentSubject!.y! + (mouse.currentSubject!.height! - newHeight)
           if (newX >= 0 && newY >= 0) {
-            mouse.currentLecture!.width = newWidth
-            mouse.currentLecture!.height = newHeight
-            mouse.currentLecture!.x = newX
-            mouse.currentLecture!.y = newY
+            mouse.currentSubject!.width = newWidth
+            mouse.currentSubject!.height = newHeight
+            mouse.currentSubject!.x = newX
+            mouse.currentSubject!.y = newY
           }
           break
         case 'top-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
           newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
-          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
-          mouse.currentLecture!.width = newWidth
+          newY = mouse.currentSubject!.y! + (mouse.currentSubject!.height! - newHeight)
+          mouse.currentSubject!.width = newWidth
           if (newY >= 0) {
-            mouse.currentLecture!.height = newHeight
-            mouse.currentLecture!.y = newY
+            mouse.currentSubject!.height = newHeight
+            mouse.currentSubject!.y = newY
           }
           break
         case 'bottom-left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
+          newX = mouse.currentSubject!.x! + (mouse.currentSubject!.width! - newWidth)
           newHeight = Math.max(0, resizeStart.value.height + deltaY)
           if (newX >= 0 && newX + newWidth <= container.value!.offsetWidth) {
-            mouse.currentLecture!.width = newWidth
-            mouse.currentLecture!.x = newX
+            mouse.currentSubject!.width = newWidth
+            mouse.currentSubject!.x = newX
           }
-          if (mouse.currentLecture!.y + newHeight <= totalHeight)
-            mouse.currentLecture!.height = newHeight
+          if (mouse.currentSubject!.y! + newHeight <= totalHeight)
+            mouse.currentSubject!.height = newHeight
 
           break
         case 'bottom-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
           newHeight = Math.max(0, resizeStart.value.height + deltaY)
-          if (mouse.currentLecture!.x + newWidth <= container.value!.offsetWidth)
-            mouse.currentLecture!.width = newWidth
+          if (mouse.currentSubject!.x! + newWidth <= container.value!.offsetWidth)
+            mouse.currentSubject!.width = newWidth
 
-          if (mouse.currentLecture!.y + newHeight <= totalHeight)
-            mouse.currentLecture!.height = newHeight
+          if (mouse.currentSubject!.y! + newHeight <= totalHeight)
+            mouse.currentSubject!.height = newHeight
 
           break
         case 'left':
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
-          newX = mouse.currentLecture!.x + (mouse.currentLecture!.width - newWidth)
+          newX = mouse.currentSubject!.x! + (mouse.currentSubject!.width! - newWidth)
           if (newX >= 0) {
-            mouse.currentLecture!.width = newWidth
-            mouse.currentLecture!.x = newX
+            mouse.currentSubject!.width = newWidth
+            mouse.currentSubject!.x = newX
           }
           break
         case 'right':
-          newWidth = Math.min(container.value!.offsetWidth - mouse.currentLecture!.x, Math.max(0, resizeStart.value.width + deltaX))
-          mouse.currentLecture!.width = newWidth
+          newWidth = Math.min(container.value!.offsetWidth - mouse.currentSubject!.x!, Math.max(0, resizeStart.value.width + deltaX))
+          mouse.currentSubject!.width = newWidth
           break
         case 'top':
           newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
-          newY = mouse.currentLecture!.y + (mouse.currentLecture!.height - newHeight)
+          newY = mouse.currentSubject!.y! + (mouse.currentSubject!.height! - newHeight)
           if (newY >= 0) {
-            mouse.currentLecture!.height = newHeight
-            mouse.currentLecture!.y = newY
+            mouse.currentSubject!.height = newHeight
+            mouse.currentSubject!.y = newY
           }
           break
         case 'bottom':
-          newHeight = Math.min(totalHeight - mouse.currentLecture!.y, Math.max(minCellHeight, resizeStart.value.height + deltaY))
-          mouse.currentLecture!.height = newHeight
+          newHeight = Math.min(totalHeight - mouse.currentSubject!.y!, Math.max(minCellHeight, resizeStart.value.height + deltaY))
+          mouse.currentSubject!.height = newHeight
           break
       }
     })
@@ -163,8 +163,8 @@ export default function useResize(lectures: Lecture[], container: Ref<HTMLElemen
     isResizing.value = false
     isCreating.value = false
     // Drop the ghost class
-    mouse.currentLecture!.ghost = false
-    mouse.currentLecture = null
+    mouse.currentSubject!.ghost = false
+    mouse.currentSubject = null
 
     // Remove event listeners from window
     window.removeEventListener('pointermove', onResizeMove)

@@ -1,9 +1,9 @@
-import type { Lecture } from '~/types'
+import type { Subject } from '~/types'
 
-export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
+export default function useDrag(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
   let rafId: number | null = null
   const isDragging = ref(false)
-  const currentLecture = ref<Lecture | null>(null)
+  const currentSubject = ref<Subject | null>(null)
   const dragStart = ref({ x: 0, y: 0 })
 
   function onDragDown(event: PointerEvent) {
@@ -12,7 +12,7 @@ export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement 
 
     isDragging.value = true
     dragStart.value = { x: event.clientX, y: event.clientY }
-    currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
+    currentSubject.value = subjects.find(subject => subject.id === (event.target as HTMLElement).id)!
 
     // Add event listeners to window
     window.addEventListener('pointermove', onDragMove)
@@ -26,8 +26,8 @@ export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement 
     if (rafId !== null)
       cancelAnimationFrame(rafId)
 
-    if (!currentLecture.value)
-      currentLecture.value = lectures.find(lecture => lecture.id === Number.parseInt((event.target as HTMLElement).id.split('-')[1]))!
+    if (!currentSubject.value)
+      currentSubject.value = subjects.find(subject => subject.id === (event.target as HTMLElement).id)!
 
     rafId = requestAnimationFrame(() => {
       // snap to 48px grid in X axis
@@ -37,32 +37,32 @@ export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement 
       const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
       if (deltaX !== 0 || deltaY !== 0) {
-        const newX = currentLecture.value!.x + deltaX
-        const newY = currentLecture.value!.y + deltaY
+        const newX = currentSubject.value!.x! + deltaX
+        const newY = currentSubject.value!.y! + deltaY
 
         // Calculate the total height of groupCells
         const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
 
         // Set boundaries, x and y can't be smaller than 0
-        // newY can't be larger than totalHeight - currentLecture.value!.height
-        // newX can't be larger than container.value.offsetWidth - currentLecture.value!.width
-        currentLecture.value!.x = newX >= 0 ? (newX <= container.value!.offsetWidth - currentLecture.value!.width ? newX : container.value!.offsetWidth - currentLecture.value!.width) : 0
-        currentLecture.value!.y = newY >= 0 ? (newY <= totalHeight - currentLecture.value!.height ? newY : totalHeight - currentLecture.value!.height) : 0
+        // newY can't be larger than totalHeight - currentSubject.value!.height
+        // newX can't be larger than container.value.offsetWidth - currentSubject.value!.width
+        currentSubject.value!.x = newX >= 0 ? (newX <= container.value!.offsetWidth - currentSubject.value!.width! ? newX : container.value!.offsetWidth! - currentSubject.value!.width!) : 0
+        currentSubject.value!.y = newY >= 0 ? (newY <= totalHeight - currentSubject.value!.height! ? newY : totalHeight - currentSubject.value!.height!) : 0
 
         // Update dragStart based on the actual movement of the element
         dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
 
-        currentLecture.value!.overlap = false
+        currentSubject.value!.overlap = false
 
-        // Check for overlap with other lectures
-        for (const lecture of lectures) {
-          if (lecture.id !== currentLecture.value!.id) {
-            if (newX < lecture.x + lecture.width
-              && newX + currentLecture.value!.width > lecture.x
-              && newY < lecture.y + lecture.height
-              && newY + currentLecture.value!.height > lecture.y) {
+        // Check for overlap with other subjects
+        for (const subject of subjects) {
+          if (subject.id !== currentSubject.value!.id) {
+            if (newX < subject.x! + subject.width!
+              && newX + currentSubject.value!.width! > subject.x!
+              && newY < subject.y! + subject.height!
+              && newY + currentSubject.value!.height! > subject.y!) {
               // Overlap detected
-              currentLecture.value!.overlap = true
+              currentSubject.value!.overlap = true
               break
             }
           }
@@ -73,7 +73,7 @@ export default function useDrag(lectures: Lecture[], container: Ref<HTMLElement 
 
   function onDragUp() {
     isDragging.value = false
-    currentLecture.value = null
+    currentSubject.value = null
 
     // Remove event listeners from window
     window.removeEventListener('pointermove', onDragMove)

@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import type { Lecture } from '~/types'
+import type { Subject } from '~/types'
 
 // Elements
 const container = ref<HTMLDivElement | null>(null)
 const groupCells = ref<HTMLDivElement[]>([])
-
-// Lectures
-const groups = ['ISI-1', 'ISI-2', 'ISK', 'TM']
-const lectures = reactive<Lecture[]>([])
-const lectureCells = ref<HTMLDivElement[]>([])
+const subjectCells = ref<HTMLDivElement[] | null>(null)
 
 // Time range
 const timeRange: Date[] = []
@@ -19,12 +15,30 @@ while (initialDate.getHours() < 20) {
   initialDate.setMinutes(initialDate.getMinutes() + 15)
 }
 
-const { onPointerDown } = useResize(lectures, container, groupCells)
-const { onCreateMove } = useCreate(lectures, container, groupCells)
+// Composables
+const { calculatePosition } = useSubject()
+
+// Subjects
+const groups = ['efe04f87-3d7d-46f8-9cc1-0852564be8fa']
+const subjects = ref<Subject[]>([])
+
+const { data } = await useFetch<Subject[]>('Subjects', {
+  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+})
+
+if (data.value) {
+  subjects.value = data.value.map((subject) => {
+    const { x, y, width, height } = calculatePosition(subject, 139.25, groups)
+    return { ...subject, x, y, width, height }
+  })
+}
+
+// Hooks
+const { onPointerDown } = useResize(subjects.value, container, groupCells)
 </script>
 
 <template>
-  <div class="h-full overflow-x-scroll select-none">
+  <div class="h-full select-none overflow-x-scroll">
     <div class="flex w-full flex-col">
       <div class="flex flex-col">
         <div class="flex">
@@ -48,12 +62,13 @@ const { onCreateMove } = useCreate(lectures, container, groupCells)
         </div>
       </div>
 
-      <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove">
-        <div v-for="(lecture, index) in lectures" ref="lectureCells" :key="index" :style="{ transform: `translate(${lecture.x}px, ${lecture.y}px)`, width: `${lecture.width}px`, height: `${lecture.height}px`, zIndex: lecture.overlap ? lecture.zIndex : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, lecture)">
-          <div :id="`lecture-${lecture.id?.toString()}`" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': lecture.ghost, 'border-2 border-white': lecture.overlap }]" :style="{ zIndex: lecture.overlap ? 1 : 0 }">
-            <div :id="`lecture-${lecture.id?.toString()}`" class="flex flex-col gap-1">
-              <span :id="`lecture-${lecture.id?.toString()}`" class="text-sm font-semibold text-white">{{ lecture.group.join(', ') }}</span>
-              <span :id="`lecture-${lecture.id?.toString()}`" class="select-none text-xs font-normal text-white">{{ lecture.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }} - {{ lecture.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</span>
+      <div ref="container" class="relative flex flex-col">
+        <div v-for="(subject, index) in subjects" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, subject)">
+          <div :id="subject.id" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': subject.ghost, 'border-2 border-white': subject.overlap }]" :style="{ zIndex: subject.overlap ? 1 : 0 }">
+            <div :id="subject.id" class="flex flex-col gap-1">
+              <span class="font-bold text-white">{{ subject.name }}</span>
+              <span class="text-white">{{ subject.type }}</span>
+              <span class="text-white">{{ subject.startTime }} ({{ subject.duration }})</span>
             </div>
           </div>
         </div>

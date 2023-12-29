@@ -1,3 +1,3 @@
-import type { Lecture } from './Lecture'
+import type { Subject } from './Subject'
 
-export type { Lecture }
+export type { Subject }
