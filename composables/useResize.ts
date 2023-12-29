@@ -77,7 +77,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
 
     rafId = requestAnimationFrame(() => {
       // Calculate the change in x and y positions
-      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 48) * 48
+      const deltaX = Math.round((event.clientX - resizeStart.value.x) / 24) * 24
       const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
       let newWidth, newHeight, newX, newY

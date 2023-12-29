@@ -30,8 +30,8 @@ export default function useDrag(subjects: Subject[], container: Ref<HTMLElement 
       currentSubject.value = subjects.find(subject => subject.id === (event.target as HTMLElement).id)!
 
     rafId = requestAnimationFrame(() => {
-      // snap to 48px grid in X axis
-      const deltaX = Math.round((event.clientX - dragStart.value.x) / 48) * 48
+      // snap to 24px grid in X axis
+      const deltaX = Math.round((event.clientX - dragStart.value.x) / 24) * 24
 
       // snap to groupCells height in Y axis
       const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight

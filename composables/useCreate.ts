@@ -15,7 +15,7 @@
 //     if (target.id.startsWith('subject-'))
 //       return
 
-//     let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 48 + 12) / 48) * 48
+//     let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 24 + 12) / 24) * 24
 //     let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top - groupCells.value[0].offsetHeight + 12) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
 //     // Check if x or y is outside the bounds and set them to the closest boundary
@@ -24,15 +24,15 @@
 //       x = 0
 //     if (y < 0)
 //       y = 0
-//     if (x > containerRect.width - 48)
-//       x = containerRect.width - 48
+//     if (x > containerRect.width - 24)
+//       x = containerRect.width - 24
 //     if (y > containerRect.height - groupCells.value[0].offsetHeight)
 //       y = containerRect.height - groupCells.value[0].offsetHeight
 
 //     const newSubject: Subject = {
 //       x,
 //       y,
-//       width: 48,
+//       width: 24,
 //       height: groupCells.value[0].offsetHeight,
 //       start: new Date(),
 //       end: new Date(),

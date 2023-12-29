@@ -12,7 +12,7 @@ const initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
 
 while (initialDate.getHours() < 20) {
   timeRange.push(new Date(initialDate.getTime()))
-  initialDate.setMinutes(initialDate.getMinutes() + 15)
+  initialDate.setMinutes(initialDate.getMinutes() + 30)
 }
 
 // Composables
