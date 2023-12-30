@@ -11,7 +11,7 @@ export const useLecturers = defineStore('lecturers', {
       },
       {
         key: 'firstName',
-        header: 'Imię',
+        header: 'Imię i nazwisko',
       },
       {
         key: 'email',
@@ -32,5 +32,12 @@ export const useLecturers = defineStore('lecturers', {
 
       this.data = data
     },
+    async update(lecturer: Lecturer) {
+      await $fetch('lecturers', {
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+        method: 'PUT',
+        body: JSON.stringify(lecturer),
+      })
+    }
   },
 })

@@ -26,7 +26,7 @@ defineEmits<{
           <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
             <DialogPanel class="w-full max-w-lg overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
               <div class="flex items-center justify-between border border-b-gray-200 bg-gray-50 p-6">
-                <div class="flex items-center gap-2 text-gray-900">
+                <div class="flex items-center gap-4 text-gray-900">
                   <component :is="icon" class="h-5 w-5" />
                   <DialogTitle as="h3" class="text-lg font-medium">
                     {{ title }}
