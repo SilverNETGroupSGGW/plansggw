@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { FunctionalComponent } from 'vue'
-
 withDefaults(defineProps<{
   modelValue: string
-  icon?: FunctionalComponent
+  icon?: /* FunctionalComponent */ any
   dark?: boolean
   label?: string
   caption?: string

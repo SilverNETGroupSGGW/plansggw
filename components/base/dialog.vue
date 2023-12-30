@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import type { FunctionalComponent } from 'vue'
 
 defineProps<{
   modelValue: boolean
-  icon: FunctionalComponent
+  icon: /* FunctionalComponent */ any
   title: string
 }>()
 
@@ -34,7 +33,7 @@ defineEmits<{
                 </div>
                 <XMarkIcon class="h-6 w-6 cursor-pointer text-gray-400" @click="$emit('update:modelValue', false)" />
               </div>
-              
+
               <div class="p-6">
                 <slot />
               </div>
