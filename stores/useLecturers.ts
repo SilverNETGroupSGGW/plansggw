@@ -1,11 +1,4 @@
-import { faker } from '@faker-js/faker'
-
-interface Lecturer {
-  id: number
-  degree: string
-  name: string
-  faculty: string
-}
+import type { Lecturer } from '~/types'
 
 export const useLecturers = defineStore('lecturers', {
   state: () => ({
@@ -13,12 +6,16 @@ export const useLecturers = defineStore('lecturers', {
     data: [] as Lecturer[],
     columns: [
       {
-        key: 'degree',
+        key: 'academicDegree',
         header: 'Stopień naukowy',
       },
       {
-        key: 'name',
-        header: 'Imię i nazwisko',
+        key: 'firstName',
+        header: 'Imię',
+      },
+      {
+        key: 'email',
+        header: 'Email',
       },
       {
         key: 'actions',
@@ -26,43 +23,14 @@ export const useLecturers = defineStore('lecturers', {
       },
     ],
   }),
-  getters: {
-    getById: state => (id: number) => {
-      const result = state.data.find(item => item.id === id)
-      if (!result)
-        return null
-
-      return result
-    },
-  },
   actions: {
-    create(data: Lecturer) {
-      this.data.push(data)
-    },
-    dispatch() {
-      let index = 0
-
-      this.data = faker.helpers.multiple(() => ({
-        id: index++,
-        degree: faker.person.jobTitle(),
-        name: faker.person.fullName(),
-        faculty: faker.person.jobArea(),
-      } as Lecturer), { count: 10 })
-    },
-    delete(id: number) {
-      this.data.splice(this.data.findIndex(item => item.id === id), 1)
-    },
-    filter(row: Lecturer) {
-      return Object.values(row).some((value) => {
-        return String(value).toLowerCase().includes(this.search.toLowerCase())
+    async get() {
+      const data = await $fetch<Lecturer[]>('lecturers', {
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+        method: 'GET',
       })
-    },
-    update(id: number, data: Lecturer) {
-      const index = this.data.findIndex(item => item.id === id)
-      if (index === -1)
-        return
 
-      this.data[index] = data
+      this.data = data
     },
   },
 })

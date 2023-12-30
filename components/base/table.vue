@@ -2,14 +2,14 @@
 import { MagnifyingGlassMinusIcon } from '@heroicons/vue/20/solid'
 
 const props = defineProps<{
-  filter: (row: T) => boolean
+  filter?: (row: T) => boolean
   data: T[]
   columns: { key: string, header: string }[]
 }>()
 
 const page = ref(1)
 
-const filteredData = computed(() => props.data.filter(props.filter))
+const filteredData = computed(() => props.filter ? props.data.filter(props.filter) : props.data)
 const paginatedData = computed(() => filteredData.value.slice((page.value - 1) * 10, page.value * 10))
 </script>
 

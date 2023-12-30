@@ -1,3 +1,4 @@
 import type { Subject } from './Subject'
+import type { Lecturer } from './Lecturer'
 
-export type { Subject }
+export type { Subject, Lecturer }
