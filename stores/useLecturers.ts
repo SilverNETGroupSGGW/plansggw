@@ -32,6 +32,16 @@ export const useLecturers = defineStore('lecturers', {
 
       this.data = data
     },
+    async create(lecturer: Lecturer) {
+      await $fetch('lecturers', {
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+        method: 'POST',
+        body: JSON.stringify(lecturer),
+        headers: {
+          Authorization: `Bearer ${useCookie('accessToken').value}`,
+        },
+      })
+    },
     async update(lecturer: Lecturer) {
       await $fetch('lecturers', {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',

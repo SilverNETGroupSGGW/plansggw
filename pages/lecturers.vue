@@ -60,16 +60,46 @@ async function handleDelete() {
   }
 }
 
-// Shared
-function handleDialogOpen(id: string, mode: 'update' | 'delete') {
-  const lecturer = lecturers.data.find(lecturer => lecturer.id === id)
-  if (lecturer) {
-    currentLecturer.value = { ...lecturer }
+// Create lecturer dialog
+const createDialog = ref(false)
 
-    if (mode === 'update')
-      updateDialog.value = true
-    else
-      deleteDialog.value = true
+async function handleCreate() {
+  await lecturers.create(currentLecturer.value)
+  createDialog.value = false
+
+  lecturers.data.push({ ...currentLecturer.value })
+  currentLecturer.value = {
+    id: '',
+    firstName: '',
+    surname: '',
+    academicDegree: '',
+    email: '',
+  }
+}
+
+// Shared
+function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
+  if (id) {
+    const lecturer = lecturers.data.find(lecturer => lecturer.id === id)
+    if (lecturer) {
+      currentLecturer.value = { ...lecturer }
+
+      if (mode === 'update')
+        updateDialog.value = true
+      else
+        deleteDialog.value = true
+    }
+  }
+  else {
+    currentLecturer.value = {
+      id: '',
+      firstName: '',
+      surname: '',
+      academicDegree: '',
+      email: '',
+    }
+
+    createDialog.value = true
   }
 }
 </script>
@@ -86,7 +116,12 @@ function handleDialogOpen(id: string, mode: 'update' | 'delete') {
       </p>
     </div>
 
-    <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
+    <div class="flex gap-4">
+      <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
+      <base-button class="h-12" variant="primary" @click="handleDialogOpen('create')">
+        Dodaj wykładowcę
+      </base-button>
+    </div>
   </div>
 
   <base-table :data="lecturers.data" :columns="lecturers.columns" :filter="(row) => filter(row)">
@@ -104,15 +139,34 @@ function handleDialogOpen(id: string, mode: 'update' | 'delete') {
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-green-600" @click="handleDialogOpen(cell.id!, 'update')">
+        <button class="font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
           Edytuj
         </button>
-        <button class="font-medium text-red-600" @click="handleDialogOpen(cell.id!, 'delete')">
+        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
         </button>
       </div>
     </template>
   </base-table>
+
+  <base-dialog v-model="createDialog" title="Dodaj wykładowcę" :icon="UserIcon">
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
+      <base-input v-model="currentLecturer.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentLecturer.firstName" class="w-full" :icon="UserIcon" label="Imię" />
+      <base-input v-model="currentLecturer.surname" class="w-full" :icon="UserIcon" label="Nazwisko" />
+      <base-input v-model="currentLecturer.academicDegree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
+      <base-input v-model="currentLecturer.email" class="w-full" :icon="InboxIcon" label="E-mail" />
+
+      <div class="mt-6 flex justify-end gap-4">
+        <base-button variant="secondary" @click="createDialog = false">
+          Zamknij
+        </base-button>
+        <base-button variant="primary" type="submit">
+          Zapisz zmiany
+        </base-button>
+      </div>
+    </form>
+  </base-dialog>
 
   <base-dialog v-model="updateDialog" title="Edytuj wykładowcę" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
