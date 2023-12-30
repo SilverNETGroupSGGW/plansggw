@@ -34,7 +34,10 @@ defineEmits<{
                 </div>
                 <XMarkIcon class="h-6 w-6 cursor-pointer text-gray-400" @click="$emit('update:modelValue', false)" />
               </div>
-              <slot />
+              
+              <div class="p-6">
+                <slot />
+              </div>
             </DialogPanel>
           </TransitionChild>
         </div>

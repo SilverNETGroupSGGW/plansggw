@@ -37,7 +37,19 @@ export const useLecturers = defineStore('lecturers', {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
         method: 'PUT',
         body: JSON.stringify(lecturer),
+        headers: {
+          Authorization: `Bearer ${useCookie('accessToken').value}`,
+        },
       })
-    }
+    },
+    async delete(lecturer: Lecturer) {
+      await $fetch(`lecturers/${lecturer.id}`, {
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${useCookie('accessToken').value}`,
+        },
+      })
+    },
   },
 })
