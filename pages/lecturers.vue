@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChatBubbleBottomCenterIcon, MagnifyingGlassIcon, PlusIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { ChatBubbleBottomCenterIcon, PlusIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
 
 const createDialog = ref(false)
 const updateDialog = ref(false)
@@ -35,7 +35,7 @@ function handleFormSubmit(mode: 'create' | 'update') {
 </script>
 
 <template>
-  <base-dialog v-model="createDialog" title="Dodaj nowego wykładowcę">
+  <base-dialog v-model="createDialog" title="Dodaj nowego wykładowcę" :icon="PlusIcon">
     <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('create')">
       <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
       <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
@@ -53,7 +53,7 @@ function handleFormSubmit(mode: 'create' | 'update') {
     </form>
   </base-dialog>
 
-  <base-dialog v-model="updateDialog" title="Edytuj wykładowcę">
+  <base-dialog v-model="updateDialog" title="Edytuj wykładowcę" :icon="UserIcon">
     <form class="flex flex-col gap-4 p-6" @submit.prevent="handleFormSubmit('update')">
       <base-input v-model="updatedLecturer.name" class="w-full" :icon="UserIcon" label="Imię i nazwisko" />
       <base-input v-model="updatedLecturer.faculty" class="w-full" :icon="ChatBubbleBottomCenterIcon" label="Wydział" />
@@ -70,20 +70,6 @@ function handleFormSubmit(mode: 'create' | 'update') {
       </div>
     </form>
   </base-dialog>
-
-  <div class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 bg-gray-50 px-12 py-9">
-    <div>
-      <h1 class="text-2xl font-bold leading-9 text-gray-900">
-        Wykładowcy<br>
-      </h1>
-      <p class="text-base font-normal leading-normal text-gray-700">
-        Dane pochodzą z
-        <span class="text-base font-semibold leading-normal text-blue-600">Bazy Wiedzy SGGW</span>
-      </p>
-    </div>
-
-    <base-input v-model="lecturers.search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
-  </div>
 
   <base-table :data="lecturers.data" :columns="lecturers.columns" :filter="(row) => lecturers.filter(row)">
     <template #degree="{ cell }">
