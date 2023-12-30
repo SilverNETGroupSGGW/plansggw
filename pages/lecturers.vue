@@ -100,7 +100,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 </script>
 
 <template>
-  <div class="flex w-full flex-wrap justify-between gap-4 border border-b-gray-200 px-12 py-9">
+  <div class="flex w-full flex-wrap justify-between gap-4 border-b border-b-gray-200 px-12 py-9">
     <div>
       <h1 class="text-2xl font-bold leading-9 text-gray-900">
         Wykładowcy<br>
