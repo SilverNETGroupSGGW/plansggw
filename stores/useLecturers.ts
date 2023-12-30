@@ -33,7 +33,7 @@ export const useLecturers = defineStore('lecturers', {
       this.data = data
     },
     async create(lecturer: Lecturer) {
-      await $fetch('lecturers', {
+      const data = await $fetch<Lecturer>('lecturers', {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
         method: 'POST',
         body: JSON.stringify(lecturer),
@@ -41,6 +41,8 @@ export const useLecturers = defineStore('lecturers', {
           Authorization: `Bearer ${useCookie('accessToken').value}`,
         },
       })
+
+      this.data.push(data)
     },
     async update(lecturer: Lecturer) {
       const data = await $fetch<Lecturer>('lecturers', {
@@ -52,7 +54,7 @@ export const useLecturers = defineStore('lecturers', {
         },
       })
 
-      const index = this.data.findIndex((l) => l.id === data.id)
+      const index = this.data.findIndex(l => l.id === data.id)
       this.data[index] = data
     },
     async delete(lecturer: Lecturer) {

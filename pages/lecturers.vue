@@ -63,7 +63,6 @@ async function handleCreate() {
   await lecturers.create(currentLecturer.value)
   createDialog.value = false
 
-  lecturers.data.push({ ...currentLecturer.value })
   currentLecturer.value = {
     id: '',
     firstName: '',
