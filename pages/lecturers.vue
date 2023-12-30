@@ -30,10 +30,6 @@ async function handleUpdate() {
   await lecturers.update(currentLecturer.value)
   updateDialog.value = false
 
-  const index = lecturers.data.findIndex(lecturer => lecturer.id === currentLecturer.value.id)
-  if (index !== -1)
-    lecturers.data[index] = { ...currentLecturer.value }
-
   currentLecturer.value = {
     id: '',
     firstName: '',
