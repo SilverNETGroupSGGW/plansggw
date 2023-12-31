@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { FunctionalComponent } from 'vue'
-
 defineProps<{
-  icon: FunctionalComponent
+  icon: any
   label: string
   to: string
 }>()

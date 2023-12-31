@@ -14,43 +14,45 @@ const paginatedData = computed(() => filteredData.value.slice((page.value - 1) *
 </script>
 
 <template>
-  <table class="w-full">
-    <thead class="border-b border-gray-200">
-      <tr>
-        <th v-for="column in columns" :key="column.key" class="px-12 py-2 text-left font-semibold text-blue-600">
-          {{ column.header }}
-        </th>
-      </tr>
-    </thead>
+  <div class="overflow-x-scroll">
+    <table class="w-full">
+      <thead class="border-b border-gray-200">
+        <tr>
+          <th v-for="column in columns" :key="column.key" class="px-12 py-2 text-left font-semibold text-blue-600">
+            {{ column.header }}
+          </th>
+        </tr>
+      </thead>
 
-    <tbody class="divide-y divide-gray-200  align-top">
-      <tr v-for="(row, index) in paginatedData" :key="index">
-        <template v-if="paginatedData.length > 0">
-          <td v-for="column in columns" :key="column.key" class="px-12 py-4">
-            <slot :name="column.key" :cell="row" :index="index" />
+      <tbody class="divide-y divide-gray-200  align-top">
+        <tr v-for="(row, index) in paginatedData" :key="index">
+          <template v-if="paginatedData.length > 0">
+            <td v-for="column in columns" :key="column.key" class="px-12 py-4">
+              <slot :name="column.key" :cell="row" :index="index" />
+            </td>
+          </template>
+        </tr>
+
+        <tr v-if="paginatedData.length === 0">
+          <td :colspan="columns.length + 1" class="px-12 py-4">
+            <div class="flex items-center justify-center gap-2">
+              <MagnifyingGlassMinusIcon class="h-5 w-5 text-gray-400" />
+              <span class="text-gray-400">Brak wyników</span>
+            </div>
           </td>
-        </template>
-      </tr>
+        </tr>
+      </tbody>
 
-      <tr v-if="paginatedData.length === 0">
-        <td :colspan="columns.length + 1" class="px-12 py-4">
-          <div class="flex items-center justify-center gap-2">
-            <MagnifyingGlassMinusIcon class="h-5 w-5 text-gray-400" />
-            <span class="text-gray-400">Brak wyników</span>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-
-    <tfoot class="border-y border-gray-200">
-      <tr>
-        <td :colspan="columns.length - 1" class="px-12 py-4" />
-        <td class="w-fit px-12 py-4">
-          <div class="flex justify-end">
-            <base-pagination v-model="page" :filtered-data="filteredData" />
-          </div>
-        </td>
-      </tr>
-    </tfoot>
-  </table>
+      <tfoot class="border-y border-gray-200">
+        <tr>
+          <td :colspan="columns.length - 1" class="px-12 py-4" />
+          <td class="px-12 py-4">
+            <div class="flex justify-end">
+              <base-pagination v-model="page" :filtered-data="filteredData" />
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 </template>

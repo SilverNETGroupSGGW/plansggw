@@ -5,7 +5,7 @@ const tabs = reactive([
   {
     icon: Bars3CenterLeftIcon,
     label: 'Plany zajęć',
-    to: '/plans',
+    to: '/schedules',
   },
   {
     icon: UserIcon,

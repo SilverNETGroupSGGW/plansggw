@@ -26,7 +26,7 @@ watch(() => props.filteredData.length, () => {
       <ChevronLeftIcon class="h-5 w-5" />
     </button>
 
-    <span class="text-gray-700">
+    <span class="text-gray-700 whitespace-nowrap">
       Strona
       <span class="font-medium">{{ modelValue }}</span>
       z

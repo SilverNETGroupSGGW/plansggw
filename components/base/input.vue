@@ -1,6 +1,6 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
-  modelValue: string
+  modelValue: string | number
   icon?: /* FunctionalComponent */ any
   dark?: boolean
   label?: string
