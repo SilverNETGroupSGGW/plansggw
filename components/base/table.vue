@@ -44,9 +44,9 @@ const paginatedData = computed(() => filteredData.value.slice((page.value - 1) *
 
     <tfoot class="border-y border-gray-200">
       <tr>
-        <td :colspan="columns.length + 1" class="px-12 py-4">
-          <div class="flex justify-between">
-            <slot name="footer" />
+        <td :colspan="columns.length - 1" class="px-12 py-4" />
+        <td class="w-fit px-12 py-4">
+          <div class="flex justify-end">
             <base-pagination v-model="page" :filtered-data="filteredData" />
           </div>
         </td>
