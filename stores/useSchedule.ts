@@ -10,28 +10,8 @@ export const useSchedule = defineStore('schedule', {
         header: 'Nazwa',
       },
       {
-        key: 'year',
-        header: 'Rok',
-      },
-      {
-        key: 'semester',
-        header: 'Semestr',
-      },
-      {
-        key: 'faculty',
-        header: 'Wydział',
-      },
-      {
-        key: 'fieldOfStudy',
-        header: 'Kierunek',
-      },
-      {
-        key: 'studyMode',
-        header: 'Tryb',
-      },
-      {
-        key: 'degreeOfStudy',
-        header: 'Stopień',
+        key: 'info',
+        header: 'Informacje',
       },
       {
         key: 'actions',

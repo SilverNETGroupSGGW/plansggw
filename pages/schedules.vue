@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { KeyIcon, MagnifyingGlassIcon, TrashIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { ViewfinderCircleIcon } from '@heroicons/vue/20/solid'
+import { AcademicCapIcon, BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, PencilIcon, TrophyIcon, TrashIcon, UserIcon } from '@heroicons/vue/24/outline'
 import type { Schedule } from '~/types'
 
 // Schedules
@@ -97,7 +98,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   if (id) {
     const schedule = schedules.data.find(schedule => schedule.id === id)
     if (schedule)
-      currentSchedule.value = schedule
+      currentSchedule.value = { ...schedule }
 
     if (mode === 'update')
       updateDialog.value = true
@@ -144,28 +145,12 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
       <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
     </template>
 
-    <template #year="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.year }}</span>
-    </template>
-
-    <template #semester="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.semester }}</span>
-    </template>
-
-    <template #faculty="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.faculty }}</span>
-    </template>
-
-    <template #fieldOfStudy="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.fieldOfStudy }}</span>
-    </template>
-
-    <template #studyMode="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.studyMode }}</span>
-    </template>
-
-    <template #degreeOfStudy="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.degreeOfStudy }}</span>
+    <template #info="{ cell }">
+      <span class="text-base font-medium text-gray-900">
+        {{ cell.fieldOfStudy }} {{ cell.studyMode }} {{ cell.degreeOfStudy }}
+      </span>
+      <br>
+      <span class="text-base text-gray-700">rok {{ cell.year }}, semestr {{ cell.semester }}</span>
     </template>
 
     <template #actions="{ cell }">
@@ -183,13 +168,13 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   <base-dialog v-model="createDialog" title="Dodaj plan" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
       <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentSchedule.name" class="w-full" :icon="UserIcon" label="Nazwa" />
-      <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="UserIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="UserIcon" label="Semestr" />
-      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="UserIcon" label="Wydział" />
-      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="UserIcon" label="Kierunek" />
-      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="UserIcon" label="Tryb studiów" />
-      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="UserIcon" label="Stopień studiów" />
+      <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="AcademicCapIcon" label="Wydział" />
+      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek" />
+      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
+      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
+      <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -205,13 +190,13 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   <base-dialog v-model="updateDialog" title="Edytuj plan" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
       <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentSchedule.name" class="w-full" :icon="UserIcon" label="Nazwa" />
-      <base-input v-model="currentSchedule.year" class="w-full" :icon="UserIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" class="w-full" :icon="UserIcon" label="Semestr" />
-      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="UserIcon" label="Wydział" />
-      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="UserIcon" label="Kierunek" />
-      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="UserIcon" label="Tryb studiów" />
-      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="UserIcon" label="Stopień studiów" />
+      <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="AcademicCapIcon" label="Wydział" />
+      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek" />
+      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
+      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
+      <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
