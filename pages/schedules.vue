@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ViewfinderCircleIcon } from '@heroicons/vue/20/solid'
-import { AcademicCapIcon, BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, PencilIcon, TrophyIcon, TrashIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
 import type { Schedule } from '~/types'
+
+// Data
+const { courses } = useData()
 
 // Schedules
 const search = ref('')
@@ -122,6 +125,12 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     createDialog.value = true
   }
 }
+
+watchEffect(() => {
+  const course = courses.find(course => course.value.includes(currentSchedule.value.fieldOfStudy))
+  if (course)
+    currentSchedule.value.faculty = course.department
+})
 </script>
 
 <template>
@@ -165,19 +174,26 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </template>
   </base-table>
 
-  <base-dialog v-model="createDialog" title="Dodaj plan" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
+  <base-dialog v-model="updateDialog" title="Edytuj plan" :icon="UserIcon">
+    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
       <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
       <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="AcademicCapIcon" label="Wydział" />
-      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek" />
+      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek">
+        <template #options="{ option, active }">
+          <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
+          <br>
+          <span class="text-base" :class="{ 'text-gray-50': active, 'text-gray-700': !active }">
+            {{ option.department }}
+          </span>
+        </template>
+      </base-search>
       <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
       <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
       <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
       <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
-        <base-button variant="secondary" @click="createDialog = false">
+        <base-button variant="secondary" @click="updateDialog = false">
           Zamknij
         </base-button>
         <base-button variant="primary" type="submit">
@@ -187,19 +203,26 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </form>
   </base-dialog>
 
-  <base-dialog v-model="updateDialog" title="Edytuj plan" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
+  <base-dialog v-model="createDialog" title="Utwórz plan" :icon="UserIcon">
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
       <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
       <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentSchedule.faculty" class="w-full" :icon="AcademicCapIcon" label="Wydział" />
-      <base-input v-model="currentSchedule.fieldOfStudy" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek" />
+      <base-search v-model="currentSchedule.fieldOfStudy" :display-value="(item) => item.value" :options="courses" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek">
+        <template #options="{ option, active }">
+          <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
+          <br>
+          <span class="text-base" :class="{ 'text-gray-50': active, 'text-gray-700': !active }">
+            {{ option.department }}
+          </span>
+        </template>
+      </base-search>
       <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
       <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
       <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
       <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
-        <base-button variant="secondary" @click="updateDialog = false">
+        <base-button variant="secondary" @click="createDialog = false">
           Zamknij
         </base-button>
         <base-button variant="primary" type="submit">

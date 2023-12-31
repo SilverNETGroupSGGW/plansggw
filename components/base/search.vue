@@ -1,9 +1,8 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { value: string }">
 import { Combobox, ComboboxInput, ComboboxLabel, ComboboxOption, ComboboxOptions, TransitionRoot } from '@headlessui/vue'
 
 const props = defineProps<{
-  modelValue: string | number
-  options: any[]
+  options: T[]
   icon?: /* FunctionalComponent */ any
   label?: string
   caption?: string
@@ -13,6 +12,8 @@ defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
+const modelValue = defineModel<string>()
+
 const query = ref('')
 
 const filteredOptions = computed(() => {
@@ -20,14 +21,14 @@ const filteredOptions = computed(() => {
     if (!query.value)
       return true
 
-    return option.toLowerCase().includes(query.value.toLowerCase())
-  })
+    return option.value.toLowerCase().includes(query.value.toLowerCase())
+  }).slice(0, 3)
 })
 </script>
 
 <template>
   <div class="relative flex flex-col">
-    <Combobox :model-value="modelValue" v-bind="$attrs" @update:model-value="$emit('update:modelValue', $event)">
+    <Combobox v-model="modelValue">
       <ComboboxLabel v-if="label" class="mb-1 font-medium text-gray-700">
         {{ label }}
       </ComboboxLabel>
@@ -36,15 +37,11 @@ const filteredOptions = computed(() => {
         <ComboboxInput class="flex h-12 flex-col items-start justify-center self-stretch rounded-lg border border-gray-300 py-4 pr-6 text-gray-700 transition-colors duration-200 ease-in-out placeholder:text-gray-400 hover:transition-all hover:duration-200 hover:ease-in-out focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-600 focus:transition-all focus:duration-200 focus:ease-in-out active:ring-2 active:ring-blue-600 disabled:bg-gray-100" v-bind="$attrs" :class="[icon ? 'pl-12' : 'pl-6']" @change="query = $event.target.value" />
 
         <TransitionRoot leave="transition ease-in duration-100" leave-from="opacity-100" leave-to="opacity-0" @after-leave="query = ''">
-          <ComboboxOptions class="absolute mt-4 max-h-60 w-fit overflow-auto rounded-lg border border-gray-200 bg-white px-1 py-2 text-base focus:outline-none">
-            <ComboboxOption v-for="option in filteredOptions" :key="option" v-slot="{ active }" as="template" :value="option">
-              <li
-                class="relative cursor-default select-none rounded-lg px-5 py-2" :class="{
-                  'bg-blue-600 text-white': active,
-                  'text-gray-900': !active,
-                }"
-              >
-                <span class="block truncate">{{ option }}</span>
+          <ComboboxOptions class="absolute z-10 mt-4 max-h-60 w-fit overflow-auto rounded-lg border border-gray-200 bg-white px-1 py-2 text-base shadow-lg focus:outline-none">
+            <ComboboxOption v-for="(option, index) in filteredOptions" :key="index" v-slot="{ active }" as="template" :value="option.value">
+              <li class="relative cursor-default select-none rounded-lg px-5 py-2" :class="{ 'bg-blue-600 text-white': active, 'text-gray-900': !active }">
+                <slot v-if="$slots.options" name="options" :option="option" :active="active" />
+                <span v-else class="block truncate">{{ option }}</span>
               </li>
             </ComboboxOption>
           </ComboboxOptions>
