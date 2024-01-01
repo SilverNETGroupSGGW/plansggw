@@ -45,7 +45,18 @@ export default function useData() {
     { department: 'Wydział Zastosowań Informatyki i Matematyki', value: 'Turystyka i rekreacja' },
   ]
 
+  const degrees = [
+    { value: 'mgr inż.' },
+    { value: 'mgr' },
+    { value: 'inż.' },
+    { value: 'lic.' },
+    { value: 'dr' },
+    { value: 'dr hab.' },
+    { value: 'prof. dr hab.' },
+  ]
+
   return {
     courses,
+    degrees
   }
 }
