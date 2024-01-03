@@ -55,8 +55,17 @@ export default function useData() {
     { value: 'prof. dr hab.' },
   ]
 
+  const studiesDegrees = [
+    { value: 'BachelorsDegree', type: 'licencjackie' },
+    { value: 'MastersDegree', type: 'magisterskie' },
+    { value: 'DoctoralDegree', type: 'doktorskie' },
+    { value: 'CertificatesAndDiplomas', type: 'dyplomowe' },
+    { value: 'OnlineDegrees', type: 'online' },
+  ]
+
   return {
     courses,
-    degrees
+    degrees,
+    studiesDegrees,
   }
 }

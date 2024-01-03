@@ -4,7 +4,7 @@ import { BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, P
 import type { Schedule } from '~/types'
 
 // Data
-const { courses } = useData()
+const { courses, studiesDegrees } = useData()
 
 // Schedules
 const search = ref('')
@@ -188,7 +188,11 @@ watchEffect(() => {
         </template>
       </base-search>
       <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
-      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
+      <base-select v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees">
+        <template #options="{ option, active }">
+          <span class="text-base" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.type }}</span>
+        </template>
+      </base-select>
       <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
       <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
 
