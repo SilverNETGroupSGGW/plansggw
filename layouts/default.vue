@@ -1,4 +1,10 @@
+<script setup lang="ts">
+const { start } = useLoadingIndicator()
+start()
+</script>
+
 <template>
+  <NuxtLoadingIndicator color="#2563eb" />
   <layout-navbar />
   <div class="flex">
     <layout-sidebar />

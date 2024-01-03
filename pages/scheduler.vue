@@ -26,12 +26,14 @@ const { data } = await useFetch<Subject[]>('Subjects', {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-if (data.value) {
-  subjects.value = data.value.map((subject) => {
-    const { x, y, width, height } = calculatePosition(subject, 139.25, groups)
-    return { ...subject, x, y, width, height }
-  })
-}
+onMounted(() => {
+  if (data.value) {
+    subjects.value = data.value.map((subject) => {
+      const { x, y, width, height } = calculatePosition(subject, groupCells.value[0].offsetHeight, groups)
+      return { ...subject, x, y, width, height }
+    })
+  }
+})
 
 // Hooks
 const { onPointerDown } = useResize(subjects.value, container, groupCells)
