@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { Subject } from '~/types'
+import type { Schedule, Subject } from '~/types'
+
+// Nuxt hooks
+const route = useRoute()
 
 // Elements
 const container = ref<HTMLDivElement | null>(null)
@@ -19,16 +22,20 @@ while (initialDate.getHours() < 20) {
 const { calculatePosition } = useSubject()
 
 // Subjects
-const groups = ['efe04f87-3d7d-46f8-9cc1-0852564be8fa']
-const subjects = ref<Subject[]>([])
+const groups = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek']
+const subjects = ref<Subject[] | null>(null)
 
-const { data } = await useFetch<Subject[]>('Subjects', {
+const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
+  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+})
+
+const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.id}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
 onMounted(() => {
-  if (data.value) {
-    subjects.value = data.value.map((subject) => {
+  if (_subjects.value) {
+    subjects.value = _subjects.value.map((subject) => {
       const { x, y, width, height } = calculatePosition(subject, groupCells.value[0].offsetHeight, groups)
       return { ...subject, x, y, width, height }
     })
@@ -36,17 +43,45 @@ onMounted(() => {
 })
 
 // Hooks
-const { onPointerDown } = useResize(subjects.value, container, groupCells)
+let onPointerDown: Function | null = null
+
+watch(subjects, (value) => {
+  if (value) {
+    // const { onPointerDown } = useResize(value, container, groupCells)
+    const resize = useResize(value, container, groupCells)
+    onPointerDown = resize.onPointerDown
+  }
+})
 </script>
 
 <template>
+  <div class="flex w-full flex-wrap items-center justify-between gap-4 border-b border-b-gray-200 px-12 py-9">
+    <div>
+      <h1 class="text-2xl font-bold leading-9 text-gray-900">
+        Kreator planu zajęć
+      </h1>
+
+      <p class="font-semibold text-blue-600">
+        {{ schedule?.name }}
+      </p>
+      <p class="text-blue-600">
+        {{ schedule?.faculty }}, {{ schedule?.fieldOfStudy }}, {{ schedule?.studyMode }}, {{ schedule?.degreeOfStudy }}
+      </p>
+      <p class="text-gray-700">
+        Rok {{ schedule?.year }}, semestr {{ schedule?.semester }}
+      </p>
+    </div>
+  </div>
+
   <div class="h-full select-none overflow-x-scroll">
     <div class="flex w-full flex-col">
       <div class="flex flex-col">
         <div class="flex">
           <div class="flex h-12 w-[7.5rem] shrink-0" />
           <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-12 w-36 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700">
-            <div>{{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}</div>
+            <div>
+              {{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
+            </div>
           </div>
         </div>
 
@@ -65,7 +100,7 @@ const { onPointerDown } = useResize(subjects.value, container, groupCells)
       </div>
 
       <div ref="container" class="relative flex flex-col">
-        <div v-for="(subject, index) in subjects" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown($event, subject)">
+        <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
           <div :id="subject.id" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': subject.ghost, 'border-2 border-white': subject.overlap }]" :style="{ zIndex: subject.overlap ? 1 : 0 }">
             <div :id="subject.id" class="flex flex-col gap-1">
               <span class="font-bold text-white">{{ subject.name }}</span>
