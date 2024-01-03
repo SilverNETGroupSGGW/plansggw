@@ -164,10 +164,13 @@ watchEffect(() => {
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
+        <button class="font-medium text-blue-600 w-max" @click="schedules.download(cell)">
+          Pobierz plan
+        </button>
+        <button class="font-medium text-green-600 w-max" @click="handleDialogOpen('update', cell.id!)">
           Edytuj
         </button>
-        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
+        <button class="font-medium text-red-600 w-max" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
         </button>
       </div>

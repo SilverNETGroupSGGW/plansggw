@@ -64,5 +64,23 @@ export const useSchedule = defineStore('schedule', {
 
       this.data = this.data.filter(l => l.id !== schedule.id)
     },
+    async download(schedule: Schedule) {
+      const data = await $fetch<Blob>(`ScheduleGenerator/generate/${schedule.id}`, {
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${useCookie('accessToken').value}`,
+        },
+      })
+
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${schedule.name}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
   },
 })
