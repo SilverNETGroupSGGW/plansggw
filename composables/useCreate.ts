@@ -15,8 +15,8 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
     if (target.id)
       return
 
-    let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 24 + 12) / 24) * 24
-    let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top - groupCells.value[0].offsetHeight + 12) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+    let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left) / 24) * 24
+    let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
 
     // Check if x or y is outside the bounds and set them to the closest boundary
     const containerRect = container.value!.getBoundingClientRect()
