@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Schedule, Subject } from '~/types'
+import type { Group, Schedule, Subject } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
@@ -25,21 +25,27 @@ while (initialDate.getHours() < 20) {
 const { calculatePosition } = useSubject()
 
 // Subjects
-const groups = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek']
+const groups = ref<Group[] | null>()
 const subjects = ref<Subject[] | null>(null)
+
+const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.params.id}`, {
+  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+})
+
+groups.value = _groups.value
 
 const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.id}`, {
+const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.id}/extended`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
 onMounted(() => {
-  if (_subjects.value) {
+  if (_subjects.value && _groups.value) {
     subjects.value = _subjects.value.map((subject) => {
-      const { x, y, width, height } = calculatePosition(subject, groupCells.value[0].offsetHeight, groups)
+      const { x, y, width, height } = calculatePosition(subject, groupCells.value[0].offsetHeight, groups.value!.map(x => x.name))
       return { ...subject, x, y, width, height }
     })
   }
@@ -100,8 +106,8 @@ watch(subjects, (value) => {
 
     <div class="flex h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="group in groups" v-once :id="group" ref="groupCells" :key="group" :style="{ height: `${100 / groups.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r-2 border-t border-gray-200 text-center text-xs text-gray-700">
-          {{ group }}
+        <div v-for="(group, index) in groups" v-once :id="group.id" ref="groupCells" :key="index" :style="{ height: `${100 / groups!.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r-2 border-t border-gray-200 text-center text-xs text-gray-700">
+          {{ group.name }}
         </div>
       </div>
 
@@ -110,8 +116,8 @@ watch(subjects, (value) => {
           <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
         </div>
 
-        <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
-          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
+        <div v-for="(group, index) in groups" v-once :key="index" class="flex" :style="{ height: `${100 / groups!.length}%` }">
+          <div v-for="(time, index2) in timeRange" v-once :key="index2" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>
