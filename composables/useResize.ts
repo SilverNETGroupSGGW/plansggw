@@ -11,13 +11,15 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
   const isResizing = ref(false)
   const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 
+  const edgeThreshold = 16
+
   function onPointerDown(event: PointerEvent, subject: Subject) {
     if (event.button !== 0)
       return
 
     // Determine if we're dragging or resizing
     const rect = (event.target as HTMLElement).getBoundingClientRect()
-    if (Math.abs(event.clientX - rect.left) < 4 || Math.abs(event.clientX - rect.right) < 4 || Math.abs(event.clientY - rect.top) < 4 || Math.abs(event.clientY - rect.bottom) < 4) {
+    if (Math.abs(event.clientX - rect.left) < edgeThreshold || Math.abs(event.clientX - rect.right) < edgeThreshold || Math.abs(event.clientY - rect.top) < edgeThreshold || Math.abs(event.clientY - rect.bottom) < edgeThreshold) {
       // We're resizing
       onResizeDown(event, subject, false)
     }
@@ -35,10 +37,10 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
     if (!isCreating) {
       // Determine which edge we're resizing
       const rect = (event.target as HTMLElement).getBoundingClientRect()
-      const nearLeft = Math.abs(event.clientX - rect.left) < 4
-      const nearRight = Math.abs(event.clientX - rect.right) < 4
-      const nearTop = Math.abs(event.clientY - rect.top) < 4
-      const nearBottom = Math.abs(event.clientY - rect.bottom) < 4
+      const nearLeft = Math.abs(event.clientX - rect.left) < edgeThreshold
+      const nearRight = Math.abs(event.clientX - rect.right) < edgeThreshold
+      const nearTop = Math.abs(event.clientY - rect.top) < edgeThreshold
+      const nearBottom = Math.abs(event.clientY - rect.bottom) < edgeThreshold
 
       if (nearTop && nearLeft)
         mouse.resizeEdge = 'top-left'

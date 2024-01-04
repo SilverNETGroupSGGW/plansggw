@@ -12,7 +12,7 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
     const target = event.target as HTMLElement
 
     // Prevent creating a new subject when clicking on an existing subject
-    if (target.id.startsWith('subject-'))
+    if (target.id)
       return
 
     let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 24 + 12) / 24) * 24
