@@ -164,13 +164,16 @@ watchEffect(() => {
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-blue-600 w-max" @click="schedules.download(cell)">
+        <button class="w-max font-medium text-blue-600" @click="schedules.download(cell)">
           Pobierz plan
         </button>
-        <button class="font-medium text-green-600 w-max" @click="handleDialogOpen('update', cell.id!)">
+        <NuxtLink :to="`/schedules/${cell.id}`" class="w-max font-medium text-blue-600">
+          Kreator
+        </NuxtLink>
+        <button class="w-max font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
           Edytuj
         </button>
-        <button class="font-medium text-red-600 w-max" @click="handleDialogOpen('delete', cell.id!)">
+        <button class="w-max font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
         </button>
       </div>

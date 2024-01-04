@@ -44,12 +44,15 @@ onMounted(() => {
 
 // Hooks
 let onPointerDown: Function | null = null
+let onCreateMove: Function | null = null
 
 watch(subjects, (value) => {
   if (value) {
-    // const { onPointerDown } = useResize(value, container, groupCells)
     const resize = useResize(value, container, groupCells)
     onPointerDown = resize.onPointerDown
+
+    const create = useCreate(value, container, groupCells)
+    onCreateMove = create.onCreateMove
   }
 })
 </script>
@@ -99,13 +102,13 @@ watch(subjects, (value) => {
         </div>
       </div>
 
-      <div ref="container" class="relative flex flex-col">
+      <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
         <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
           <div :id="subject.id" class="flex h-full flex-col gap-2 rounded-md bg-blue-700 p-4" :class="[{ 'opacity-50': subject.ghost, 'border-2 border-white': subject.overlap }]" :style="{ zIndex: subject.overlap ? 1 : 0 }">
             <div :id="subject.id" class="flex flex-col gap-1">
-              <span class="font-bold text-white">{{ subject.name }}</span>
-              <span class="text-white">{{ subject.type }}</span>
-              <span class="text-white">{{ subject.startTime }} ({{ subject.duration }})</span>
+              <span :id="subject.id" class="font-bold text-white">{{ subject.name }}</span>
+              <span :id="subject.id" class="text-white">{{ subject.type }}</span>
+              <span :id="subject.id" class="text-white">{{ subject.startTime }} ({{ subject.duration }})</span>
             </div>
           </div>
         </div>
