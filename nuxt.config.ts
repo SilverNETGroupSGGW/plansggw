@@ -6,7 +6,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxtjs/google-fonts'],
+  modules: ['@vueuse/nuxt', '@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxtjs/google-fonts'],
   tailwindcss: {
     exposeConfig: true,
   },

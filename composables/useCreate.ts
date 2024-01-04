@@ -1,12 +1,12 @@
 import type { Subject } from '~/types'
 
-export default function useCreate(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
+export default function useCreate(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>, isLessonActive: boolean[]) {
   const mouse = useMouse()
 
-  const { onResizeDown } = useResize(subjects, container, groupCells)
+  const { onResizeDown } = useResize(subjects, container, groupCells, isLessonActive)
 
   function onCreateMove(event: PointerEvent) {
-    if (event.button !== 0)
+    if (event.button !== 0 || isLessonActive.includes(true))
       return
 
     const target = event.target as HTMLElement

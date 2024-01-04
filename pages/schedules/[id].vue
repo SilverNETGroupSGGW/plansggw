@@ -4,6 +4,9 @@ import type { Schedule, Subject } from '~/types'
 // Nuxt hooks
 const route = useRoute()
 
+// Popover
+const isLessonActive = ref<boolean[]>([])
+
 // Elements
 const container = ref<HTMLDivElement | null>(null)
 const groupCells = ref<HTMLDivElement[]>([])
@@ -48,10 +51,10 @@ let onCreateMove: Function | null = null
 
 watch(subjects, (value) => {
   if (value) {
-    const resize = useResize(value, container, groupCells)
+    const resize = useResize(value, container, groupCells, isLessonActive.value)
     onPointerDown = resize.onPointerDown
 
-    const create = useCreate(value, container, groupCells)
+    const create = useCreate(value, container, groupCells, isLessonActive.value)
     onCreateMove = create.onCreateMove
   }
 }, { once: true })
@@ -104,7 +107,7 @@ watch(subjects, (value) => {
 
       <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
         <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
-          <base-lesson v-bind="subject" />
+          <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
         </div>
 
         <div v-for="group in groups" v-once :key="group" class="flex" :style="{ height: `${100 / groups.length}%` }">
