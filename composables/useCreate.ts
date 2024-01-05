@@ -34,8 +34,7 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       y,
       width: 24,
       height: groupCells.value[0].offsetHeight,
-      startTime: '14:00:00', // TODO: Change this to the current date
-      duration: '01:30:00',
+      startTime: target.dataset.time!,
       ghost: true,
       type: SubjectType.Unknown,
       scheduleId,

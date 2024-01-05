@@ -156,6 +156,11 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
           mouse.currentSubject!.height = newHeight
           break
       }
+
+      const hours = Math.floor(mouse.currentSubject!.width! / 4.8 / 60)
+      const minutes = Math.round(mouse.currentSubject!.width! / 4.8 % 60)
+      const duration = `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:00`
+      mouse.currentSubject!.duration = duration
     })
   }
 

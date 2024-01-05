@@ -20,7 +20,7 @@ export interface Subject {
   type?: SubjectType
   startTime: string
   dayOfWeek?: string
-  duration: string
+  duration?: string
   isRemote?: boolean
   comment?: string
   

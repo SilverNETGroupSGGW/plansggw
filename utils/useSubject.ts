@@ -4,7 +4,7 @@ export default function useSubject() {
   function calculatePosition(subject: Subject, cellHeight: number, groups: string[]) {
     const startTime = new Date(`1970-01-01T${subject.startTime}`)
 
-    const [hours, minutes, seconds] = subject.duration.split(':').map(Number)
+    const [hours, minutes, seconds] = subject.duration!.split(':').map(Number)
     const duration = new Date(`1970-01-01T00:00:00Z`)
     duration.setHours(hours, minutes, seconds)
 
