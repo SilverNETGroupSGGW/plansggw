@@ -14,11 +14,21 @@ const subjectCells = ref<HTMLDivElement[] | null>(null)
 
 // Time range
 const timeRange: Date[] = []
-const initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
+const smallerTimeRange: Date[] = []
+let initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
 
 while (initialDate.getHours() < 20) {
+  // timeRange is in 30 minute interval
   timeRange.push(new Date(initialDate.getTime()))
   initialDate.setMinutes(initialDate.getMinutes() + 30)
+}
+
+initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
+
+while (initialDate.getHours() < 20) {
+  // smallerTimeRange is in 5 minute interval
+  smallerTimeRange.push(new Date(initialDate.getTime()))
+  initialDate.setMinutes(initialDate.getMinutes() + 5)
 }
 
 // Composables
@@ -117,7 +127,7 @@ watch(subjects, (value) => {
         </div>
 
         <div v-for="(group, index) in groups" v-once :key="index" class="flex" :style="{ height: `${100 / groups!.length}%` }">
-          <div v-for="(time, index2) in timeRange" v-once :key="index2" class="flex h-full w-36 shrink-0 items-center justify-between border-b border-r-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
+         <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-full w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>
