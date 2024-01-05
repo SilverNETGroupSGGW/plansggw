@@ -3,16 +3,32 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { OnClickOutside } from '@vueuse/components'
 import { Float } from '@headlessui-float/vue'
 import type { Subject } from '~/types'
+import { SubjectType } from '~/types'
 
-defineProps<Subject>()
+const props = defineProps<Subject>()
 
 const model = defineModel<boolean>({ default: false })
+
+const backgroundClass = computed(() => {
+  switch (props.type) {
+    case SubjectType.Faculty:
+      return 'bg-purple-50 border-purple-600'
+    case SubjectType.Laboratories:
+      return 'bg-yellow-50 border-yellow-600'
+    case SubjectType.Lecture:
+      return 'bg-blue-50 border-blue-600'
+    case SubjectType.PracticalClasses:
+      return 'bg-pink-50 border-pink-600'
+    case SubjectType.Unknown:
+      return 'bg-gray-50 border-gray-600'
+  }
+})
 </script>
 
 <template>
   <Popover class="relative h-full">
     <Float :show="model" auto-placement :offset="8" enter="transition duration-200 ease-out" enter-from="translate-y-1 opacity-0" enter-to="translate-y-0 opacity-100" leave="transition duration-150 ease-in" leave-from="translate-y-0 opacity-100" leave-to="translate-y-1 opacity-0">
-      <PopoverButton :id="id" class="flex h-full w-full flex-col items-start rounded-md border border-blue-600 bg-blue-50 p-4 outline-none" :class="[{ 'opacity-50': ghost }]">
+      <PopoverButton :id="id" class="flex h-full w-full flex-col items-start rounded-md border p-4 outline-none" :class="[{ 'opacity-50': ghost }, backgroundClass]">
         <small class="text-gray-600">
           {{ startTime }} ({{ duration }})
         </small>

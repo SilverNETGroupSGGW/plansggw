@@ -4,11 +4,11 @@ import type { Lecturer } from './Lecturer'
 import type { Lesson } from './Lesson'
 
 export enum SubjectType {
-  Lecture = 'Wykład',
-  PracticalClasses = 'Ćwiczenia',
-  Laboratories = 'Laboratoria',
-  Unknown = 'Nieznane',
-  Faculty = 'Fakultet',
+  Lecture = 'Lecture',
+  PracticalClasses = 'PracticalClasses',
+  Laboratories = 'Laboratories',
+  Unknown = 'Unknown',
+  Faculty = 'Faculty',
 }
 
 export interface Subject {
