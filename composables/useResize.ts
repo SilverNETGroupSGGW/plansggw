@@ -170,14 +170,14 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
   async function onResizeUp() {
     if (mouse.isCreating) {
       // TODO: Move business logic outside maths
-      await $fetch('subjects', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${useCookie('accessToken').value}`,
-        },
-        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api/',
-        body: JSON.stringify(mouse.currentSubject),
-      })
+      // await $fetch('subjects', {
+      //   method: 'POST',
+      //   headers: {
+      //     Authorization: `Bearer ${useCookie('accessToken').value}`,
+      //   },
+      //   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api/',
+      //   body: JSON.stringify(mouse.currentSubject),
+      // })
       mouse.isCreating = false
     }
 
