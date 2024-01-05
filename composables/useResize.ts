@@ -4,6 +4,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
   const mouse = useMouse()
 
   const { onDragDown } = useDrag(subjects, container, groupCells)
+  const { calculateStartTime } = useSubject()
 
   let rafId: number | null = null
   const initialResizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
@@ -157,17 +158,19 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
           break
       }
 
-      const hours = Math.floor(mouse.currentSubject!.width! / 4.8 / 60)
-      const minutes = Math.round(mouse.currentSubject!.width! / 4.8 % 60)
-      const duration = `${hours}:${minutes < 10 ? `0${minutes}` : minutes}:00`
+      const hours: number | string = Math.floor(mouse.currentSubject!.width! / 4.8 / 60)
+      const minutes: number | string = Math.round(mouse.currentSubject!.width! / 4.8 % 60)
+      const duration = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:00`
       mouse.currentSubject!.duration = duration
+
+      calculateStartTime(mouse.currentSubject!)
     })
   }
 
   async function onResizeUp() {
     if (mouse.isCreating) {
       // TODO: Move business logic outside maths
-      await $fetch('Subjects', {
+      await $fetch('subjects', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${useCookie('accessToken').value}`,

@@ -1,6 +1,8 @@
 import type { Subject } from '~/types'
 
 export default function useDrag(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
+  const { calculateStartTime } = useSubject()
+
   let rafId: number | null = null
   const isDragging = ref(false)
   const currentSubject = ref<Subject | null>(null)
@@ -48,6 +50,8 @@ export default function useDrag(subjects: Subject[], container: Ref<HTMLElement 
         // newX can't be larger than container.value.offsetWidth - currentSubject.value!.width
         currentSubject.value!.x = newX >= 0 ? (newX <= container.value!.offsetWidth - currentSubject.value!.width! ? newX : container.value!.offsetWidth! - currentSubject.value!.width!) : 0
         currentSubject.value!.y = newY >= 0 ? (newY <= totalHeight - currentSubject.value!.height! ? newY : totalHeight - currentSubject.value!.height!) : 0
+
+        calculateStartTime(currentSubject.value!)
 
         // Update dragStart based on the actual movement of the element
         dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }

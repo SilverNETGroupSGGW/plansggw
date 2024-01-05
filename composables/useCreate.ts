@@ -36,8 +36,12 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       height: groupCells.value[0].offsetHeight,
       startTime: target.dataset.time!,
       ghost: true,
+      groupsIds: [target.dataset.group!],
       type: SubjectType.Unknown,
       scheduleId,
+      name: 'Zajęcia',
+      comment: '',
+      lecturersIds: [],
     }
 
     mouse.resizeEdge = 'bottom-right'

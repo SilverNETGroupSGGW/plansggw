@@ -127,7 +127,7 @@ watch(subjects, (value) => {
         </div>
 
         <div v-for="(group, index) in groups" v-once :key="index" class="flex" :style="{ height: `${100 / groups!.length}%` }">
-          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-full w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="`${group}:00`" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })" />
+          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-full w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>

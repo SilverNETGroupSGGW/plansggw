@@ -19,7 +19,19 @@ export default function useSubject() {
     return { x, y, width, height }
   }
 
+  function calculateStartTime(subject: Subject) {
+    const baseTime = new Date()
+    baseTime.setHours(8, 0, 0, 0)
+
+    const minutesFromBase = (subject.x! / 24) * 5
+    const newTime = new Date(baseTime.getTime() + minutesFromBase * 60000)
+    const hours = newTime.getHours() < 10 ? `0${newTime.getHours()}` : newTime.getHours()
+    const minutes = newTime.getMinutes() < 10 ? `0${newTime.getMinutes()}` : newTime.getMinutes()
+    subject.startTime = `${hours}:${minutes}:00`
+  }
+
   return {
     calculatePosition,
+    calculateStartTime,
   }
 }
