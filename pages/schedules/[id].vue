@@ -112,7 +112,7 @@ watch(subjects, (value) => {
       </div>
 
       <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
-        <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px`, zIndex: subject.overlap ? subject.zIndex! : undefined }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
+        <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
           <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
         </div>
 

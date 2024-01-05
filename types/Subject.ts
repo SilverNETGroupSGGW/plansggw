@@ -34,6 +34,4 @@ export interface Subject {
   width?: number
   height?: number
   ghost?: boolean
-  overlap?: boolean
-  zIndex?: number
 }

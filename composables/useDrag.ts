@@ -51,22 +51,6 @@ export default function useDrag(subjects: Subject[], container: Ref<HTMLElement 
 
         // Update dragStart based on the actual movement of the element
         dragStart.value = { x: dragStart.value.x + deltaX, y: dragStart.value.y + deltaY }
-
-        currentSubject.value!.overlap = false
-
-        // Check for overlap with other subjects
-        for (const subject of subjects) {
-          if (subject.id !== currentSubject.value!.id) {
-            if (newX < subject.x! + subject.width!
-              && newX + currentSubject.value!.width! > subject.x!
-              && newY < subject.y! + subject.height!
-              && newY + currentSubject.value!.height! > subject.y!) {
-              // Overlap detected
-              currentSubject.value!.overlap = true
-              break
-            }
-          }
-        }
       }
     })
   }
