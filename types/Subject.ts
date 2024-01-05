@@ -23,10 +23,17 @@ export interface Subject {
   duration: string
   isRemote?: boolean
   comment?: string
+  
   lecturers?: Lecturer[]
+  lecturersIds?: string[]
+
   groups?: Group[]
+  groupsIds?: string[]
+
   lessons?: Lesson[]
+
   classroom?: Classroom
+  classroomId?: string
 
   /* internal */
   x?: number

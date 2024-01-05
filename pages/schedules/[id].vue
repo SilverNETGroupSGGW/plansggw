@@ -60,7 +60,7 @@ watch(subjects, (value) => {
     const resize = useResize(value, container, groupCells, isLessonActive.value)
     onPointerDown = resize.onPointerDown
 
-    const create = useCreate(value, container, groupCells, isLessonActive.value)
+    const create = useCreate(value, container, groupCells, isLessonActive.value, route.params.id as string)
     onCreateMove = create.onCreateMove
   }
 }, { once: true })

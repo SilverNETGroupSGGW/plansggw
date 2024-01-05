@@ -1,6 +1,6 @@
-import type { Subject } from '~/types'
+import { type Subject, SubjectType } from '~/types'
 
-export default function useCreate(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>, isLessonActive: boolean[]) {
+export default function useCreate(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>, isLessonActive: boolean[], scheduleId: string) {
   const mouse = useMouse()
 
   const { onResizeDown } = useResize(subjects, container, groupCells, isLessonActive)
@@ -34,19 +34,22 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       y,
       width: 24,
       height: groupCells.value[0].offsetHeight,
-      startTime: '2021-10-01', // TODO: Change this to the current date
-      duration: '1:30',
+      startTime: '14:00:00', // TODO: Change this to the current date
+      duration: '01:30:00',
       ghost: true,
-      groupsIds: [],
+      type: SubjectType.Unknown,
+      scheduleId,
     }
+
     mouse.resizeEdge = 'bottom-right'
     mouse.currentSubject = newSubject
+    mouse.isCreating = true
 
     // Add the new subject to the subjects array
     subjects.push(newSubject)
 
     // Trigger the resize event
-    onResizeDown(event, newSubject, true)
+    onResizeDown(event, newSubject)
   }
 
   return {

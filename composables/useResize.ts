@@ -7,8 +7,6 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
 
   let rafId: number | null = null
   const initialResizeEdge = ref<null | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'top' | 'bottom'>(null)
-  const isCreating = ref(false)
-  const isResizing = ref(false)
   const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 })
 
   const edgeThreshold = 16
@@ -21,7 +19,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
     const rect = (event.target as HTMLElement).getBoundingClientRect()
     if (Math.abs(event.clientX - rect.left) < edgeThreshold || Math.abs(event.clientX - rect.right) < edgeThreshold || Math.abs(event.clientY - rect.top) < edgeThreshold || Math.abs(event.clientY - rect.bottom) < edgeThreshold) {
       // We're resizing
-      onResizeDown(event, subject, false)
+      onResizeDown(event, subject)
     }
     else {
       // We're dragging
@@ -29,12 +27,12 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
     }
   }
 
-  function onResizeDown(event: PointerEvent, subject: Subject, isCreating: boolean) {
-    isResizing.value = true
+  function onResizeDown(event: PointerEvent, subject: Subject) {
+    mouse.isResizing = true
     resizeStart.value = { x: event.clientX, y: event.clientY, width: subject.width!, height: subject.height! }
     mouse.currentSubject = subject
 
-    if (!isCreating) {
+    if (!mouse.isCreating) {
       // Determine which edge we're resizing
       const rect = (event.target as HTMLElement).getBoundingClientRect()
       const nearLeft = Math.abs(event.clientX - rect.left) < edgeThreshold
@@ -70,7 +68,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
 
   function onResizeMove(event: PointerEvent) {
     // Early return if not resizing or no current subject
-    if (!isResizing.value || !mouse.currentSubject)
+    if (!mouse.isResizing || !mouse.currentSubject)
       return
 
     // Cancel any existing animation frame request
@@ -161,9 +159,22 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
     })
   }
 
-  function onResizeUp() {
-    isResizing.value = false
-    isCreating.value = false
+  async function onResizeUp() {
+    if (mouse.isCreating) {
+      // TODO: Move business logic outside maths
+      await $fetch('Subjects', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${useCookie('accessToken').value}`,
+        },
+        baseURL: 'https://kampus-sggw-api.azurewebsites.net/api/',
+        body: JSON.stringify(mouse.currentSubject),
+      })
+      mouse.isCreating = false
+    }
+
+    mouse.isResizing = false
+    mouse.isCreating = false
     // Drop the ghost class
     mouse.currentSubject!.ghost = false
     mouse.currentSubject = null
