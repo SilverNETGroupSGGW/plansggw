@@ -14,7 +14,7 @@ const tabs = reactive([
   },
   {
     icon: ChatBubbleOvalLeftEllipsisIcon,
-    label: 'Sale wykładowe',
+    label: 'Sale',
     to: '/classrooms',
   },
 ])

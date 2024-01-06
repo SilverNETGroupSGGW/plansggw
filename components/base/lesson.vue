@@ -24,7 +24,7 @@ const deleteDialog = ref(false)
   >
     <div class="flex w-full items-center justify-between">
       <small class="text-xs text-gray-600">
-        {{ startTime }} ({{ duration }})
+        {{ startTime.slice(0, -3) }} ({{ duration!.slice(0, -3) }}h)
       </small>
 
       <div class="flex items-center gap-2">

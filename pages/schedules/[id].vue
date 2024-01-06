@@ -96,14 +96,14 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, is
 
         <div class="flex">
           <div class="flex h-12 w-48 shrink-0 border-b-2 border-r-2" />
-          <div v-for="index in timeRange.length * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
+          <div v-for="index in timeRange.length * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b-2 border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
         </div>
       </div>
     </div>
 
     <div class="flex">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-b-2 border-r-2 border-gray-200 text-center text-xs text-gray-700">
+        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-b-2 border-x-2 border-gray-200 text-center text-xs text-gray-700">
           {{ group.name }}
         </div>
       </div>
@@ -114,7 +114,7 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, is
         </div>
 
         <div v-for="(group, index) in groups" v-once :key="index" class="flex h-48">
-          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-48 w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" />
+          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-48 w-6 shrink-0 items-center justify-between border-b-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" :class="[(time.getMinutes() === 55 || time.getMinutes() === 25) ? 'border-r-2' : 'border-r']" />
         </div>
       </div>
     </div>
