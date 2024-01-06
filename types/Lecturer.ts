@@ -1,12 +1,12 @@
 import type { Subject } from "./Subject"
 
 export interface Lecturer {
-  id: string
-  created?: string
-  updated?: string
-  firstName: string
-  surname: string
   academicDegree: string
+  created?: string
   email: string
+  firstName: string
+  id: string
   subjects?: Subject[]
+  surname: string
+  updated?: string
 }

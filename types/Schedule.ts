@@ -1,16 +1,16 @@
 import type { Subject } from './Subject'
 
 export interface Schedule {
-  id: string
   created?: string
-  updated?: string
-  startDate: string
-  name: string
-  year: number
-  semester: number
+  degreeOfStudy: string
   faculty: string
   fieldOfStudy: string
+  id: string
+  name: string
+  semester: number
+  startDate: string
   studyMode: string
-  degreeOfStudy: string
   subjects: Subject[]
+  updated?: string
+  year: number
 }

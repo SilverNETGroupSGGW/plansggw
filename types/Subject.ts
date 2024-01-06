@@ -22,33 +22,28 @@ export enum DayOfWeek {
 }
 
 export interface Subject {
-  id?: string
-  created?: string
-  updated?: string
-  scheduleId?: string
-  name?: string
-  type?: SubjectType
-  startTime: string
-  dayOfWeek?: DayOfWeek
-  duration?: string
-  isRemote?: boolean
-  comment?: string
-
-  lecturers?: Lecturer[]
-  lecturersIds?: string[]
-
-  groups?: Group[]
-  groupsIds?: string[]
-
-  lessons?: Lesson[]
-
   classroom?: Classroom
   classroomId?: string
+  comment?: string
+  created?: string
+  dayOfWeek?: DayOfWeek
+  duration?: string
+  groups?: Group[]
+  groupsIds?: string[]
+  id?: string
+  isRemote?: boolean
+  lecturers?: Lecturer[]
+  lecturersIds?: string[]
+  lessons?: Lesson[]
+  name?: string
+  scheduleId?: string
+  startTime: string
+  type?: SubjectType
+  updated?: string
 
-  /* internal */
+  ghost?: boolean
+  height?: number
+  width?: number
   x?: number
   y?: number
-  width?: number
-  height?: number
-  ghost?: boolean
 }
