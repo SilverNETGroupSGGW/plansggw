@@ -90,39 +90,41 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, ro
     </div>
   </div>
 
-  <div class="h-full select-none">
-    <div class="flex w-full flex-col">
-      <div class="flex flex-col">
-        <div class="flex">
-          <div class="flex h-12 w-[10.5rem] shrink-0" />
-          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-12 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700" :class="[index !== timeRange.length - 1 && 'w-36']">
-            <div>
-              {{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
+  <div class="overflow-x-scroll">
+    <div class="h-full select-none">
+      <div class="flex w-full flex-col">
+        <div class="flex flex-col">
+          <div class="flex">
+            <div class="flex h-12 w-[10.5rem] shrink-0" />
+            <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-12 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700" :class="[index !== timeRange.length - 1 && 'w-36']">
+              <div>
+                {{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
+              </div>
             </div>
+          </div>
+
+          <div class="flex">
+            <div class="flex h-12 w-48 shrink-0 border-b-2 border-r-2" />
+            <div v-for="index in (timeRange.length - 1) * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b-2 border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex">
+        <div class="flex h-full w-fit flex-col">
+          <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-x-2 border-b-2 border-gray-200 text-center text-xs text-gray-700">
+            {{ group.name }}
           </div>
         </div>
 
-        <div class="flex">
-          <div class="flex h-12 w-48 shrink-0 border-b-2 border-r-2" />
-          <div v-for="index in (timeRange.length - 1) * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b-2 border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
-        </div>
-      </div>
-    </div>
+        <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
+          <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
+            <base-lesson v-bind="subject" />
+          </div>
 
-    <div class="flex">
-      <div class="flex h-full w-fit flex-col">
-        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-x-2 border-b-2 border-gray-200 text-center text-xs text-gray-700">
-          {{ group.name }}
-        </div>
-      </div>
-
-      <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
-        <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
-          <base-lesson v-bind="subject" />
-        </div>
-
-        <div v-for="(group, index) in groups" v-once :key="index" class="flex h-48">
-          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-48 w-6 shrink-0 items-center justify-between border-b-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" :class="[(time.getMinutes() === 55 || time.getMinutes() === 25) ? 'border-r-2' : 'border-r']" />
+          <div v-for="(group, index) in groups" v-once :key="index" class="flex h-48">
+            <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-48 w-6 shrink-0 items-center justify-between border-b-2 border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" :class="[(time.getMinutes() === 55 || time.getMinutes() === 25) ? 'border-r-2' : 'border-r']" />
+          </div>
         </div>
       </div>
     </div>

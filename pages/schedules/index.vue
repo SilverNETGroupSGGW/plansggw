@@ -48,25 +48,27 @@ watchEffect(() => {
     </template>
 
     <template #actions="{ cell }">
-      <div class="flex gap-4">
-        <button class="w-max font-medium text-indigo-600" @click="schedules.download(cell)">
+      <div class="flex flex-wrap gap-4">
+        <base-button variant="primary" @click="schedules.download(cell)">
           Pobierz plan
-        </button>
-        <NuxtLink :to="`/schedules/${cell.id}/monday`" class="w-max font-medium text-indigo-600">
+        </base-button>
+        <base-button variant="primary" :to="`/schedules/${cell.id}/monday`">
           Kreator
-        </NuxtLink>
-        <NuxtLink :to="`/schedules/${cell.id}/subjects/list`" class="w-max font-medium text-indigo-600">
+        </base-button>
+
+        <base-button variant="secondary" :to="`/schedules/${cell.id}/subjects/list`">
           Przedmioty
-        </NuxtLink>
-        <NuxtLink :to="`/schedules/${cell.id}/groups`" class="w-max font-medium text-indigo-600">
+        </base-button>
+        <base-button variant="secondary" :to="`/schedules/${cell.id}/groups`">
           Grupy
-        </NuxtLink>
-        <button class="w-max font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
+        </base-button>
+
+        <base-button variant="secondary" @click="handleDialogOpen('update', cell.id!)">
           Edytuj
-        </button>
-        <button class="w-max font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
+        </base-button>
+        <base-button variant="danger" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
-        </button>
+        </base-button>
       </div>
     </template>
   </base-table>
