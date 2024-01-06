@@ -25,7 +25,7 @@ const paginatedData = computed(() => filteredData.value.slice((page.value - 1) *
     <table class="w-full">
       <thead class="border-b border-gray-200">
         <tr>
-          <th v-for="column in columns" :key="column.key" class="px-12 py-2 text-left font-semibold text-blue-600">
+          <th v-for="column in columns" :key="column.key" class="px-12 py-2 text-left font-semibold text-indigo-600">
             {{ column.header }}
           </th>
         </tr>

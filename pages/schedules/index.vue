@@ -49,16 +49,16 @@ watchEffect(() => {
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="w-max font-medium text-blue-600" @click="schedules.download(cell)">
+        <button class="w-max font-medium text-indigo-600" @click="schedules.download(cell)">
           Pobierz plan
         </button>
-        <NuxtLink :to="`/schedules/${cell.id}`" class="w-max font-medium text-blue-600">
+        <NuxtLink :to="`/schedules/${cell.id}/monday`" class="w-max font-medium text-indigo-600">
           Kreator
         </NuxtLink>
-        <NuxtLink :to="`/schedules/${cell.id}/subjects/list`" class="w-max font-medium text-blue-600">
+        <NuxtLink :to="`/schedules/${cell.id}/subjects/list`" class="w-max font-medium text-indigo-600">
           Przedmioty
         </NuxtLink>
-        <NuxtLink :to="`/schedules/${cell.id}/groups`" class="w-max font-medium text-blue-600">
+        <NuxtLink :to="`/schedules/${cell.id}/groups`" class="w-max font-medium text-indigo-600">
           Grupy
         </NuxtLink>
         <button class="w-max font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">

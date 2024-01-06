@@ -16,7 +16,7 @@ const timeRange: Date[] = []
 const smallerTimeRange: Date[] = []
 let initialDate = new Date(2023, 0, 1, 8, 0, 0, 0)
 
-while (initialDate.getHours() < 20) {
+while (initialDate.getHours() < 20 || (initialDate.getHours() === 20 && initialDate.getMinutes() === 0)) {
   // timeRange is in 30 minute interval
   timeRange.push(new Date(initialDate.getTime()))
   initialDate.setMinutes(initialDate.getMinutes() + 30)
@@ -72,10 +72,10 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, ro
         Kreator planu zajęć
       </h1>
 
-      <p class="font-semibold text-blue-600">
+      <p class="font-semibold text-indigo-600">
         {{ schedule?.name }}
       </p>
-      <p class="text-blue-600">
+      <p class="text-indigo-600">
         {{ schedule?.faculty }}, {{ schedule?.fieldOfStudy }}, {{ schedule?.studyMode }}, {{ schedule?.degreeOfStudy }}
       </p>
       <p class="text-gray-700">
@@ -90,12 +90,12 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, ro
     </div>
   </div>
 
-  <div class="h-full select-none overflow-x-scroll">
+  <div class="h-full select-none">
     <div class="flex w-full flex-col">
       <div class="flex flex-col">
         <div class="flex">
           <div class="flex h-12 w-[10.5rem] shrink-0" />
-          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-12 w-36 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700">
+          <div v-for="(time, index) in timeRange" v-once :key="index" class="flex h-12 shrink-0 items-center justify-between whitespace-nowrap text-center font-medium text-gray-700" :class="[index !== timeRange.length - 1 && 'w-36']">
             <div>
               {{ time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) }}
             </div>
@@ -104,7 +104,7 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, ro
 
         <div class="flex">
           <div class="flex h-12 w-48 shrink-0 border-b-2 border-r-2" />
-          <div v-for="index in timeRange.length * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b-2 border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
+          <div v-for="index in (timeRange.length - 1) * 6" v-once :key="index" class="flex h-12 w-6 shrink-0 items-center justify-between whitespace-nowrap border-b-2 border-r border-gray-200 text-center font-medium text-gray-700" :class="[index % 6 === 0 ? 'border-r-2' : 'border-r']" />
         </div>
       </div>
     </div>

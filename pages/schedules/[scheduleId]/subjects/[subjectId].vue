@@ -189,12 +189,11 @@ async function saveChanges() {
           </template>
 
           <template #email="{ cell }">
-            <a class="text-base text-blue-600 underline" :href="`mailto:${cell.email}`">{{ cell.email }}</a>
+            <a class="text-base text-indigo-600 underline" :href="`mailto:${cell.email}`">{{ cell.email }}</a>
           </template>
 
           <template #actions="{ cell }">
-            <!-- use data.lecturers -->
-            <button v-if="!data?.lecturers?.some(lecturer => lecturer.id === cell.id)" class="font-medium text-blue-600" @click="addLecturer(cell)">
+            <button v-if="!data?.lecturers?.some(lecturer => lecturer.id === cell.id)" class="font-medium text-indigo-600" @click="addLecturer(cell)">
               Dodaj
             </button>
             <button v-else class="font-medium text-red-600" @click="removeLecturer(cell)">
@@ -216,7 +215,7 @@ async function saveChanges() {
           </template>
 
           <template #actions="{ cell }">
-            <button v-if="!data?.groups?.some(group => group.id === cell.id)" class="font-medium text-blue-600" @click="addGroup(cell)">
+            <button v-if="!data?.groups?.some(group => group.id === cell.id)" class="font-medium text-indigo-600" @click="addGroup(cell)">
               Dodaj
             </button>
             <button v-else class="font-medium text-red-600" @click="removeGroup(cell)">
@@ -246,7 +245,7 @@ async function saveChanges() {
           </template>
 
           <template #actions="{ cell }">
-            <button v-if="data!.classroom!.id !== cell.id" class="font-medium text-blue-600" @click="addClassroom(cell)">
+            <button v-if="data!.classroom!.id !== cell.id" class="font-medium text-indigo-600" @click="addClassroom(cell)">
               Dodaj
             </button>
             <button v-else class="font-medium text-red-600" @click="removeClassroom(cell)">

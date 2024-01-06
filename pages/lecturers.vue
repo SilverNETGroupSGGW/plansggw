@@ -19,7 +19,7 @@ const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, han
       </h1>
       <p class="text-base font-normal leading-normal text-gray-700">
         Dane pochodzą z
-        <span class="text-base font-semibold leading-normal text-blue-600">Bazy Wiedzy SGGW</span>
+        <span class="text-base font-semibold leading-normal text-indigo-600">Bazy Wiedzy SGGW</span>
       </p>
     </div>
 
@@ -37,7 +37,7 @@ const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, han
     </template>
 
     <template #email="{ cell }">
-      <a class="text-base text-blue-600 underline" :href="`mailto:${cell.email}`">{{ cell.email }}</a>
+      <a class="text-base text-indigo-600 underline" :href="`mailto:${cell.email}`">{{ cell.email }}</a>
     </template>
 
     <template #actions="{ cell }">

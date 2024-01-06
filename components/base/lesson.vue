@@ -17,7 +17,7 @@ const deleteDialog = ref(false)
       { 'opacity-50': ghost },
       { 'border-purple-600 bg-purple-50': type === SubjectType.Faculty },
       { 'border-yellow-600 bg-yellow-50': type === SubjectType.Laboratories },
-      { 'border-blue-600 bg-blue-50': type === SubjectType.Lecture },
+      { 'border-indigo-600 bg-indigo-50': type === SubjectType.Lecture },
       { 'border-pink-600 bg-pink-50': type === SubjectType.PracticalClasses },
       { 'border-gray-600 bg-gray-50': type === SubjectType.Unknown },
     ]"
@@ -28,7 +28,7 @@ const deleteDialog = ref(false)
       </small>
 
       <div class="flex items-center gap-2">
-        <NuxtLink :id="`link-${id}`" :to="`/schedules/${scheduleId}/subjects/${id}`" class="text-xs text-blue-600">
+        <NuxtLink :id="`link-${id}`" :to="`/schedules/${scheduleId}/subjects/${id}`" class="text-xs text-indigo-600">
           Edytuj
         </NuxtLink>
         <button :id="`delete-${id}`" class="text-xs text-red-600" @click.prevent="deleteDialog = true">

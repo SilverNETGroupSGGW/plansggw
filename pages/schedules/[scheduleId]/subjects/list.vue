@@ -35,7 +35,7 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
     <template #name="{ cell }">
       <span class="text-base font-semibold text-gray-900">{{ cell.name }}</span>
 
-      <div class="text-sm text-blue-600">
+      <div class="text-sm text-indigo-600">
         <template v-if="cell.type === SubjectType.Lecture">
           <span>Wykład</span>
         </template>
