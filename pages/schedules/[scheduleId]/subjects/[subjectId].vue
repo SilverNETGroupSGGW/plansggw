@@ -19,15 +19,6 @@ await groups.get(route.params.scheduleId as string)
 
 const search = ref('')
 
-function filter(row: any) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
 const data = ref<Subject | null>(null)
 
 try {
@@ -44,6 +35,7 @@ try {
 }
 catch {
   data.value = {
+    id: '',
     scheduleId: route.params.scheduleId as string,
     name: '',
     type: SubjectType.Unknown,
@@ -194,7 +186,7 @@ async function saveChanges() {
       <base-input v-model="search" label="Prowadzący" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" />
 
       <div class="rounded-lg border border-gray-200 p-4">
-        <base-table :data="lecturers.data" :columns="lecturers.columns" :filter="(row) => filter(row)">
+        <base-table :search="search" :data="lecturers.data" :columns="lecturers.columns">
           <template #academicDegree="{ cell }">
             <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }}</span>
           </template>
@@ -225,7 +217,7 @@ async function saveChanges() {
       <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" caption="Zajęcia mogą odbywać się tylko w jednej grupie jednocześnie." />
 
       <div class="rounded-lg border border-gray-200 p-4">
-        <base-table :data="groups.data" :columns="groups.columns" :filter="(row) => filter(row)">
+        <base-table :search="search" :data="groups.data" :columns="groups.columns">
           <template #name="{ cell }">
             <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
           </template>
@@ -247,7 +239,7 @@ async function saveChanges() {
       <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" caption="Zajęcia mogą odbywać się tylko w jednej sali jednocześnie." />
 
       <div class="rounded-lg border border-gray-200 p-4">
-        <base-table :data="classrooms.data" :columns="classrooms.columns" :filter="(row) => filter(row)">
+        <base-table :search="search" :data="classrooms.data" :columns="classrooms.columns">
           <template #name="{ cell }">
             <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
           </template>
