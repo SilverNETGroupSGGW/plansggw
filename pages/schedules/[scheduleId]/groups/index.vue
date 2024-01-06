@@ -8,7 +8,7 @@ const route = useRoute()
 // Groups
 const search = ref('')
 const groups = useGroups()
-await groups.get(route.params.groupId as string)
+await groups.get(route.params.scheduleId as string)
 
 function filter(row: Group) {
   return Object.values(row).some((value) => {
@@ -96,8 +96,11 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
     <div class="flex gap-4">
       <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
-      <base-button class="h-12" variant="primary" @click="handleDialogOpen('create')">
+      <base-button variant="primary" @click="handleDialogOpen('create')">
         Dodaj grupę
+      </base-button>
+      <base-button to="/schedules" variant="secondary">
+        Wróć do planów
       </base-button>
     </div>
   </div>

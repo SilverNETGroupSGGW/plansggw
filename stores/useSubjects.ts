@@ -49,8 +49,8 @@ export const useSubjects = defineStore('subjects', {
       const index = this.data.findIndex(l => l.id === data.id)
       this.data[index] = data
     },
-    async delete(subject: Subject) {
-      await $fetch<Subject>(`Subjects/${subject.id}`, {
+    async delete(id: string) {
+      await $fetch<Subject>(`Subjects/${id}`, {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
         method: 'DELETE',
         headers: {
@@ -58,7 +58,7 @@ export const useSubjects = defineStore('subjects', {
         },
       })
 
-      this.data = this.data.filter(l => l.id !== subject.id)
+      this.data = this.data.filter(l => l.id !== id)
     },
   },
 })

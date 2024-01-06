@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bars3CenterLeftIcon, ChatBubbleOvalLeftEllipsisIcon, PencilIcon, UserIcon } from '@heroicons/vue/24/outline'
+import { Bars3CenterLeftIcon, ChatBubbleOvalLeftEllipsisIcon, UserIcon } from '@heroicons/vue/24/outline'
 
 const tabs = reactive([
   {
@@ -16,11 +16,6 @@ const tabs = reactive([
     icon: ChatBubbleOvalLeftEllipsisIcon,
     label: 'Sale wykładowe',
     to: '/classrooms',
-  },
-  {
-    icon: PencilIcon,
-    label: 'Przedmioty',
-    to: '/courses',
   },
 ])
 </script>

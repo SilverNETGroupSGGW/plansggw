@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/vue/20/solid'
 import type { Subject } from '~/types'
 
 // Nuxt hooks
@@ -18,6 +18,24 @@ function filter(row: Subject) {
       return false
   })
 }
+
+// Delete subject dialog
+const currentSubject = ref('')
+const deleteDialog = ref(false)
+
+async function handleDelete(id: string) {
+  await subjects.delete(id)
+  deleteDialog.value = false
+
+  subjects.data = subjects.data.filter(subject => id !== subject.id)
+  currentSubject.value = ''
+}
+
+// Shared
+function handleDialogOpen(id: string) {
+  currentSubject.value = id
+  deleteDialog.value = true
+}
 </script>
 
 <template>
@@ -30,6 +48,9 @@ function filter(row: Subject) {
 
     <div class="flex gap-4">
       <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
+      <base-button variant="primary">
+        Dodaj przedmiot
+      </base-button>
       <base-button variant="secondary" :to="`/schedules/${route.params.scheduleId}`">
         Wróć do planu
       </base-button>
@@ -46,7 +67,25 @@ function filter(row: Subject) {
         <NuxtLink :to="`/schedules/${route.params.scheduleId}/subjects/${cell.id}`" class="font-medium text-green-600">
           Edytuj
         </NuxtLink>
+        <button class="font-medium text-red-600" @click="handleDialogOpen(cell.id!)">
+          Usuń
+        </button>
       </div>
     </template>
   </base-table>
+
+  <base-dialog v-model="deleteDialog" title="Usuń zajęcia" :icon="TrashIcon">
+    <p class="text-base text-gray-700">
+      Czy na pewno chcesz usunąć zajęcia?
+    </p>
+
+    <div class="mt-6 flex justify-end gap-4">
+      <base-button variant="secondary" @click="deleteDialog = false">
+        Zamknij
+      </base-button>
+      <base-button variant="danger" @click="handleDelete(currentSubject)">
+        Usuń
+      </base-button>
+    </div>
+  </base-dialog>
 </template>
