@@ -1,3 +1,5 @@
+import { DayOfWeek } from "~/types"
+
 export default function useData() {
   const courses = [
     { department: 'Wydział Biologii i Biotechnologii', value: 'Biologia' },
@@ -68,11 +70,22 @@ export default function useData() {
     { value: 'CertificatesAndDiplomas', type: 'dyplomowe' },
     { value: 'OnlineDegrees', type: 'online' },
   ]
+  
+  const daysOfWeek = [
+  { value: DayOfWeek.Monday, label: 'Poniedziałek' },
+  { value: DayOfWeek.Tuesday, label: 'Wtorek' },
+  { value: DayOfWeek.Wednesday, label: 'Środa' },
+  { value: DayOfWeek.Thursday, label: 'Czwartek' },
+  { value: DayOfWeek.Friday, label: 'Piątek' },
+  { value: DayOfWeek.Saturday, label: 'Sobota' },
+  { value: DayOfWeek.Sunday, label: 'Niedziela' },
+]
 
   return {
     courses,
     degrees,
     studiesModes,
     studiesDegrees,
+    daysOfWeek,
   }
 }

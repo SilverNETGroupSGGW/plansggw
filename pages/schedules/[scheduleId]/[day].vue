@@ -4,6 +4,9 @@ import type { Group, Schedule, Subject } from '~/types'
 // Nuxt hooks
 const route = useRoute()
 
+// Data
+const { daysOfWeek } = useData()
+
 // Popover
 const isLessonActive = ref<boolean[]>([])
 
@@ -36,31 +39,33 @@ const { calculatePosition } = useSubject()
 const groups = ref<Group[] | null>()
 const subjects = ref<Subject[] | null>(null)
 
-const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
+const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.scheduleId}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.params.id}`, {
+const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.params.scheduleId}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
 if (_groups.value)
   groups.value = _groups.value!.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
 
-const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.id}/extended`, {
+const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.scheduleId}/extended`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
 if (_subjects.value) {
-  subjects.value = _subjects.value.map((subject) => {
-    const { x, y, width, height } = calculatePosition(subject, groups.value!.map(x => x.name))
-    return { ...subject, x, y, width, height }
-  })
+  subjects.value = _subjects.value
+    .filter(x => x.dayOfWeek!.toUpperCase() === (route.params.day as string).toUpperCase())
+    .map((subject) => {
+      const { x, y, width, height } = calculatePosition(subject, groups.value!.map(x => x.name))
+      return { ...subject, x, y, width, height }
+    })
 }
 
 // Hooks
 const { onPointerDown } = useResize(subjects.value!, groups.value!, container, isLessonActive.value)
-const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, isLessonActive.value, route.params.id as string)
+const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, isLessonActive.value, route.params.scheduleId as string)
 </script>
 
 <template>
@@ -79,6 +84,12 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, is
       <p class="text-gray-700">
         Rok {{ schedule?.year }}, semestr {{ schedule?.semester }}
       </p>
+    </div>
+
+    <div class="flex">
+      <base-button v-for="(day, index) in daysOfWeek" :key="index" :variant="(route.params.day as string).toLowerCase() === day.value.toLowerCase() ? 'primary' : 'secondary'" :class="index === 0 ? 'rounded-r-none' : index === daysOfWeek.length - 1 ? 'rounded-l-none' : 'rounded-none'" :to="`/schedules/${route.params.scheduleId}/${day.value.toLowerCase()}`">
+        {{ day.label }}
+      </base-button>
     </div>
   </div>
 
@@ -103,7 +114,7 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, is
 
     <div class="flex">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-b-2 border-x-2 border-gray-200 text-center text-xs text-gray-700">
+        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-x-2 border-b-2 border-gray-200 text-center text-xs text-gray-700">
           {{ group.name }}
         </div>
       </div>

@@ -25,7 +25,7 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
       <base-button variant="primary" :to="`/schedules/${route.params.scheduleId}/subjects/create`">
         Dodaj przedmiot
       </base-button>
-      <base-button variant="secondary" :to="`/schedules/${route.params.scheduleId}`">
+      <base-button variant="secondary" :to="`/schedules/${route.params.scheduleId}/monday`">
         Wróć do kreatora
       </base-button>
     </div>

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
-import { type Classroom, DayOfWeek, type Group, type Lecturer, type Subject, SubjectType } from '~/types'
+import { type Classroom, type Group, type Lecturer, type Subject, SubjectType } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
 const router = useRouter()
 
 // Data
+const { daysOfWeek } = useData()
+
 const lecturers = useLecturers()
 await lecturers.get()
 
@@ -92,17 +94,6 @@ function removeGroup(group: Group) {
     data.value!.groupsIds!.splice(data.value!.groupsIds!.indexOf(group.id!), 1)
   }
 }
-
-// Days of week
-const daysOfWeek = [
-  { value: DayOfWeek.Monday, label: 'Poniedziałek' },
-  { value: DayOfWeek.Tuesday, label: 'Wtorek' },
-  { value: DayOfWeek.Wednesday, label: 'Środa' },
-  { value: DayOfWeek.Thursday, label: 'Czwartek' },
-  { value: DayOfWeek.Friday, label: 'Piątek' },
-  { value: DayOfWeek.Saturday, label: 'Sobota' },
-  { value: DayOfWeek.Sunday, label: 'Niedziela' },
-]
 
 // Time range
 const timeRange: Array<{ value: string }> = []
