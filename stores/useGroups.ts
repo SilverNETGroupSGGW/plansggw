@@ -22,7 +22,7 @@ export const useGroups = defineStore('groups', {
         method: 'GET',
       })
 
-      this.data = data
+      this.data = data.sort((a, b) => a.name.localeCompare(b.name))
     },
     async create(group: Group) {
       const data = await $fetch<Group>('Groups', {

@@ -30,18 +30,19 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       y = containerRect.height - groupCells.value[0].offsetHeight
 
     const newSubject: Subject = {
-      x,
-      y,
-      width: 24,
-      height: groupCells.value[0].offsetHeight,
-      startTime: target.dataset.time!,
+      comment: '',
       ghost: true,
       groupsIds: [target.dataset.group!],
-      type: SubjectType.Unknown,
-      scheduleId,
-      name: 'Zajęcia',
-      comment: '',
+      height: groupCells.value[0].offsetHeight,
+      id: '',
       lecturersIds: [],
+      name: 'Zajęcia',
+      scheduleId,
+      startTime: target.dataset.time!,
+      type: SubjectType.Unknown,
+      width: 24,
+      x,
+      y,
     }
 
     mouse.resizeEdge = 'bottom-right'

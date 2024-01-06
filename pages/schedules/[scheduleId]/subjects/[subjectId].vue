@@ -131,14 +131,38 @@ async function saveChanges() {
     },
   })
 
-  router.push(`/schedules/${route.params.scheduleId}/subjects/list`)
+  const previousRoute = router.options.history.state.back?.toString()
+  if (previousRoute?.startsWith('/schedules/'))
+    router.push(previousRoute)
+  else
+    router.push(`/schedules/${route.params.scheduleId}/subjects/list`)
 }
 </script>
 
 <template>
   <form class="flex w-full flex-col px-12 py-9" @submit.prevent="saveChanges">
-    <div class="flex w-full items-end justify-between">
-      <base-input v-model="data!.name" dense class="mb-1 text-xl font-semibold" placeholder="Nazwa przedmiotu" />
+    <div class="flex w-full items-start justify-between">
+      <div class="flex flex-col">
+        <base-input v-model="data!.name" dense class="mb-1 text-xl font-semibold" placeholder="Nazwa przedmiotu" />
+
+        <div class="mb-8 flex">
+          <base-button type="button" :variant="data!.type === SubjectType.Lecture ? 'primary' : 'secondary'" class="rounded-r-none" @click="data!.type = SubjectType.Lecture">
+            Wykład
+          </base-button>
+          <base-button type="button" :variant="data!.type === SubjectType.PracticalClasses ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.PracticalClasses">
+            Ćwiczenia
+          </base-button>
+          <base-button type="button" :variant="data!.type === SubjectType.Laboratories ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Laboratories">
+            Laboratoria
+          </base-button>
+          <base-button type="button" :variant="data!.type === SubjectType.Faculty ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Faculty">
+            Fakultet
+          </base-button>
+          <base-button type="button" :variant="data!.type === SubjectType.Unknown ? 'primary' : 'secondary'" class="rounded-l-none" @click="data!.type = SubjectType.Unknown">
+            Inne
+          </base-button>
+        </div>
+      </div>
 
       <div class="flex gap-4">
         <base-button variant="danger" class="h-10">
@@ -148,24 +172,6 @@ async function saveChanges() {
           Zapisz zmiany
         </base-button>
       </div>
-    </div>
-
-    <div class="mb-8 flex">
-      <base-button type="button" :variant="data!.type === SubjectType.Lecture ? 'primary' : 'secondary'" class="rounded-r-none" @click="data!.type = SubjectType.Lecture">
-        Wykład
-      </base-button>
-      <base-button type="button" :variant="data!.type === SubjectType.PracticalClasses ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.PracticalClasses">
-        Ćwiczenia
-      </base-button>
-      <base-button type="button" :variant="data!.type === SubjectType.Laboratories ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Laboratories">
-        Laboratoria
-      </base-button>
-      <base-button type="button" :variant="data!.type === SubjectType.Faculty ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Faculty">
-        Fakultet
-      </base-button>
-      <base-button type="button" :variant="data!.type === SubjectType.Unknown ? 'primary' : 'secondary'" class="rounded-l-none" @click="data!.type = SubjectType.Unknown">
-        Inne
-      </base-button>
     </div>
 
     <div class="mb-6 flex items-end gap-4  rounded-lg border border-gray-200 p-4">
@@ -187,12 +193,8 @@ async function saveChanges() {
 
       <div class="rounded-lg border border-gray-200 p-4">
         <base-table :search="search" :data="lecturers.data" :columns="lecturers.columns">
-          <template #academicDegree="{ cell }">
-            <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }}</span>
-          </template>
-
           <template #firstName="{ cell }">
-            <span class="text-base font-medium text-gray-900">{{ cell.firstName }} {{ cell.surname }}</span>
+            <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }} {{ cell.firstName }} {{ cell.surname }}</span>
           </template>
 
           <template #email="{ cell }">
@@ -214,7 +216,7 @@ async function saveChanges() {
 
     <div class="mb-6 flex flex-col rounded-lg border border-gray-200 p-4">
       <label class="mb-1 font-medium text-gray-700">Grupy</label>
-      <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" caption="Zajęcia mogą odbywać się tylko w jednej grupie jednocześnie." />
+      <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" />
 
       <div class="rounded-lg border border-gray-200 p-4">
         <base-table :search="search" :data="groups.data" :columns="groups.columns">
@@ -242,6 +244,14 @@ async function saveChanges() {
         <base-table :search="search" :data="classrooms.data" :columns="classrooms.columns">
           <template #name="{ cell }">
             <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
+          </template>
+
+          <template #building="{ cell }">
+            <span class="text-base font-medium text-gray-900">{{ cell.building }}</span>
+          </template>
+
+          <template #floor="{ cell }">
+            <span class="text-base font-medium text-gray-900">{{ cell.floor }}</span>
           </template>
 
           <template #actions="{ cell }">

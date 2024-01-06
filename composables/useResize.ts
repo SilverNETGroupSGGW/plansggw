@@ -13,7 +13,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
   const edgeThreshold = 16
 
   function onPointerDown(event: PointerEvent, subject: Subject) {
-    if (event.button !== 0 || isLessonActive.includes(true))
+    if (event.button !== 0 || isLessonActive.includes(true) || (event.target as HTMLElement).id.startsWith('link-'))
       return
 
     // Determine if we're dragging or resizing

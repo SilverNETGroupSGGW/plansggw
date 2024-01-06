@@ -9,6 +9,8 @@ const groups = useGroups()
 await groups.get(route.params.scheduleId as string)
 
 const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, handleDialogOpen, handleUpdate, search, updateDialog } = useCrud(groups.data)
+
+watchEffect(() => currentItem.value.scheduleId = route.params.scheduleId as string)
 </script>
 
 <template>
@@ -50,6 +52,7 @@ const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, han
   <base-dialog v-model="createDialog" title="Dodaj grupę" :icon="UserGroupIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate(currentItem, async () => await groups.create(currentItem))">
       <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.scheduleId" :icon="KeyIcon" label="ID planu" disabled />
       <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
 
       <div class="mt-6 flex justify-end gap-4">
@@ -66,6 +69,7 @@ const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, han
   <base-dialog v-model="updateDialog" title="Edytuj grupę" :icon="UserGroupIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate(currentItem, async () => await groups.update(currentItem))">
       <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.scheduleId" :icon="KeyIcon" label="ID planu" disabled />
       <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
 
       <div class="mt-6 flex justify-end gap-4">

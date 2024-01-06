@@ -26,7 +26,7 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
         Dodaj przedmiot
       </base-button>
       <base-button variant="secondary" :to="`/schedules/${route.params.scheduleId}`">
-        Wróć do planu
+        Wróć do kreatora
       </base-button>
     </div>
   </div>
@@ -36,11 +36,28 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
       <span class="text-base font-semibold text-gray-900">{{ cell.name }}</span>
 
       <div class="text-sm text-blue-600">
-        <span v-if="cell.type === SubjectType.Lecture">Wykład</span>
-        <span v-else-if="cell.type === SubjectType.Laboratories">Laboratorium</span>
-        <span v-else-if="cell.type === SubjectType.PracticalClasses">Ćwiczenia</span>
-        <span v-else-if="cell.type === SubjectType.Faculty">Fakultet</span>
-        <span v-else-if="cell.type === SubjectType.Unknown">Inne</span>
+        <template v-if="cell.type === SubjectType.Lecture">
+          <span>Wykład</span>
+        </template>
+        <template v-else-if="cell.type === SubjectType.Laboratories">
+          <span>Laboratorium</span>
+        </template>
+        <template v-else-if="cell.type === SubjectType.PracticalClasses">
+          <span>Ćwiczenia</span>
+        </template>
+        <template v-else-if="cell.type === SubjectType.Faculty">
+          <span>Fakultet</span>
+        </template>
+        <template v-else-if="cell.type === SubjectType.Unknown">
+          <span>Inne</span>
+        </template>,
+
+        <template v-if="cell.isRemote">
+          <span>zdalnie</span>
+        </template>
+        <template v-else>
+          <span>stacjonarnie</span>
+        </template>
       </div>
 
       <div class="text-sm text-gray-700">
@@ -57,12 +74,11 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
       </div>
 
       <div class="text-sm text-gray-700">
-        <span v-if="cell.isRemote">Zdalnie</span>
-        <span v-else>Stacjonarnie</span>
+        <span>Sala: {{ cell.classroom!.name }}, budynek {{ cell.classroom!.building }}, piętro {{ cell.classroom!.floor }}</span>
       </div>
 
       <div class="text-sm text-gray-700">
-        <span>Sala: {{ cell.classroom!.name }}, budynek {{ cell.classroom!.building }}, piętro {{ cell.classroom!.floor }}</span>
+        <span>Grupa: {{ cell.groups!.map(x => x.name).join(", ") }}</span>
       </div>
     </template>
 

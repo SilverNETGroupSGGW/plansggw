@@ -6,10 +6,6 @@ export const useLecturers = defineStore('lecturers', {
     data: [] as Lecturer[],
     columns: [
       {
-        key: 'academicDegree',
-        header: 'Stopień naukowy',
-      },
-      {
         key: 'firstName',
         header: 'Imię i nazwisko',
       },

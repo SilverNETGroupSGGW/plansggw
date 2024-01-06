@@ -32,12 +32,8 @@ const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, han
   </div>
 
   <base-table :data="lecturers.data" :columns="lecturers.columns" :search="search">
-    <template #academicDegree="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }}</span>
-    </template>
-
     <template #firstName="{ cell }">
-      <span class="text-base font-medium text-gray-900">{{ cell.firstName }} {{ cell.surname }}</span>
+      <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }} {{ cell.firstName }} {{ cell.surname }}</span>
     </template>
 
     <template #email="{ cell }">
