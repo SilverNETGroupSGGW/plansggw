@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps <{
+defineProps<{
   variant: 'primary' | 'secondary' | 'danger' | 'success' | 'warning'
   flat?: boolean
 }>()

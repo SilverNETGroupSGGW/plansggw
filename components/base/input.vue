@@ -1,17 +1,13 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+defineProps<{
   modelValue: string | number
   icon?: /* FunctionalComponent */ any
-  dark?: boolean
   label?: string
   caption?: string
-}>(), {
-  dark: false,
-})
-
-defineEmits<{
-  (e: 'update:modelValue', value: string): void
+  dense?: boolean
 }>()
+
+const model = defineModel()
 </script>
 
 <template>
@@ -21,7 +17,16 @@ defineEmits<{
     </label>
     <div class="relative w-full">
       <component :is="icon" v-if="icon" class="absolute left-6 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-gray-400" />
-      <input :value="modelValue" class="flex h-12 flex-col items-start justify-center self-stretch rounded-lg border border-gray-300 py-4 pr-6 text-gray-700 transition-colors duration-200 ease-in-out placeholder:text-gray-400 hover:transition-all hover:duration-200 hover:ease-in-out focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-600 focus:transition-all focus:duration-200 focus:ease-in-out active:ring-2 active:ring-blue-600 disabled:bg-gray-100" v-bind="$attrs" :class="[icon ? 'pl-12' : 'pl-6']" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)">
+      <input
+        v-model="model"
+        class="flex h-12 flex-col items-start justify-center self-stretch rounded-lg border-gray-200 py-4 pr-6 text-gray-700 outline-none transition-colors duration-200 ease-in-out placeholder:text-gray-400 hover:transition-all hover:duration-200 hover:ease-in-out focus:border-transparent focus:outline-none focus:transition-all focus:duration-200 focus:ease-in-out disabled:bg-gray-100"
+        v-bind="$attrs"
+        :class="[
+          icon ? 'pl-12' : 'pl-6',
+          dense ? 'rounded-none border-b-2 pl-0 focus:border-b-blue-600' : 'border',
+          dense ? '' : 'focus:ring-2 focus:ring-blue-600 active:ring-2 active:ring-blue-600',
+        ]"
+      >
     </div>
     <label v-if="caption" class="text-sm text-blue-600">
       {{ caption }}

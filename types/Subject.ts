@@ -11,6 +11,16 @@ export enum SubjectType {
   Faculty = 'Faculty',
 }
 
+export enum DayOfWeek {
+  Monday = 'Monday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday',
+  Thursday = 'Thursday',
+  Friday = 'Friday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
+}
+
 export interface Subject {
   id?: string
   created?: string
@@ -19,11 +29,11 @@ export interface Subject {
   name?: string
   type?: SubjectType
   startTime: string
-  dayOfWeek?: string
+  dayOfWeek?: DayOfWeek
   duration?: string
   isRemote?: boolean
   comment?: string
-  
+
   lecturers?: Lecturer[]
   lecturersIds?: string[]
 
