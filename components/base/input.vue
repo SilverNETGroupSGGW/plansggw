@@ -5,7 +5,10 @@ defineProps<{
   label?: string
   caption?: string
   dense?: boolean
+
   disabled?: boolean
+  type?: string
+  placeholder?: string
 }>()
 
 const model = defineModel()
@@ -21,6 +24,8 @@ const model = defineModel()
       <input
         v-model="model"
         :disabled="disabled"
+        :placeholder="placeholder"
+        :type="type"
         class="flex h-12 w-full flex-col items-start justify-center self-stretch rounded-lg border-gray-200 py-4 pr-6 text-gray-700 outline-none transition-colors duration-200 ease-in-out placeholder:text-gray-400 hover:transition-all hover:duration-200 hover:ease-in-out focus:border-transparent focus:outline-none focus:transition-all focus:duration-200 focus:ease-in-out disabled:bg-gray-100"
         :class="[
           icon ? 'pl-12' : 'pl-6',

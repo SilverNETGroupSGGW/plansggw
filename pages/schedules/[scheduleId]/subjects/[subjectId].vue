@@ -5,6 +5,7 @@ import { type Classroom, DayOfWeek, type Group, type Lecturer, type Subject, Sub
 
 // Nuxt hooks
 const route = useRoute()
+const router = useRouter()
 
 // Data
 const lecturers = useLecturers()
@@ -14,7 +15,7 @@ const classrooms = useClassrooms()
 await classrooms.get()
 
 const groups = useGroups()
-await groups.get(route.params.subjectId as string)
+await groups.get(route.params.scheduleId as string)
 
 const search = ref('')
 
@@ -33,6 +34,9 @@ data.value = await $fetch<Subject>(`subjects/${route.params.subjectId}/extended`
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
   method: 'GET',
 })
+data.value.groupsIds = data.value.groups?.map(group => group.id)
+data.value.lecturersIds = data.value.lecturers?.map(lecturer => lecturer.id)
+data.value.classroomId = data.value.classroom?.id
 
 function addLecturer(lecturer: Lecturer) {
   if (!data.value!.lecturersIds?.includes(lecturer.id)) {
@@ -105,7 +109,7 @@ while (initialDate.getHours() <= 4) {
 
 // API
 async function saveChanges() {
-  await $fetch(`subjects`, {
+  await $fetch<Subject[]>(`subjects`, {
     baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
     method: 'PUT',
     body: JSON.stringify(data.value),
@@ -113,6 +117,8 @@ async function saveChanges() {
       Authorization: `Bearer ${useCookie('accessToken').value}`,
     },
   })
+
+  router.push(`/schedules/${route.params.scheduleId}/subjects`)
 }
 </script>
 
