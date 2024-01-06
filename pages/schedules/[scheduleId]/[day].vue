@@ -8,8 +8,11 @@ const route = useRoute()
 const { daysOfWeek } = useData()
 
 // Elements
+let initialContainer: HTMLDivElement | null = null
 const container = ref<HTMLDivElement | null>(null)
-const subjectCells = ref<HTMLDivElement[] | null>(null)
+onMounted(() => {
+  initialContainer = container.value!
+})
 
 // Time range
 const timeRange: Date[] = []
@@ -61,8 +64,15 @@ if (_subjects.value) {
 }
 
 // Hooks
-const { onPointerDown } = useResize(subjects.value!, groups.value!, container)
-const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, route.params.scheduleId as string)
+let onPointerDown: Function | null = null
+let onCreateMove: Function | null = null
+
+watchEffect(() => {
+  if (container.value) {
+    ({ onPointerDown } = useResize(subjects.value!, groups.value!, initialContainer));
+    ({ onCreateMove } = useCreate(subjects.value!, groups.value!, initialContainer, route.params.scheduleId as string))
+  }
+})
 </script>
 
 <template>
@@ -118,7 +128,7 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, ro
         </div>
 
         <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
-          <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
+          <div v-for="(subject, index) in subjects" :id="subject.id" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
             <base-lesson v-bind="subject" />
           </div>
 

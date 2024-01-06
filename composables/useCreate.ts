@@ -1,6 +1,6 @@
-import { type Group, type Subject, SubjectType } from '~/types'
+import { DayOfWeek, type Group, type Subject, SubjectType } from '~/types'
 
-export default function useCreate(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>, scheduleId: string) {
+export default function useCreate(subjects: Subject[], groups: Group[], container: HTMLDivElement | null, scheduleId: string) {
   const mouse = useMouse()
 
   const { onResizeDown } = useResize(subjects, groups, container)
@@ -15,11 +15,11 @@ export default function useCreate(subjects: Subject[], groups: Group[], containe
     if (target.id)
       return
 
-    let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 12) / 24) * 24
-    let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top) / 192) * 192
+    let x = Math.round((event.clientX - container!.getBoundingClientRect().left - 12) / 24) * 24
+    let y = Math.round((event.clientY - container!.getBoundingClientRect().top) / 192) * 192
 
     // Check if x or y is outside the bounds and set them to the closest boundary
-    const containerRect = container.value!.getBoundingClientRect()
+    const containerRect = container!.getBoundingClientRect()
     if (x < 0)
       x = 0
     if (y < 0)
@@ -32,14 +32,16 @@ export default function useCreate(subjects: Subject[], groups: Group[], containe
     const newSubject: Subject = {
       comment: '',
       ghost: true,
-      groupsIds: [target.dataset.group!],
+      groupsIds: [],
       height: 192,
       id: '',
       lecturersIds: [],
       name: 'Zajęcia',
       scheduleId,
       startTime: target.dataset.time!,
+      duration: '01:30:00',
       type: SubjectType.Unknown,
+      dayOfWeek: DayOfWeek.Monday,
       width: 24,
       x,
       y,

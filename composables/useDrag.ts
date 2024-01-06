@@ -1,6 +1,6 @@
 import type { Group, Subject } from '~/types'
 
-export default function useDrag(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>) {
+export default function useDrag(subjects: Subject[], groups: Group[], container: HTMLDivElement | null) {
   const { calculateStartTime } = useSubject()
 
   let rafId: number | null = null
@@ -47,8 +47,8 @@ export default function useDrag(subjects: Subject[], groups: Group[], container:
 
         // Set boundaries, x and y can't be smaller than 0
         // newY can't be larger than totalHeight - currentSubject.value!.height
-        // newX can't be larger than container.value.offsetWidth - currentSubject.value!.width
-        currentSubject.value!.x = newX >= 0 ? (newX <= container.value!.offsetWidth - currentSubject.value!.width! ? newX : container.value!.offsetWidth! - currentSubject.value!.width!) : 0
+        // newX can't be larger than container.offsetWidth - currentSubject.value!.width
+        currentSubject.value!.x = newX >= 0 ? (newX <= container!.offsetWidth - currentSubject.value!.width! ? newX : container!.offsetWidth! - currentSubject.value!.width!) : 0
         currentSubject.value!.y = newY >= 0 ? (newY <= totalHeight - currentSubject.value!.height! ? newY : totalHeight - currentSubject.value!.height!) : 0
 
         calculateStartTime(currentSubject.value!)

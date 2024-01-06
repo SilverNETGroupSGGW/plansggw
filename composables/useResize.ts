@@ -1,6 +1,6 @@
 import type { Group, Subject } from '~/types'
 
-export default function useResize(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>) {
+export default function useResize(subjects: Subject[], groups: Group[], container: HTMLDivElement | null) {
   const mouse = useMouse()
 
   const { onDragDown } = useDrag(subjects, groups, container)
@@ -113,7 +113,7 @@ export default function useResize(subjects: Subject[], groups: Group[], containe
           newWidth = Math.max(0, resizeStart.value.width - deltaX)
           newX = mouse.currentSubject!.x! + (mouse.currentSubject!.width! - newWidth)
           newHeight = Math.max(0, resizeStart.value.height + deltaY)
-          if (newX >= 0 && newX + newWidth <= container.value!.offsetWidth) {
+          if (newX >= 0 && newX + newWidth <= container!.offsetWidth) {
             mouse.currentSubject!.width = newWidth
             mouse.currentSubject!.x = newX
           }
@@ -124,7 +124,7 @@ export default function useResize(subjects: Subject[], groups: Group[], containe
         case 'bottom-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
           newHeight = Math.max(0, resizeStart.value.height + deltaY)
-          if (mouse.currentSubject!.x! + newWidth <= container.value!.offsetWidth)
+          if (mouse.currentSubject!.x! + newWidth <= container!.offsetWidth)
             mouse.currentSubject!.width = newWidth
 
           if (mouse.currentSubject!.y! + newHeight <= totalHeight)
@@ -140,7 +140,7 @@ export default function useResize(subjects: Subject[], groups: Group[], containe
           }
           break
         case 'right':
-          newWidth = Math.min(container.value!.offsetWidth - mouse.currentSubject!.x!, Math.max(0, resizeStart.value.width + deltaX))
+          newWidth = Math.min(container!.offsetWidth - mouse.currentSubject!.x!, Math.max(0, resizeStart.value.width + deltaX))
           mouse.currentSubject!.width = newWidth
           break
         case 'top':

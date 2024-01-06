@@ -44,7 +44,7 @@ const deleteDialog = ref(false)
       {{ type }}
     </small>
 
-    <small v-if="lecturers" class="text-xs text-gray-700">
+    <small v-if="lecturers && lecturers.length > 0" class="text-xs text-gray-700">
       <b>{{ lecturers[0].academicDegree }} {{ lecturers[0].firstName }} {{ lecturers[0].surname }}</b>
     </small>
     <small class="text-xs text-gray-700">

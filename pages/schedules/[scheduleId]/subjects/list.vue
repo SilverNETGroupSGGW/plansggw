@@ -73,11 +73,11 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
         <span v-if="cell.duration"> ({{ cell.duration }} min)</span>
       </div>
 
-      <div class="text-sm text-gray-700">
+      <div v-if="cell.classroom" class="text-sm text-gray-700">
         <span>Sala: {{ cell.classroom!.name }}, budynek {{ cell.classroom!.building }}, piętro {{ cell.classroom!.floor }}</span>
       </div>
 
-      <div class="text-sm text-gray-700">
+      <div v-if="cell.groups && cell.groups.length > 0" class="text-sm text-gray-700">
         <span>Grupa: {{ cell.groups!.map(x => x.name).join(", ") }}</span>
       </div>
     </template>
