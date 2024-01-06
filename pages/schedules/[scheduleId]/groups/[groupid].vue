@@ -8,7 +8,7 @@ const route = useRoute()
 // Groups
 const search = ref('')
 const groups = useGroups()
-await groups.get(route.params.id as string)
+await groups.get(route.params.groupId as string)
 
 function filter(row: Group) {
   return Object.values(row).some((value) => {

@@ -170,6 +170,9 @@ watchEffect(() => {
         <NuxtLink :to="`/schedules/${cell.id}`" class="w-max font-medium text-blue-600">
           Kreator
         </NuxtLink>
+        <NuxtLink :to="`/schedules/${cell.id}/subjects`" class="w-max font-medium text-blue-600">
+          Przedmioty
+        </NuxtLink>
         <NuxtLink :to="`/groups/${cell.id}`" class="w-max font-medium text-blue-600">
           Grupy
         </NuxtLink>

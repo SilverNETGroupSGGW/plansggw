@@ -14,7 +14,7 @@ const classrooms = useClassrooms()
 await classrooms.get()
 
 const groups = useGroups()
-await groups.get(route.params.id as string)
+await groups.get(route.params.subjectId as string)
 
 const search = ref('')
 
@@ -29,7 +29,7 @@ function filter(row: any) {
 
 const data = ref<Subject | null>(null)
 
-data.value = await $fetch<Subject>(`subjects/${route.params.id}/extended`, {
+data.value = await $fetch<Subject>(`subjects/${route.params.subjectId}/extended`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
   method: 'GET',
 })
