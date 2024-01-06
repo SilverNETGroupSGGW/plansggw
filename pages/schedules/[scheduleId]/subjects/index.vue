@@ -30,6 +30,9 @@ function filter(row: Subject) {
 
     <div class="flex gap-4">
       <base-input v-model="search" placeholder="Szukaj" class="w-96" :icon="MagnifyingGlassIcon" />
+      <base-button variant="secondary" :to="`/schedules/${route.params.scheduleId}`">
+        Wróć do planu
+      </base-button>
     </div>
   </div>
 

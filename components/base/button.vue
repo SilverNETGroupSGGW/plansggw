@@ -1,14 +1,19 @@
 <script setup lang="ts">
+import { NuxtLink } from '#components'
+
 defineProps<{
   variant: 'primary' | 'secondary' | 'danger' | 'success' | 'warning'
   flat?: boolean
+  to?: string
 }>()
 </script>
 
 <template>
-  <button
+  <component
+    :is="to ? NuxtLink : 'button'"
+    :to="to"
     v-bind="$attrs"
-    class="flex gap-2 items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 active:ring-2"
+    class="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 active:ring-2"
     :class="{
       'disabled:opacity-50': $attrs.disabled,
       'bg-blue-600 text-blue-50 hover:bg-blue-700 focus:ring-blue-700/50 active:ring-blue-700/50': variant === 'primary',
@@ -19,7 +24,6 @@ defineProps<{
       'bg-transparent': flat,
     }"
   >
-
     <slot />
-  </button>
+  </component>
 </template>
