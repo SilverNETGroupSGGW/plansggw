@@ -52,7 +52,7 @@ catch {
     isRemote: false,
     lecturers: [],
     lecturersIds: [],
-    classroom: '',
+    classroom: {} as Classroom,
     classroomId: '',
     groups: [],
     groupsIds: [],

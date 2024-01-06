@@ -42,7 +42,7 @@ const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.param
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-groups.value = _groups.value.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
+groups.value = _groups.value!.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
 
 const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
@@ -116,7 +116,7 @@ watch(subjects, (value) => {
 
     <div class="flex h-[calc(100vh-175px)]">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="(group, index) in groups" v-once :id="group.id" ref="groupCells" :key="index" :style="{ height: `${100 / groups!.length}%` }" class="flex w-36 shrink-0 items-center justify-center border-r-2 border-t border-gray-200 text-center text-xs text-gray-700">
+        <div v-for="(group, index) in groups" v-once :id="group.id" ref="groupCells" :key="index" class="flex w-36 h-36 shrink-0 items-center justify-center border-r-2 border-t border-gray-200 text-center text-xs text-gray-700">
           {{ group.name }}
         </div>
       </div>
@@ -126,8 +126,8 @@ watch(subjects, (value) => {
           <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
         </div>
 
-        <div v-for="(group, index) in groups" v-once :key="index" class="flex" :style="{ height: `${100 / groups!.length}%` }">
-          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-full w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" />
+        <div v-for="(group, index) in groups" v-once :key="index" class="flex h-36">
+          <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700 h-36" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" />
         </div>
       </div>
     </div>
