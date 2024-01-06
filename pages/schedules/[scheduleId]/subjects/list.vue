@@ -1,41 +1,15 @@
 <script setup lang="ts">
 import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/vue/20/solid'
-import { type Subject, SubjectType } from '~/types'
+import { SubjectType } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
 
 // Subjects
-const search = ref('')
 const subjects = useSubjects()
 await subjects.get(route.params.scheduleId as string)
 
-function filter(row: Subject) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
-// Delete subject dialog
-const currentSubject = ref('')
-const deleteDialog = ref(false)
-
-async function handleDelete(id: string) {
-  await subjects.delete(id)
-  deleteDialog.value = false
-
-  subjects.data = subjects.data.filter(subject => id !== subject.id)
-  currentSubject.value = ''
-}
-
-// Shared
-function handleDialogOpen(id: string) {
-  currentSubject.value = id
-  deleteDialog.value = true
-}
+const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = useCrud(subjects.data)
 </script>
 
 <template>
@@ -57,7 +31,7 @@ function handleDialogOpen(id: string) {
     </div>
   </div>
 
-  <base-table :data="subjects.data" :columns="subjects.columns" :filter="(row) => filter(row)">
+  <base-table :data="subjects.data" :columns="subjects.columns" :search="search">
     <template #name="{ cell }">
       <span class="text-base font-semibold text-gray-900">{{ cell.name }}</span>
 
@@ -105,7 +79,7 @@ function handleDialogOpen(id: string) {
         <NuxtLink :to="`/schedules/${route.params.scheduleId}/subjects/${cell.id}`" class="font-medium text-green-600">
           Edytuj
         </NuxtLink>
-        <button class="font-medium text-red-600" @click="handleDialogOpen(cell.id!)">
+        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
         </button>
       </div>
@@ -121,7 +95,7 @@ function handleDialogOpen(id: string) {
       <base-button variant="secondary" @click="deleteDialog = false">
         Zamknij
       </base-button>
-      <base-button variant="danger" @click="handleDelete(currentSubject)">
+      <base-button variant="danger" @click="handleDelete(currentItem, async() => await subjects.delete(currentItem.id))">
         Usuń
       </base-button>
     </div>

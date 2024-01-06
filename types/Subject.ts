@@ -30,7 +30,7 @@ export interface Subject {
   duration?: string
   groups?: Group[]
   groupsIds?: string[]
-  id?: string
+  id: string
   isRemote?: boolean
   lecturers?: Lecturer[]
   lecturersIds?: string[]

@@ -1,5 +1,5 @@
 export interface Group {
-  id?: string
+  id: string
   name: string
   scheduleId?: string
 }

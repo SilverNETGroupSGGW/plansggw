@@ -1,89 +1,14 @@
 <script setup lang="ts">
 import { KeyIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, UserGroupIcon } from '@heroicons/vue/20/solid'
-import type { Group } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
 
 // Groups
-const search = ref('')
 const groups = useGroups()
 await groups.get(route.params.scheduleId as string)
 
-function filter(row: Group) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
-// Update group dialog
-const updateDialog = ref(false)
-const currentGroup = ref<Group>({
-  scheduleId: route.params.scheduleId as string,
-  name: '',
-})
-
-async function handleUpdate() {
-  await groups.update(currentGroup.value)
-  updateDialog.value = false
-
-  currentGroup.value = {
-    scheduleId: route.params.scheduleId as string,
-    name: '',
-  }
-}
-
-// Delete group dialog
-const deleteDialog = ref(false)
-
-async function handleDelete() {
-  await groups.delete(currentGroup.value)
-  deleteDialog.value = false
-
-  groups.data = groups.data.filter(group => group.id !== currentGroup.value.id)
-  currentGroup.value = {
-    scheduleId: route.params.scheduleId as string,
-    name: '',
-  }
-}
-
-// Create group dialog
-const createDialog = ref(false)
-
-async function handleCreate() {
-  await groups.create(currentGroup.value)
-  createDialog.value = false
-
-  currentGroup.value = {
-    scheduleId: route.params.scheduleId as string,
-    name: '',
-  }
-}
-
-// Shared
-function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
-  if (id) {
-    const group = groups.data.find(group => group.id === id)
-    if (group)
-      currentGroup.value = { ...group }
-
-    if (mode === 'update')
-      updateDialog.value = true
-    else
-      deleteDialog.value = true
-  }
-  else {
-    currentGroup.value = {
-      scheduleId: route.params.scheduleId as string,
-      name: '',
-    }
-
-    createDialog.value = true
-  }
-}
+const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, handleDialogOpen, handleUpdate, search, updateDialog } = useCrud(groups.data)
 </script>
 
 <template>
@@ -105,7 +30,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </div>
   </div>
 
-  <base-table :data="groups.data" :columns="groups.columns" :filter="(row) => filter(row)">
+  <base-table :data="groups.data" :columns="groups.columns" :search="search">
     <template #name="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
     </template>
@@ -123,9 +48,9 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-table>
 
   <base-dialog v-model="createDialog" title="Dodaj grupę" :icon="UserGroupIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentGroup.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentGroup.name" :icon="PencilIcon" label="Nazwa" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate(currentItem, async () => await groups.create(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -139,9 +64,9 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-dialog>
 
   <base-dialog v-model="updateDialog" title="Edytuj grupę" :icon="UserGroupIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentGroup.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentGroup.name" :icon="PencilIcon" label="Nazwa" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate(currentItem, async () => await groups.update(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
@@ -163,7 +88,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
       <base-button variant="secondary" @click="deleteDialog = false">
         Zamknij
       </base-button>
-      <base-button variant="danger" @click="handleDelete">
+      <base-button variant="danger" @click="handleDelete(currentItem, async () => await groups.delete(currentItem))">
         Usuń
       </base-button>
     </div>

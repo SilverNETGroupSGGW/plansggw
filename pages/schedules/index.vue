@@ -1,135 +1,20 @@
 <script setup lang="ts">
 import { ViewfinderCircleIcon } from '@heroicons/vue/20/solid'
 import { BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
-import type { Schedule } from '~/types'
 
 // Data
 const { courses, studiesDegrees, studiesModes } = useData()
 
 // Schedules
-const search = ref('')
 const schedules = useSchedule()
 await schedules.get()
 
-function filter(row: Schedule) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
-// Update schedule dialog
-const updateDialog = ref(false)
-const currentSchedule = ref<Schedule>({
-  id: '',
-  startDate: '',
-  name: '',
-  year: 0,
-  semester: 0,
-  faculty: '',
-  fieldOfStudy: '',
-  studyMode: '',
-  degreeOfStudy: '',
-  subjects: [],
-})
-
-async function handleUpdate() {
-  await schedules.update(currentSchedule.value)
-  updateDialog.value = false
-
-  currentSchedule.value = {
-    id: '',
-    startDate: '',
-    name: '',
-    year: 0,
-    semester: 0,
-    faculty: '',
-    fieldOfStudy: '',
-    studyMode: '',
-    degreeOfStudy: '',
-    subjects: [],
-  }
-}
-
-// Delete schedule dialog
-const deleteDialog = ref(false)
-
-async function handleDelete() {
-  await schedules.delete(currentSchedule.value)
-  deleteDialog.value = false
-
-  schedules.data = schedules.data.filter(schedule => schedule.id !== currentSchedule.value.id)
-  currentSchedule.value = {
-    id: '',
-    startDate: '',
-    name: '',
-    year: 0,
-    semester: 0,
-    faculty: '',
-    fieldOfStudy: '',
-    studyMode: '',
-    degreeOfStudy: '',
-    subjects: [],
-  }
-}
-
-// Create schedule dialog
-const createDialog = ref(false)
-
-async function handleCreate() {
-  await schedules.create(currentSchedule.value)
-  createDialog.value = false
-
-  currentSchedule.value = {
-    id: '',
-    startDate: '',
-    name: '',
-    year: 0,
-    semester: 0,
-    faculty: '',
-    fieldOfStudy: '',
-    studyMode: '',
-    degreeOfStudy: '',
-    subjects: [],
-  }
-}
-
-// Shared
-function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
-  if (id) {
-    const schedule = schedules.data.find(schedule => schedule.id === id)
-    if (schedule)
-      currentSchedule.value = { ...schedule }
-
-    if (mode === 'update')
-      updateDialog.value = true
-    else
-      deleteDialog.value = true
-  }
-  else {
-    currentSchedule.value = {
-      id: '',
-      startDate: '',
-      name: '',
-      year: 0,
-      semester: 0,
-      faculty: '',
-      fieldOfStudy: '',
-      studyMode: '',
-      degreeOfStudy: '',
-      subjects: [],
-    }
-
-    createDialog.value = true
-  }
-}
+const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, handleDialogOpen, handleUpdate, search, updateDialog } = useCrud(schedules.data)
 
 watchEffect(() => {
-  const course = courses.find(course => course.value.includes(currentSchedule.value.fieldOfStudy))
+  const course = courses.find(course => course.value.includes(currentItem.value.fieldOfStudy))
   if (course)
-    currentSchedule.value.faculty = course.department
+    currentItem.value.faculty = course.department
 })
 </script>
 
@@ -149,7 +34,7 @@ watchEffect(() => {
     </div>
   </div>
 
-  <base-table :data="schedules.data" :columns="schedules.columns" :filter="(row) => filter(row)">
+  <base-table :data="schedules.data" :columns="schedules.columns" :search="search">
     <template #name="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
     </template>
@@ -187,10 +72,10 @@ watchEffect(() => {
   </base-table>
 
   <base-dialog v-model="updateDialog" title="Edytuj plan" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentSchedule.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentSchedule.name" :icon="PencilIcon" label="Nazwa" />
-      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
+    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate(currentItem, async() => await schedules.update(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
+      <base-search v-model="currentItem.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
         <template #options="{ option, active }">
           <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
           <br>
@@ -199,14 +84,14 @@ watchEffect(() => {
           </span>
         </template>
       </base-search>
-      <base-input v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" />
-      <base-select v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees">
+      <base-input v-model="currentItem.studyMode" :icon="CloudIcon" label="Tryb studiów" />
+      <base-select v-model="currentItem.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees">
         <template #options="{ option, active }">
           <span class="text-base" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.type }}</span>
         </template>
       </base-select>
-      <base-input v-model="currentSchedule.year" type="number" :icon="CalendarIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
+      <base-input v-model="currentItem.year" type="number" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentItem.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
@@ -220,11 +105,11 @@ watchEffect(() => {
   </base-dialog>
 
   <base-dialog v-model="createDialog" title="Utwórz plan" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentSchedule.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input type="date" v-model="currentSchedule.startDate" :icon="CalendarIcon" label="Data rozpoczęcia" />
-      <base-input v-model="currentSchedule.name" :icon="PencilIcon" label="Nazwa" />
-      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate(currentItem, async() => await schedules.create(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.startDate" type="date" :icon="CalendarIcon" label="Data rozpoczęcia" />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
+      <base-search v-model="currentItem.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
         <template #options="{ option, active }">
           <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
           <br>
@@ -233,10 +118,10 @@ watchEffect(() => {
           </span>
         </template>
       </base-search>
-      <base-select v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" :options="studiesModes" />
-      <base-select v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees" />
-      <base-input v-model="currentSchedule.year" type="number" :icon="CalendarIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
+      <base-select v-model="currentItem.studyMode" :icon="CloudIcon" label="Tryb studiów" :options="studiesModes" />
+      <base-select v-model="currentItem.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees" />
+      <base-input v-model="currentItem.year" type="number" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentItem.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -258,7 +143,7 @@ watchEffect(() => {
       <base-button variant="secondary" @click="deleteDialog = false">
         Zamknij
       </base-button>
-      <base-button variant="danger" @click="handleDelete">
+      <base-button variant="danger" @click="handleDelete(currentItem, async() => await schedules.delete(currentItem))">
         Usuń
       </base-button>
     </div>

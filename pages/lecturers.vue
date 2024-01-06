@@ -1,105 +1,14 @@
 <script setup lang="ts">
 import { InboxIcon, KeyIcon, MagnifyingGlassIcon, TrashIcon, TrophyIcon, UserIcon } from '@heroicons/vue/24/outline'
-import type { Lecturer } from '~/types'
 
 // Data
 const { degrees } = useData()
 
 // Lecturers
-const search = ref('')
 const lecturers = useLecturers()
 await lecturers.get()
 
-function filter(row: Lecturer) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
-// Update lecturer dialog
-const updateDialog = ref(false)
-const currentLecturer = ref<Lecturer>({
-  id: '',
-  firstName: '',
-  surname: '',
-  academicDegree: '',
-  email: '',
-})
-
-async function handleUpdate() {
-  await lecturers.update(currentLecturer.value)
-  updateDialog.value = false
-
-  currentLecturer.value = {
-    id: '',
-    firstName: '',
-    surname: '',
-    academicDegree: '',
-    email: '',
-  }
-}
-
-// Delete lecturer dialog
-const deleteDialog = ref(false)
-
-async function handleDelete() {
-  await lecturers.delete(currentLecturer.value)
-  deleteDialog.value = false
-
-  lecturers.data = lecturers.data.filter(lecturer => lecturer.id !== currentLecturer.value.id)
-  currentLecturer.value = {
-    id: '',
-    firstName: '',
-    surname: '',
-    academicDegree: '',
-    email: '',
-  }
-}
-
-// Create lecturer dialog
-const createDialog = ref(false)
-
-async function handleCreate() {
-  await lecturers.create(currentLecturer.value)
-  createDialog.value = false
-
-  currentLecturer.value = {
-    id: '',
-    firstName: '',
-    surname: '',
-    academicDegree: '',
-    email: '',
-  }
-}
-
-// Shared
-function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
-  if (id) {
-    const lecturer = lecturers.data.find(lecturer => lecturer.id === id)
-    if (lecturer) {
-      currentLecturer.value = { ...lecturer }
-
-      if (mode === 'update')
-        updateDialog.value = true
-      else
-        deleteDialog.value = true
-    }
-  }
-  else {
-    currentLecturer.value = {
-      id: '',
-      firstName: '',
-      surname: '',
-      academicDegree: '',
-      email: '',
-    }
-
-    createDialog.value = true
-  }
-}
+const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, handleDialogOpen, handleUpdate, search, updateDialog } = useCrud(lecturers.data)
 </script>
 
 <template>
@@ -122,7 +31,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </div>
   </div>
 
-  <base-table :data="lecturers.data" :columns="lecturers.columns" :filter="(row) => filter(row)">
+  <base-table :data="lecturers.data" :columns="lecturers.columns" :search="search">
     <template #academicDegree="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.academicDegree }}</span>
     </template>
@@ -148,12 +57,12 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-table>
 
   <base-dialog v-model="createDialog" title="Dodaj wykładowcę" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentLecturer.id" :icon="KeyIcon" label="ID" disabled />
-      <base-select :options="degrees" v-model="currentLecturer.academicDegree" :icon="TrophyIcon" label="Stopień naukowy" />
-      <base-input v-model="currentLecturer.firstName" :icon="UserIcon" label="Imię" />
-      <base-input v-model="currentLecturer.surname" :icon="UserIcon" label="Nazwisko" />
-      <base-input v-model="currentLecturer.email" :icon="InboxIcon" label="E-mail" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate(currentItem, async() => await lecturers.create(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-select v-model="currentItem.academicDegree" :options="degrees" :icon="TrophyIcon" label="Stopień naukowy" />
+      <base-input v-model="currentItem.firstName" :icon="UserIcon" label="Imię" />
+      <base-input v-model="currentItem.surname" :icon="UserIcon" label="Nazwisko" />
+      <base-input v-model="currentItem.email" :icon="InboxIcon" label="E-mail" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -167,12 +76,12 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-dialog>
 
   <base-dialog v-model="updateDialog" title="Edytuj wykładowcę" :icon="UserIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentLecturer.id" :icon="KeyIcon" label="ID" disabled />
-      <base-select :options="degrees" v-model="currentLecturer.academicDegree" :icon="TrophyIcon" label="Stopień naukowy" />
-      <base-input v-model="currentLecturer.firstName" :icon="UserIcon" label="Imię" />
-      <base-input v-model="currentLecturer.surname" :icon="UserIcon" label="Nazwisko" />
-      <base-input v-model="currentLecturer.email" :icon="InboxIcon" label="E-mail" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate(currentItem, async() => await lecturers.update(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-select v-model="currentItem.academicDegree" :options="degrees" :icon="TrophyIcon" label="Stopień naukowy" />
+      <base-input v-model="currentItem.firstName" :icon="UserIcon" label="Imię" />
+      <base-input v-model="currentItem.surname" :icon="UserIcon" label="Nazwisko" />
+      <base-input v-model="currentItem.email" :icon="InboxIcon" label="E-mail" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
@@ -194,7 +103,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
       <base-button variant="secondary" @click="deleteDialog = false">
         Zamknij
       </base-button>
-      <base-button variant="danger" @click="handleDelete">
+      <base-button variant="danger" @click="handleDelete(currentItem, async() => await lecturers.delete(currentItem))">
         Usuń
       </base-button>
     </div>
