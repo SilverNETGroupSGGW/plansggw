@@ -1,15 +1,22 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends {}">
 import { MagnifyingGlassMinusIcon } from '@heroicons/vue/20/solid'
 
 const props = defineProps<{
-  filter?: (row: T) => boolean
   data: T[]
   columns: { key: string, header: string }[]
+  search: string
 }>()
 
 const page = ref(1)
 
-const filteredData = computed(() => props.filter ? props.data.filter(props.filter) : props.data)
+function filter(row: T) {
+  if (props.search === '')
+    return true
+
+  return Object.values(row).some(value => (value as string).toString().toLowerCase().includes(props.search.toLowerCase()))
+}
+
+const filteredData = computed(() => props.data.filter(row => filter(row)))
 const paginatedData = computed(() => filteredData.value.slice((page.value - 1) * 10, page.value * 10))
 </script>
 

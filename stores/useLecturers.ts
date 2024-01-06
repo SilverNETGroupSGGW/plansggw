@@ -65,6 +65,8 @@ export const useLecturers = defineStore('lecturers', {
           Authorization: `Bearer ${useCookie('accessToken').value}`,
         },
       })
+
+      this.data = this.data.filter(l => l.id !== lecturer.id)
     },
   },
 })

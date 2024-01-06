@@ -1,96 +1,10 @@
 <script setup lang="ts">
 import { BuildingLibraryIcon, HomeIcon, KeyIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline'
-import type { Classroom } from '~/types'
 
-// Classrooms
-const search = ref('')
 const classrooms = useClassrooms()
 await classrooms.get()
 
-function filter(row: Classroom) {
-  return Object.values(row).some((value) => {
-    if (typeof value === 'string')
-      return value.toLowerCase().includes(search.value.toLowerCase())
-    else
-      return false
-  })
-}
-
-// Update classroom dialog
-const updateDialog = ref(false)
-const currentClassroom = ref<Classroom>({
-  id: '',
-  name: '',
-  building: '',
-  floor: '',
-})
-
-async function handleUpdate() {
-  await classrooms.update(currentClassroom.value)
-  updateDialog.value = false
-
-  currentClassroom.value = {
-    id: '',
-    name: '',
-    building: '',
-    floor: '',
-  }
-}
-
-// Delete classroom dialog
-const deleteDialog = ref(false)
-
-async function handleDelete() {
-  await classrooms.delete(currentClassroom.value)
-  deleteDialog.value = false
-
-  classrooms.data = classrooms.data.filter(classroom => classroom.id !== currentClassroom.value.id)
-  currentClassroom.value = {
-    id: '',
-    name: '',
-    building: '',
-    floor: '',
-  }
-}
-
-// Create classroom dialog
-const createDialog = ref(false)
-
-async function handleCreate() {
-  await classrooms.create(currentClassroom.value)
-  createDialog.value = false
-
-  currentClassroom.value = {
-    id: '',
-    name: '',
-    building: '',
-    floor: '',
-  }
-}
-
-// Shared
-function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
-  if (id) {
-    const classroom = classrooms.data.find(classroom => classroom.id === id)
-    if (classroom)
-      currentClassroom.value = { ...classroom }
-
-    if (mode === 'update')
-      updateDialog.value = true
-    else
-      deleteDialog.value = true
-  }
-  else {
-    currentClassroom.value = {
-      id: '',
-      name: '',
-      building: '',
-      floor: '',
-    }
-
-    createDialog.value = true
-  }
-}
+const { currentItem, createDialog, deleteDialog, handleCreate, handleDelete, handleDialogOpen, handleUpdate, search, updateDialog } = useCrud(classrooms.data)
 </script>
 
 <template>
@@ -109,7 +23,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </div>
   </div>
 
-  <base-table :data="classrooms.data" :columns="classrooms.columns" :filter="(row) => filter(row)">
+  <base-table :search="search" :data="classrooms.data" :columns="classrooms.columns">
     <template #name="{ cell }">
       <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
     </template>
@@ -124,10 +38,10 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <button class="font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
+        <button class="font-medium text-green-600" @click="handleDialogOpen('update', cell.id)">
           Edytuj
         </button>
-        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
+        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id)">
           Usuń
         </button>
       </div>
@@ -135,11 +49,11 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-table>
 
   <base-dialog v-model="createDialog" title="Dodaj sale" :icon="BuildingLibraryIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentClassroom.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentClassroom.name" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentClassroom.building" :icon="BuildingLibraryIcon" label="Budynek" />
-      <base-input v-model="currentClassroom.floor" :icon="HomeIcon" label="Piętro" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleCreate(currentItem, async () => await classrooms.create(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentItem.building" :icon="BuildingLibraryIcon" label="Budynek" />
+      <base-input v-model="currentItem.floor" :icon="HomeIcon" label="Piętro" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -153,11 +67,11 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   </base-dialog>
 
   <base-dialog v-model="updateDialog" title="Edytuj sale" :icon="BuildingLibraryIcon">
-    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentClassroom.id" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentClassroom.name" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentClassroom.building" :icon="BuildingLibraryIcon" label="Budynek" />
-      <base-input v-model="currentClassroom.floor" :icon="HomeIcon" label="Piętro" />
+    <form class="flex flex-col gap-4" @submit.prevent="handleUpdate(currentItem, async() => await classrooms.update(currentItem))">
+      <base-input v-model="currentItem.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentItem.name" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentItem.building" :icon="BuildingLibraryIcon" label="Budynek" />
+      <base-input v-model="currentItem.floor" :icon="HomeIcon" label="Piętro" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
@@ -179,7 +93,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
       <base-button variant="secondary" @click="deleteDialog = false">
         Zamknij
       </base-button>
-      <base-button variant="danger" @click="handleDelete">
+      <base-button variant="danger" @click="handleDelete(currentItem, async() => await classrooms.delete(currentItem))">
         Usuń
       </base-button>
     </div>
