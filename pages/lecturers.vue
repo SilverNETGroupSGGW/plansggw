@@ -149,11 +149,11 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
   <base-dialog v-model="createDialog" title="Dodaj wykładowcę" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentLecturer.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-select :options="degrees" v-model="currentLecturer.academicDegree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
-      <base-input v-model="currentLecturer.firstName" class="w-full" :icon="UserIcon" label="Imię" />
-      <base-input v-model="currentLecturer.surname" class="w-full" :icon="UserIcon" label="Nazwisko" />
-      <base-input v-model="currentLecturer.email" class="w-full" :icon="InboxIcon" label="E-mail" />
+      <base-input v-model="currentLecturer.id" :icon="KeyIcon" label="ID" disabled />
+      <base-select :options="degrees" v-model="currentLecturer.academicDegree" :icon="TrophyIcon" label="Stopień naukowy" />
+      <base-input v-model="currentLecturer.firstName" :icon="UserIcon" label="Imię" />
+      <base-input v-model="currentLecturer.surname" :icon="UserIcon" label="Nazwisko" />
+      <base-input v-model="currentLecturer.email" :icon="InboxIcon" label="E-mail" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -168,11 +168,11 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
   <base-dialog v-model="updateDialog" title="Edytuj wykładowcę" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentLecturer.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-select :options="degrees" v-model="currentLecturer.academicDegree" class="w-full" :icon="TrophyIcon" label="Stopień naukowy" />
-      <base-input v-model="currentLecturer.firstName" class="w-full" :icon="UserIcon" label="Imię" />
-      <base-input v-model="currentLecturer.surname" class="w-full" :icon="UserIcon" label="Nazwisko" />
-      <base-input v-model="currentLecturer.email" class="w-full" :icon="InboxIcon" label="E-mail" />
+      <base-input v-model="currentLecturer.id" :icon="KeyIcon" label="ID" disabled />
+      <base-select :options="degrees" v-model="currentLecturer.academicDegree" :icon="TrophyIcon" label="Stopień naukowy" />
+      <base-input v-model="currentLecturer.firstName" :icon="UserIcon" label="Imię" />
+      <base-input v-model="currentLecturer.surname" :icon="UserIcon" label="Nazwisko" />
+      <base-input v-model="currentLecturer.email" :icon="InboxIcon" label="E-mail" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
-import { DayOfWeek, type Subject, SubjectType } from '~/types'
+import { type Classroom, DayOfWeek, type Lecturer, type Subject, SubjectType } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
@@ -31,6 +31,35 @@ data.value = await $fetch<Subject>(`subjects/${route.params.id}/extended`, {
   method: 'GET',
 })
 
+function addLecturer(lecturer: Lecturer) {
+  if (!data.value!.lecturersIds?.includes(lecturer.id)) {
+    data.value!.lecturers!.push(lecturer)
+    data.value!.lecturersIds!.push(lecturer.id)
+  }
+}
+
+function removeLecturer(lecturer: Lecturer) {
+  if (data.value!.lecturersIds?.includes(lecturer.id)) {
+    data.value!.lecturers!.splice(data.value!.lecturers!.indexOf(lecturer), 1)
+    data.value!.lecturersIds!.splice(data.value!.lecturersIds!.indexOf(lecturer.id), 1)
+  }
+}
+
+function addClassroom(classroom: Classroom) {
+  if (data.value!.classroom!.id !== classroom.id) {
+    data.value!.classroom = classroom
+    data.value!.classroomId = classroom.id
+  }
+}
+
+function removeClassroom(classroom: Classroom) {
+  if (data.value!.classroom!.id === classroom.id) {
+    data.value!.classroom = undefined
+    data.value!.classroomId = undefined
+  }
+}
+
+// Days of week
 const daysOfWeek = [
   { value: DayOfWeek.Monday, label: 'Poniedziałek' },
   { value: DayOfWeek.Tuesday, label: 'Wtorek' },
@@ -56,34 +85,46 @@ while (initialDate.getHours() <= 4) {
   durationRange.push({ value: new Date(initialDate).toLocaleTimeString() })
   initialDate.setMinutes(initialDate.getMinutes() + 5)
 }
+
+// API
+async function saveChanges() {
+  await $fetch(`subjects`, {
+    baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+    method: 'PUT',
+    body: JSON.stringify(data.value),
+    headers: {
+      Authorization: `Bearer ${useCookie('accessToken').value}`,
+    },
+  })
+}
 </script>
 
 <template>
-  <div class="flex w-full flex-col px-12 py-9">
+  <form class="flex w-full flex-col px-12 py-9" @submit.prevent="saveChanges">
     <div class="flex w-full items-end justify-between">
-      <base-input v-model="data!.name" dense class="mb-1 text-xl font-semibold" />
+      <base-input v-model="data!.name" dense class="mb-1 text-xl font-semibold" placeholder="Nazwa przedmiotu" />
 
       <div class="flex gap-4">
         <base-button variant="danger" class="h-10">
           Usuń zajęcia
         </base-button>
-        <base-button variant="primary" class="h-10">
+        <base-button variant="primary" class="h-10" type="submit">
           Zapisz zmiany
         </base-button>
       </div>
     </div>
 
     <div class="mb-8 flex">
-      <base-button :variant="data!.type === SubjectType.Lecture ? 'primary' : 'secondary'" class="rounded-r-none" @click="data!.type = SubjectType.Lecture">
+      <base-button type="button" :variant="data!.type === SubjectType.Lecture ? 'primary' : 'secondary'" class="rounded-r-none" @click="data!.type = SubjectType.Lecture">
         Wykład
       </base-button>
-      <base-button :variant="data!.type === SubjectType.PracticalClasses ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.PracticalClasses">
+      <base-button type="button" :variant="data!.type === SubjectType.PracticalClasses ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.PracticalClasses">
         Ćwiczenia
       </base-button>
-      <base-button :variant="data!.type === SubjectType.Laboratories ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Laboratories">
+      <base-button type="button" :variant="data!.type === SubjectType.Laboratories ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Laboratories">
         Laboratoria
       </base-button>
-      <base-button :variant="data!.type === SubjectType.Unknown ? 'primary' : 'secondary'" class="rounded-l-none" @click="data!.type = SubjectType.Unknown">
+      <base-button type="button" :variant="data!.type === SubjectType.Unknown ? 'primary' : 'secondary'" class="rounded-l-none" @click="data!.type = SubjectType.Unknown">
         Inne
       </base-button>
     </div>
@@ -96,15 +137,14 @@ while (initialDate.getHours() <= 4) {
     <div class="mb-6 flex flex-col rounded-lg border border-gray-200 p-4">
       <label class="mb-1 font-medium text-gray-700">Domyślny dzień tygodnia</label>
       <div class="flex">
-        <base-button v-for="(day, index) in daysOfWeek" :key="index" :variant="data!.dayOfWeek === day.value ? 'primary' : 'secondary'" class="h-12" :class="index === 0 ? 'rounded-r-none' : index === daysOfWeek.length - 1 ? 'rounded-l-none' : 'rounded-none'" @click="data!.dayOfWeek = day.value">
+        <base-button v-for="(day, index) in daysOfWeek" :key="index" type="button" :variant="data!.dayOfWeek === day.value ? 'primary' : 'secondary'" :class="index === 0 ? 'rounded-r-none' : index === daysOfWeek.length - 1 ? 'rounded-l-none' : 'rounded-none'" @click="data!.dayOfWeek = day.value">
           {{ day.label }}
         </base-button>
       </div>
     </div>
 
     <div class="mb-6 flex flex-col rounded-lg border border-gray-200 p-4">
-      <label class="mb-1 font-medium text-gray-700">Prowadzący</label>
-      <base-input v-model="search" placeholder="Szukaj" class="mb-1 w-96" :icon="MagnifyingGlassIcon" />
+      <base-input v-model="search" label="Prowadzący" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" />
 
       <div class="rounded-lg border border-gray-200 p-4">
         <base-table :data="lecturers.data" :columns="lecturers.columns" :filter="(row) => filter(row)">
@@ -121,10 +161,11 @@ while (initialDate.getHours() <= 4) {
           </template>
 
           <template #actions="{ cell }">
-            <button v-if="!data!.lecturers?.some(x => cell.id === x.id)" class="font-medium text-blue-600" @click="data!.lecturers!.push(cell)">
+            <!-- use data.lecturers -->
+            <button v-if="!data?.lecturers?.some(lecturer => lecturer.id === cell.id)" class="font-medium text-blue-600" @click="addLecturer(cell)">
               Dodaj
             </button>
-            <button v-else class="font-medium text-red-600" @click="data!.lecturers!.splice(data!.lecturers!.findIndex(x => cell.id === x.id), 1)">
+            <button v-else class="font-medium text-red-600" @click="removeLecturer(cell)">
               Usuń
             </button>
           </template>
@@ -134,7 +175,7 @@ while (initialDate.getHours() <= 4) {
 
     <div class="mb-6 flex flex-col rounded-lg border border-gray-200 p-4">
       <label class="mb-1 font-medium text-gray-700">Sala</label>
-      <base-input v-model="search" placeholder="Szukaj" class="mb-1 w-96" :icon="MagnifyingGlassIcon" />
+      <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" caption="Zajęcia mogą odbywać się tylko w jednej sali jednocześnie." />
 
       <div class="rounded-lg border border-gray-200 p-4">
         <base-table :data="classrooms.data" :columns="classrooms.columns" :filter="(row) => filter(row)">
@@ -143,10 +184,10 @@ while (initialDate.getHours() <= 4) {
           </template>
 
           <template #actions="{ cell }">
-            <button v-if="data!.classroom!.id !== cell.id" class="font-medium text-blue-600" @click="data!.classroom = cell">
+            <button v-if="data!.classroom!.id !== cell.id" class="font-medium text-blue-600" @click="addClassroom(cell)">
               Dodaj
             </button>
-            <button v-else class="font-medium text-red-600" @click="data!.classroom = undefined">
+            <button v-else class="font-medium text-red-600" @click="removeClassroom(cell)">
               Usuń
             </button>
           </template>
@@ -154,6 +195,6 @@ while (initialDate.getHours() <= 4) {
       </div>
     </div>
 
-    <base-input v-model="data!.comment" label="Komentarz" class="w-full" />
-  </div>
+    <base-input v-model="data!.comment" label="Komentarz" />
+  </form>
 </template>

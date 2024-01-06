@@ -55,8 +55,8 @@ async function handleFormSubmit() {
     </p>
     <form class="w-full" @submit.prevent="handleFormSubmit">
       <div class="mb-8 space-y-5">
-        <base-input v-model="form.email" :icon="InboxIcon" class="w-full" type="email" placeholder="pXXXXXX@sggw.edu.pl" label="Adres e-mail" autocomplete="false" />
-        <base-input v-model="form.password" :icon="KeyIcon" class="w-full" type="password" placeholder="********" label="Hasło" autocomplete="false" />
+        <base-input v-model="form.email" :icon="InboxIcon" type="email" placeholder="pXXXXXX@sggw.edu.pl" label="Adres e-mail" autocomplete="false" />
+        <base-input v-model="form.password" :icon="KeyIcon" type="password" placeholder="********" label="Hasło" autocomplete="false" />
       </div>
 
       <div class="flex w-full justify-end">

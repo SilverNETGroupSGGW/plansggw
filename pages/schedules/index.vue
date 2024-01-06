@@ -182,9 +182,9 @@ watchEffect(() => {
 
   <base-dialog v-model="updateDialog" title="Edytuj plan" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek">
+      <base-input v-model="currentSchedule.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentSchedule.name" :icon="PencilIcon" label="Nazwa" />
+      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
         <template #options="{ option, active }">
           <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
           <br>
@@ -193,14 +193,14 @@ watchEffect(() => {
           </span>
         </template>
       </base-search>
-      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
-      <base-select v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees">
+      <base-input v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" />
+      <base-select v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees">
         <template #options="{ option, active }">
           <span class="text-base" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.type }}</span>
         </template>
       </base-select>
-      <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
+      <base-input v-model="currentSchedule.year" type="number" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentSchedule.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
@@ -215,9 +215,9 @@ watchEffect(() => {
 
   <base-dialog v-model="createDialog" title="Utwórz plan" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentSchedule.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentSchedule.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-search v-model="currentSchedule.fieldOfStudy" :display-value="(item) => item.value" :options="courses" class="w-full" :icon="ViewfinderCircleIcon" label="Kierunek">
+      <base-input v-model="currentSchedule.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentSchedule.name" :icon="PencilIcon" label="Nazwa" />
+      <base-search v-model="currentSchedule.fieldOfStudy" :display-value="(item) => item.value" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
         <template #options="{ option, active }">
           <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
           <br>
@@ -226,10 +226,10 @@ watchEffect(() => {
           </span>
         </template>
       </base-search>
-      <base-input v-model="currentSchedule.studyMode" class="w-full" :icon="CloudIcon" label="Tryb studiów" />
-      <base-input v-model="currentSchedule.degreeOfStudy" class="w-full" :icon="TrophyIcon" label="Stopień studiów" />
-      <base-input v-model="currentSchedule.year" type="number" class="w-full" :icon="CalendarIcon" label="Rok" />
-      <base-input v-model="currentSchedule.semester" type="number" class="w-full" :icon="BriefcaseIcon" label="Semestr" />
+      <base-input v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" />
+      <base-input v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" />
+      <base-input v-model="currentSchedule.year" type="number" :icon="CalendarIcon" label="Rok" />
+      <base-input v-model="currentSchedule.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">

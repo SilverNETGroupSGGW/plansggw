@@ -136,10 +136,10 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
   <base-dialog v-model="createDialog" title="Dodaj sale" :icon="BuildingLibraryIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-      <base-input v-model="currentClassroom.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentClassroom.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentClassroom.building" class="w-full" :icon="BuildingLibraryIcon" label="Budynek" />
-      <base-input v-model="currentClassroom.floor" class="w-full" :icon="HomeIcon" label="Piętro" />
+      <base-input v-model="currentClassroom.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentClassroom.name" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentClassroom.building" :icon="BuildingLibraryIcon" label="Budynek" />
+      <base-input v-model="currentClassroom.floor" :icon="HomeIcon" label="Piętro" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="createDialog = false">
@@ -154,10 +154,10 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
 
   <base-dialog v-model="updateDialog" title="Edytuj sale" :icon="BuildingLibraryIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
-      <base-input v-model="currentClassroom.id" class="w-full" :icon="KeyIcon" label="ID" disabled />
-      <base-input v-model="currentClassroom.name" class="w-full" :icon="PencilIcon" label="Nazwa" />
-      <base-input v-model="currentClassroom.building" class="w-full" :icon="BuildingLibraryIcon" label="Budynek" />
-      <base-input v-model="currentClassroom.floor" class="w-full" :icon="HomeIcon" label="Piętro" />
+      <base-input v-model="currentClassroom.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input v-model="currentClassroom.name" :icon="PencilIcon" label="Nazwa" />
+      <base-input v-model="currentClassroom.building" :icon="BuildingLibraryIcon" label="Budynek" />
+      <base-input v-model="currentClassroom.floor" :icon="HomeIcon" label="Piętro" />
 
       <div class="mt-6 flex justify-end gap-4">
         <base-button variant="secondary" @click="updateDialog = false">
