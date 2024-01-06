@@ -28,7 +28,7 @@ const backgroundClass = computed(() => {
 <template>
   <Popover class="relative h-full">
     <Float :show="model" auto-placement :offset="8" enter="transition duration-200 ease-out" enter-from="translate-y-1 opacity-0" enter-to="translate-y-0 opacity-100" leave="transition duration-150 ease-in" leave-from="translate-y-0 opacity-100" leave-to="translate-y-1 opacity-0">
-      <PopoverButton :id="id" class="flex h-full w-full flex-col items-start rounded-md border p-4 outline-none" :class="[{ 'opacity-50': ghost }, backgroundClass]">
+      <PopoverButton :id="id" class="flex h-full w-full text-left flex-col items-start rounded-md border p-4 outline-none" :class="[{ 'opacity-50': ghost }, backgroundClass]">
         <small class="text-xs text-gray-600">
           {{ startTime }} ({{ duration }})
         </small>
