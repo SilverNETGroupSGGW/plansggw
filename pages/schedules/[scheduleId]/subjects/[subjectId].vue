@@ -168,6 +168,9 @@ async function saveChanges() {
       <base-button type="button" :variant="data!.type === SubjectType.Laboratories ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Laboratories">
         Laboratoria
       </base-button>
+      <base-button type="button" :variant="data!.type === SubjectType.Faculty ? 'primary' : 'secondary'" class="rounded-none" @click="data!.type = SubjectType.Faculty">
+        Fakultet
+      </base-button>
       <base-button type="button" :variant="data!.type === SubjectType.Unknown ? 'primary' : 'secondary'" class="rounded-l-none" @click="data!.type = SubjectType.Unknown">
         Inne
       </base-button>

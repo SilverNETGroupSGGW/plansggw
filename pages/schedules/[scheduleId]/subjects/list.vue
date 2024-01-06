@@ -65,6 +65,7 @@ function handleDialogOpen(id: string) {
         <span v-if="cell.type === SubjectType.Lecture">Wykład</span>
         <span v-else-if="cell.type === SubjectType.Laboratories">Laboratorium</span>
         <span v-else-if="cell.type === SubjectType.PracticalClasses">Ćwiczenia</span>
+        <span v-else-if="cell.type === SubjectType.Faculty">Fakultet</span>
         <span v-else-if="cell.type === SubjectType.Unknown">Inne</span>
       </div>
 
