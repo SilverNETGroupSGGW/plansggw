@@ -42,7 +42,7 @@ const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.param
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-groups.value = _groups.value
+groups.value = _groups.value.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
 
 const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',

@@ -29,25 +29,25 @@ const backgroundClass = computed(() => {
   <Popover class="relative h-full">
     <Float :show="model" auto-placement :offset="8" enter="transition duration-200 ease-out" enter-from="translate-y-1 opacity-0" enter-to="translate-y-0 opacity-100" leave="transition duration-150 ease-in" leave-from="translate-y-0 opacity-100" leave-to="translate-y-1 opacity-0">
       <PopoverButton :id="id" class="flex h-full w-full flex-col items-start rounded-md border p-4 outline-none" :class="[{ 'opacity-50': ghost }, backgroundClass]">
-        <small class="text-gray-600">
+        <small class="text-xs text-gray-600">
           {{ startTime }} ({{ duration }})
         </small>
-        <h3 class="text-lg text-left font-bold text-gray-900">
+        <p class="text-left text-sm font-bold text-gray-900">
           {{ name }}
-        </h3>
-        <p class="mb-4 text-gray-700">
+        </p>
+        <small class="mb-2 text-xs text-gray-700">
           {{ type }}
-        </p>
+        </small>
 
-        <p v-if="lecturers" class="text-gray-700">
+        <small v-if="lecturers" class="text-xs text-gray-700">
           <b>{{ lecturers[0].academicDegree }} {{ lecturers[0].firstName }} {{ lecturers[0].surname }}</b>
-        </p>
-        <p class="text-gray-700">
+        </small>
+        <small class="text-xs text-gray-700">
           <b>Sala: </b> b. {{ classroom?.building }}, p. {{ classroom?.floor }}, s. {{ classroom?.name }}
-        </p>
-        <p v-if="groups" class="text-gray-700">
+        </small>
+        <small v-if="groups" class="text-xs text-gray-700">
           <b>Grupy: </b> {{ groups.map(x => x.name).join(', ') }}
-        </p>
+        </small>
       </PopoverButton>
 
       <PopoverPanel static class="z-10 w-[20rem] max-w-[calc(100vw-2rem)] rounded-lg border border-gray-200 bg-white">
