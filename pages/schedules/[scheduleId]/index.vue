@@ -8,9 +8,6 @@ const route = useRoute()
 // Data
 const { daysOfWeek } = useData()
 
-// Popover
-const isLessonActive = ref<boolean[]>([])
-
 // Elements
 const container = ref<HTMLDivElement | null>(null)
 const subjectCells = ref<HTMLDivElement[] | null>(null)
@@ -69,8 +66,8 @@ const filteredSubjects = computed(() =>
 )
 
 // Hooks
-const { onPointerDown } = useResize(subjects.value!, groups.value!, container, isLessonActive.value)
-const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, isLessonActive.value, route.params.scheduleId as string)
+const { onPointerDown } = useResize(subjects.value!, groups.value!, container)
+const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, route.params.scheduleId as string)
 </script>
 
 <template>
@@ -131,7 +128,7 @@ const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, is
 
             <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
               <div v-for="(subject, index) in filteredSubjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
-                <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
+                <base-lesson v-bind="subject" />
               </div>
 
               <div v-for="(group, index) in groups" v-once :key="index" class="flex h-48">

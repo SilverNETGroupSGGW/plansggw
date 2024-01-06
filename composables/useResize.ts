@@ -1,6 +1,6 @@
 import type { Group, Subject } from '~/types'
 
-export default function useResize(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>, isLessonActive: boolean[]) {
+export default function useResize(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>) {
   const mouse = useMouse()
 
   const { onDragDown } = useDrag(subjects, groups, container)
@@ -13,7 +13,7 @@ export default function useResize(subjects: Subject[], groups: Group[], containe
   const edgeThreshold = 16
 
   function onPointerDown(event: PointerEvent, subject: Subject) {
-    if (event.button !== 0 || isLessonActive.includes(true) || (event.target as HTMLElement).id.startsWith('link-'))
+    if (event.button !== 0 || (event.target as HTMLElement).id.startsWith('link-'))
       return
 
     // Determine if we're dragging or resizing
