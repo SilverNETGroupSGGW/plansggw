@@ -13,15 +13,15 @@ export default function useCrud<T extends { id: string }>(items: T[]) {
   }
 
   async function handleUpdate(currentItem: T, callback: (id?: string) => void) {
+    callback()
     updateDialog.value = false
     currentItem = {} as T
-    callback()
   }
 
   async function handleDelete(currentItem: T, callback: (id?: string) => void) {
+    callback()
     deleteDialog.value = false
     currentItem = {} as T
-    callback()
   }
 
   function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
