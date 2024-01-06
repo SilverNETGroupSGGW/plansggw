@@ -30,13 +30,34 @@ function filter(row: any) {
 
 const data = ref<Subject | null>(null)
 
-data.value = await $fetch<Subject>(`subjects/${route.params.subjectId}/extended`, {
-  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
-  method: 'GET',
-})
-data.value.groupsIds = data.value.groups?.map(group => group.id)
-data.value.lecturersIds = data.value.lecturers?.map(lecturer => lecturer.id)
-data.value.classroomId = data.value.classroom?.id
+try {
+  const subject = await $fetch<Subject>(`subjects/${route.params.subjectId}/extended`, {
+    baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+    method: 'GET',
+  })
+
+  subject.groupsIds = subject.groups?.map(group => group.id!)
+  subject.lecturersIds = subject.lecturers?.map(lecturer => lecturer.id)
+  subject.classroomId = subject.classroom?.id
+
+  data.value = subject
+}
+catch {
+  data.value = {
+    scheduleId: route.params.scheduleId as string,
+    name: '',
+    type: SubjectType.Unknown,
+    startTime: '08:00:00',
+    duration: '00:05:00',
+    isRemote: false,
+    lecturers: [],
+    lecturersIds: [],
+    classroom: '',
+    classroomId: '',
+    groups: [],
+    groupsIds: [],
+  }
+}
 
 function addLecturer(lecturer: Lecturer) {
   if (!data.value!.lecturersIds?.includes(lecturer.id)) {
@@ -67,16 +88,16 @@ function removeClassroom(classroom: Classroom) {
 }
 
 function addGroup(group: Group) {
-  if (!data.value!.groupsIds?.includes(group.id)) {
+  if (!data.value!.groupsIds?.includes(group.id!)) {
     data.value!.groups!.push(group)
-    data.value!.groupsIds!.push(group.id)
+    data.value!.groupsIds!.push(group.id!)
   }
 }
 
 function removeGroup(group: Group) {
-  if (data.value!.groupsIds?.includes(group.id)) {
+  if (data.value!.groupsIds?.includes(group.id!)) {
     data.value!.groups!.splice(data.value!.groups!.indexOf(group), 1)
-    data.value!.groupsIds!.splice(data.value!.groupsIds!.indexOf(group.id), 1)
+    data.value!.groupsIds!.splice(data.value!.groupsIds!.indexOf(group.id!), 1)
   }
 }
 
@@ -111,14 +132,14 @@ while (initialDate.getHours() <= 4) {
 async function saveChanges() {
   await $fetch<Subject[]>(`subjects`, {
     baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
-    method: 'PUT',
+    method: route.params.subjectId === 'create' ? 'POST' : 'PUT',
     body: JSON.stringify(data.value),
     headers: {
       Authorization: `Bearer ${useCookie('accessToken').value}`,
     },
   })
 
-  router.push(`/schedules/${route.params.scheduleId}/subjects`)
+  router.push(`/schedules/${route.params.scheduleId}/subjects/list`)
 }
 </script>
 

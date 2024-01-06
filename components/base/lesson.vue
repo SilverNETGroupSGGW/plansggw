@@ -32,7 +32,7 @@ const backgroundClass = computed(() => {
         <small class="text-gray-600">
           {{ startTime }} ({{ duration }})
         </small>
-        <h3 class="text-lg font-bold text-gray-900">
+        <h3 class="text-lg text-left font-bold text-gray-900">
           {{ name }}
         </h3>
         <p class="mb-4 text-gray-700">

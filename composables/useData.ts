@@ -55,6 +55,12 @@ export default function useData() {
     { value: 'prof. dr hab.' },
   ]
 
+  const studiesModes = [
+    { value: 'FullTimeStudies', type: 'stacjonarne' },
+    { value: 'PartTimeStudies', type: 'niestacjonarne' },
+    { value: 'Unknown', type: 'inne' },
+  ]
+
   const studiesDegrees = [
     { value: 'BachelorsDegree', type: 'licencjackie' },
     { value: 'MastersDegree', type: 'magisterskie' },
@@ -66,6 +72,7 @@ export default function useData() {
   return {
     courses,
     degrees,
+    studiesModes,
     studiesDegrees,
   }
 }

@@ -10,6 +10,10 @@ export const useSubjects = defineStore('subjects', {
         header: 'Nazwa',
       },
       {
+        key: 'lecturers',
+        header: 'Prowadzący',
+      },
+      {
         key: 'actions',
         header: 'Akcje',
       },
@@ -17,7 +21,7 @@ export const useSubjects = defineStore('subjects', {
   }),
   actions: {
     async get(scheduleId: string) {
-      const data = await $fetch<Subject[]>(`Subjects/schedule/${scheduleId}`, {
+      const data = await $fetch<Subject[]>(`Subjects/schedule/${scheduleId}/extended`, {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
         method: 'GET',
       })

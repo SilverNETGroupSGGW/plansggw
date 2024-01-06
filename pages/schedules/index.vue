@@ -4,7 +4,7 @@ import { BriefcaseIcon, CalendarIcon, CloudIcon, KeyIcon, MagnifyingGlassIcon, P
 import type { Schedule } from '~/types'
 
 // Data
-const { courses, studiesDegrees } = useData()
+const { courses, studiesDegrees, studiesModes } = useData()
 
 // Schedules
 const search = ref('')
@@ -170,7 +170,7 @@ watchEffect(() => {
         <NuxtLink :to="`/schedules/${cell.id}`" class="w-max font-medium text-blue-600">
           Kreator
         </NuxtLink>
-        <NuxtLink :to="`/schedules/${cell.id}/subjects`" class="w-max font-medium text-blue-600">
+        <NuxtLink :to="`/schedules/${cell.id}/subjects/list`" class="w-max font-medium text-blue-600">
           Przedmioty
         </NuxtLink>
         <NuxtLink :to="`/schedules/${cell.id}/groups`" class="w-max font-medium text-blue-600">
@@ -222,8 +222,9 @@ watchEffect(() => {
   <base-dialog v-model="createDialog" title="Utwórz plan" :icon="UserIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
       <base-input v-model="currentSchedule.id" :icon="KeyIcon" label="ID" disabled />
+      <base-input type="date" v-model="currentSchedule.startDate" :icon="CalendarIcon" label="Data rozpoczęcia" />
       <base-input v-model="currentSchedule.name" :icon="PencilIcon" label="Nazwa" />
-      <base-search v-model="currentSchedule.fieldOfStudy" :display-value="(item) => item.value" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
+      <base-search v-model="currentSchedule.fieldOfStudy" :options="courses" :icon="ViewfinderCircleIcon" label="Kierunek">
         <template #options="{ option, active }">
           <span class="text-base font-medium" :class="{ 'text-gray-100': active, 'text-gray-900': !active }">{{ option.value }}</span>
           <br>
@@ -232,8 +233,8 @@ watchEffect(() => {
           </span>
         </template>
       </base-search>
-      <base-input v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" />
-      <base-input v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" />
+      <base-select v-model="currentSchedule.studyMode" :icon="CloudIcon" label="Tryb studiów" :options="studiesModes" />
+      <base-select v-model="currentSchedule.degreeOfStudy" :icon="TrophyIcon" label="Stopień studiów" :options="studiesDegrees" />
       <base-input v-model="currentSchedule.year" type="number" :icon="CalendarIcon" label="Rok" />
       <base-input v-model="currentSchedule.semester" type="number" :icon="BriefcaseIcon" label="Semestr" />
 

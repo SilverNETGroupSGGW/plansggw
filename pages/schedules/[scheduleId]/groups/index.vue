@@ -22,7 +22,7 @@ function filter(row: Group) {
 // Update group dialog
 const updateDialog = ref(false)
 const currentGroup = ref<Group>({
-  id: '',
+  scheduleId: route.params.scheduleId as string,
   name: '',
 })
 
@@ -31,7 +31,7 @@ async function handleUpdate() {
   updateDialog.value = false
 
   currentGroup.value = {
-    id: '',
+    scheduleId: route.params.scheduleId as string,
     name: '',
   }
 }
@@ -45,7 +45,7 @@ async function handleDelete() {
 
   groups.data = groups.data.filter(group => group.id !== currentGroup.value.id)
   currentGroup.value = {
-    id: '',
+    scheduleId: route.params.scheduleId as string,
     name: '',
   }
 }
@@ -58,7 +58,7 @@ async function handleCreate() {
   createDialog.value = false
 
   currentGroup.value = {
-    id: '',
+    scheduleId: route.params.scheduleId as string,
     name: '',
   }
 }
@@ -77,7 +77,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
   }
   else {
     currentGroup.value = {
-      id: '',
+      scheduleId: route.params.scheduleId as string,
       name: '',
     }
 
@@ -122,7 +122,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </template>
   </base-table>
 
-  <base-dialog v-model="createDialog" title="Dodaj grupe" :icon="UserGroupIcon">
+  <base-dialog v-model="createDialog" title="Dodaj grupę" :icon="UserGroupIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
       <base-input v-model="currentGroup.id" :icon="KeyIcon" label="ID" disabled />
       <base-input v-model="currentGroup.name" :icon="PencilIcon" label="Nazwa" />
@@ -138,7 +138,7 @@ function handleDialogOpen(mode: 'create' | 'update' | 'delete', id?: string) {
     </form>
   </base-dialog>
 
-  <base-dialog v-model="updateDialog" title="Edytuj grupe" :icon="UserGroupIcon">
+  <base-dialog v-model="updateDialog" title="Edytuj grupę" :icon="UserGroupIcon">
     <form class="flex flex-col gap-4" @submit.prevent="handleUpdate">
       <base-input v-model="currentGroup.id" :icon="KeyIcon" label="ID" disabled />
       <base-input v-model="currentGroup.name" :icon="PencilIcon" label="Nazwa" />
