@@ -1,7 +1,7 @@
 import type { Subject } from '~/types'
 
 export default function useSubject() {
-  function calculatePosition(subject: Subject, cellHeight: number, groups: string[]) {
+  function calculatePosition(subject: Subject, groups: string[]) {
     const startTime = new Date(`1970-01-01T${subject.startTime}`)
 
     const [hours, minutes, seconds] = subject.duration!.split(':').map(Number)
@@ -12,9 +12,9 @@ export default function useSubject() {
     const endTime = new Date(startTime.getTime() + durationInMilliseconds)
 
     const x = ((startTime.getHours() - 8) * 60 + startTime.getMinutes()) * (24 / 5)
-    const y = groups.findIndex(group => subject.groups!.some(subjectGroup => subjectGroup.name === group)) * cellHeight
+    const y = groups.findIndex(group => subject.groups!.some(subjectGroup => subjectGroup.name === group)) * 192
 
-    const height = subject.groups!.length * cellHeight
+    const height = subject.groups!.length * 192
     const width = ((endTime.getHours() * 60 + endTime.getMinutes()) - (startTime.getHours() * 60 + startTime.getMinutes())) * 4.8
 
     return { x, y, width, height }

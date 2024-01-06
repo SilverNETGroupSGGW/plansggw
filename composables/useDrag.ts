@@ -1,6 +1,6 @@
-import type { Subject } from '~/types'
+import type { Group, Subject } from '~/types'
 
-export default function useDrag(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>) {
+export default function useDrag(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>) {
   const { calculateStartTime } = useSubject()
 
   let rafId: number | null = null
@@ -36,14 +36,14 @@ export default function useDrag(subjects: Subject[], container: Ref<HTMLElement 
       const deltaX = Math.round((event.clientX - dragStart.value.x) / 24) * 24
 
       // snap to groupCells height in Y axis
-      const deltaY = Math.round((event.clientY - dragStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      const deltaY = Math.round((event.clientY - dragStart.value.y) / 192) * 192
 
       if (deltaX !== 0 || deltaY !== 0) {
         const newX = currentSubject.value!.x! + deltaX
         const newY = currentSubject.value!.y! + deltaY
 
         // Calculate the total height of groupCells
-        const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
+        const totalHeight = 192 * groups.length
 
         // Set boundaries, x and y can't be smaller than 0
         // newY can't be larger than totalHeight - currentSubject.value!.height

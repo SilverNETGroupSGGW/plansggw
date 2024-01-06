@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Schedule } from '~/types'
+import type { Group, Schedule, Subject } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
@@ -9,7 +9,6 @@ const isLessonActive = ref<boolean[]>([])
 
 // Elements
 const container = ref<HTMLDivElement | null>(null)
-const groupCells = ref<HTMLDivElement[]>([])
 const subjectCells = ref<HTMLDivElement[] | null>(null)
 
 // Time range
@@ -31,42 +30,37 @@ while (initialDate.getHours() < 20) {
   initialDate.setMinutes(initialDate.getMinutes() + 5)
 }
 
-// Composables
+// Subjects
 const { calculatePosition } = useSubject()
 
-// Subjects
-const groups = useGroups()
-await groups.get(route.params.id as string)
-
-const subjects = useSubjects()
-await subjects.get(route.params.id as string)
+const groups = ref<Group[] | null>()
+const subjects = ref<Subject[] | null>(null)
 
 const { data: schedule } = await useFetch<Schedule>(`Schedules/${route.params.id}`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-onMounted(() => {
-  if (subjects.data && groups.data) {
-    subjects.data = subjects.data.map((subject) => {
-      const { x, y, width, height } = calculatePosition(subject, groupCells.value[0].offsetHeight, groups.data.map(x => x.name))
-      return { ...subject, x, y, width, height }
-    })
-  }
+const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.params.id}`, {
+  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
+if (_groups.value)
+  groups.value = _groups.value!.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
+
+const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.id}/extended`, {
+  baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
+})
+
+if (_subjects.value) {
+  subjects.value = _subjects.value.map((subject) => {
+    const { x, y, width, height } = calculatePosition(subject, groups.value!.map(x => x.name))
+    return { ...subject, x, y, width, height }
+  })
+}
+
 // Hooks
-let onPointerDown: Function | null = null
-let onCreateMove: Function | null = null
-
-watch(subjects, (value) => {
-  if (value) {
-    const resize = useResize(subjects.data, container, groupCells, isLessonActive.value)
-    onPointerDown = resize.onPointerDown
-
-    const create = useCreate(subjects.data, container, groupCells, isLessonActive.value, route.params.id as string)
-    onCreateMove = create.onCreateMove
-  }
-}, { once: true })
+const { onPointerDown } = useResize(subjects.value!, groups.value!, container, isLessonActive.value)
+const { onCreateMove } = useCreate(subjects.value!, groups.value!, container, isLessonActive.value, route.params.id as string)
 </script>
 
 <template>
@@ -109,17 +103,17 @@ watch(subjects, (value) => {
 
     <div class="flex">
       <div class="flex h-full w-fit flex-col">
-        <div v-for="(group, index) in groups.data" v-once :id="group.id" ref="groupCells" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-b-2 border-r-2 border-gray-200 text-center text-xs text-gray-700">
+        <div v-for="(group, index) in groups" v-once :id="group.id" :key="index" class="flex h-48 w-48 shrink-0 items-center justify-center border-b-2 border-r-2 border-gray-200 text-center text-xs text-gray-700">
           {{ group.name }}
         </div>
       </div>
 
       <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
-        <div v-for="(subject, index) in subjects.data" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
+        <div v-for="(subject, index) in subjects" :id="subject.id" ref="subjectCells" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
           <base-lesson v-bind="subject" v-model="isLessonActive[index]" @dblclick.prevent="isLessonActive[index] = !isLessonActive[index]" />
         </div>
 
-        <div v-for="(group, index) in groups.data" v-once :key="index" class="flex h-48">
+        <div v-for="(group, index) in groups" v-once :key="index" class="flex h-48">
           <div v-for="(time, index2) in smallerTimeRange" v-once :key="index2" class="flex h-48 w-6 shrink-0 items-center justify-between border-b border-r border-gray-200 text-center text-xs text-gray-700" :data-group="group.id" :data-time="time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })" />
         </div>
       </div>

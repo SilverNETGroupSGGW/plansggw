@@ -1,9 +1,9 @@
-import type { Subject } from '~/types'
+import type { Group, Subject } from '~/types'
 
-export default function useResize(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>, isLessonActive: boolean[]) {
+export default function useResize(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>, isLessonActive: boolean[]) {
   const mouse = useMouse()
 
-  const { onDragDown } = useDrag(subjects, container, groupCells)
+  const { onDragDown } = useDrag(subjects, groups, container)
   const { calculateStartTime } = useSubject()
 
   let rafId: number | null = null
@@ -79,13 +79,12 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
     rafId = requestAnimationFrame(() => {
       // Calculate the change in x and y positions
       const deltaX = Math.round((event.clientX - resizeStart.value.x) / 24) * 24
-      const deltaY = Math.round((event.clientY - resizeStart.value.y) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+      const deltaY = Math.round((event.clientY - resizeStart.value.y) / 192) * 192
 
       let newWidth, newHeight, newX, newY
 
       // Calculate the total height of the group cells
-      const totalHeight = groupCells.value.reduce((sum, cell) => sum + cell.offsetHeight, 0)
-      const minCellHeight = groupCells.value[0].offsetHeight // Assuming all cells have the same height
+      const totalHeight = groups.length * 192
 
       switch (initialResizeEdge.value) {
         case 'top-left':
@@ -102,7 +101,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
           break
         case 'top-right':
           newWidth = Math.max(0, resizeStart.value.width + deltaX)
-          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
+          newHeight = Math.max(192, resizeStart.value.height - deltaY)
           newY = mouse.currentSubject!.y! + (mouse.currentSubject!.height! - newHeight)
           mouse.currentSubject!.width = newWidth
           if (newY >= 0) {
@@ -145,7 +144,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
           mouse.currentSubject!.width = newWidth
           break
         case 'top':
-          newHeight = Math.max(minCellHeight, resizeStart.value.height - deltaY)
+          newHeight = Math.max(192, resizeStart.value.height - deltaY)
           newY = mouse.currentSubject!.y! + (mouse.currentSubject!.height! - newHeight)
           if (newY >= 0) {
             mouse.currentSubject!.height = newHeight
@@ -153,7 +152,7 @@ export default function useResize(subjects: Subject[], container: Ref<HTMLElemen
           }
           break
         case 'bottom':
-          newHeight = Math.min(totalHeight - mouse.currentSubject!.y!, Math.max(minCellHeight, resizeStart.value.height + deltaY))
+          newHeight = Math.min(totalHeight - mouse.currentSubject!.y!, Math.max(192, resizeStart.value.height + deltaY))
           mouse.currentSubject!.height = newHeight
           break
       }

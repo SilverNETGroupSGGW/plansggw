@@ -1,9 +1,9 @@
-import { type Subject, SubjectType } from '~/types'
+import { type Group, type Subject, SubjectType } from '~/types'
 
-export default function useCreate(subjects: Subject[], container: Ref<HTMLElement | null>, groupCells: Ref<HTMLElement[]>, isLessonActive: boolean[], scheduleId: string) {
+export default function useCreate(subjects: Subject[], groups: Group[], container: Ref<HTMLElement | null>, isLessonActive: boolean[], scheduleId: string) {
   const mouse = useMouse()
 
-  const { onResizeDown } = useResize(subjects, container, groupCells, isLessonActive)
+  const { onResizeDown } = useResize(subjects, groups, container, isLessonActive)
 
   function onCreateMove(event: PointerEvent) {
     if (event.button !== 0 || isLessonActive.includes(true))
@@ -16,7 +16,7 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       return
 
     let x = Math.round((event.clientX - container.value!.getBoundingClientRect().left - 12) / 24) * 24
-    let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top) / groupCells.value[0].offsetHeight) * groupCells.value[0].offsetHeight
+    let y = Math.round((event.clientY - container.value!.getBoundingClientRect().top) / 192) * 192
 
     // Check if x or y is outside the bounds and set them to the closest boundary
     const containerRect = container.value!.getBoundingClientRect()
@@ -26,14 +26,14 @@ export default function useCreate(subjects: Subject[], container: Ref<HTMLElemen
       y = 0
     if (x > containerRect.width - 24)
       x = containerRect.width - 24
-    if (y > containerRect.height - groupCells.value[0].offsetHeight)
-      y = containerRect.height - groupCells.value[0].offsetHeight
+    if (y > containerRect.height - 192)
+      y = containerRect.height - 192
 
     const newSubject: Subject = {
       comment: '',
       ghost: true,
       groupsIds: [target.dataset.group!],
-      height: groupCells.value[0].offsetHeight,
+      height: 192,
       id: '',
       lecturersIds: [],
       name: 'Zajęcia',
