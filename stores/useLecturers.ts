@@ -21,12 +21,10 @@ export const useLecturers = defineStore('lecturers', {
   }),
   actions: {
     async get() {
-      const data = await $fetch<Lecturer[]>('lecturers', {
+      this.data = await $fetch<Lecturer[]>('lecturers', {
         baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
         method: 'GET',
       })
-
-      this.data = data
     },
     async create(lecturer: Lecturer) {
       const data = await $fetch<Lecturer>('lecturers', {
