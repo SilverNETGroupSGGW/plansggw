@@ -15,7 +15,7 @@ const paginatedData = computed(() => filteredData.value.slice((page.value - 1) *
 
 <template>
   <div class="overflow-x-scroll">
-    <table class="w-full table-fixed">
+    <table class="w-full">
       <thead class="border-b border-gray-200">
         <tr>
           <th v-for="column in columns" :key="column.key" class="px-12 py-2 text-left font-semibold text-blue-600">
@@ -45,11 +45,8 @@ const paginatedData = computed(() => filteredData.value.slice((page.value - 1) *
 
       <tfoot class="border-y border-gray-200">
         <tr>
-          <td :colspan="columns.length - 1" class="whitespace-nowrap px-12 py-4" />
           <td class="px-12 py-4">
-            <div class="flex justify-end">
-              <base-pagination v-model="page" :filtered-data="filteredData" />
-            </div>
+            <base-pagination v-model="page" :filtered-data="filteredData" />
           </td>
         </tr>
       </tfoot>

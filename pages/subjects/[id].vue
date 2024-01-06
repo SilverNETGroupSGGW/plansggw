@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
-import { type Classroom, DayOfWeek, type Lecturer, type Subject, SubjectType } from '~/types'
+import { type Classroom, DayOfWeek, type Group, type Lecturer, type Subject, SubjectType } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
@@ -12,6 +12,9 @@ await lecturers.get()
 
 const classrooms = useClassrooms()
 await classrooms.get()
+
+const groups = useGroups()
+await groups.get(route.params.id as string)
 
 const search = ref('')
 
@@ -56,6 +59,20 @@ function removeClassroom(classroom: Classroom) {
   if (data.value!.classroom!.id === classroom.id) {
     data.value!.classroom = undefined
     data.value!.classroomId = undefined
+  }
+}
+
+function addGroup(group: Group) {
+  if (!data.value!.groupsIds?.includes(group.id)) {
+    data.value!.groups!.push(group)
+    data.value!.groupsIds!.push(group.id)
+  }
+}
+
+function removeGroup(group: Group) {
+  if (data.value!.groupsIds?.includes(group.id)) {
+    data.value!.groups!.splice(data.value!.groups!.indexOf(group), 1)
+    data.value!.groupsIds!.splice(data.value!.groupsIds!.indexOf(group.id), 1)
   }
 }
 
@@ -166,6 +183,28 @@ async function saveChanges() {
               Dodaj
             </button>
             <button v-else class="font-medium text-red-600" @click="removeLecturer(cell)">
+              Usuń
+            </button>
+          </template>
+        </base-table>
+      </div>
+    </div>
+
+    <div class="mb-6 flex flex-col rounded-lg border border-gray-200 p-4">
+      <label class="mb-1 font-medium text-gray-700">Grupy</label>
+      <base-input v-model="search" placeholder="Szukaj" class="mb-4 w-96" :icon="MagnifyingGlassIcon" caption="Zajęcia mogą odbywać się tylko w jednej grupie jednocześnie." />
+
+      <div class="rounded-lg border border-gray-200 p-4">
+        <base-table :data="groups.data" :columns="groups.columns" :filter="(row) => filter(row)">
+          <template #name="{ cell }">
+            <span class="text-base font-medium text-gray-900">{{ cell.name }}</span>
+          </template>
+
+          <template #actions="{ cell }">
+            <button v-if="!data?.groups?.some(group => group.id === cell.id)" class="font-medium text-blue-600" @click="addGroup(cell)">
+              Dodaj
+            </button>
+            <button v-else class="font-medium text-red-600" @click="removeGroup(cell)">
               Usuń
             </button>
           </template>

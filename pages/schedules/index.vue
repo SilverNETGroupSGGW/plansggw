@@ -170,6 +170,9 @@ watchEffect(() => {
         <NuxtLink :to="`/schedules/${cell.id}`" class="w-max font-medium text-blue-600">
           Kreator
         </NuxtLink>
+        <NuxtLink :to="`/groups/${cell.id}`" class="w-max font-medium text-blue-600">
+          Grupy
+        </NuxtLink>
         <button class="w-max font-medium text-green-600" @click="handleDialogOpen('update', cell.id!)">
           Edytuj
         </button>
