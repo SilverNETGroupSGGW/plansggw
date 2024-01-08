@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList } from '@headlessui/vue'
-import type { Group, Schedule, Subject } from '~/types'
+import { DayOfWeek, type Group, type Schedule, type Subject } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
+const router = useRouter()
+router.push({
+  query: {
+    day: route.query.day ?? DayOfWeek.Monday,
+  },
+})
 
 // Data
 const { daysOfWeek } = useData()
@@ -37,7 +43,6 @@ while (initialDate.getHours() < 20) {
 // Subjects
 const { calculatePosition } = useSubject()
 
-const tabIndex = ref(0)
 const groups = ref<Group[] | null>()
 const subjects = ref<Subject[] | null>(null)
 
@@ -64,7 +69,7 @@ if (_subjects.value) {
 }
 
 const filteredSubjects = computed(() =>
-  subjects.value?.filter(subject => subject.dayOfWeek === daysOfWeek[tabIndex.value].value),
+  subjects.value?.filter(subject => subject.dayOfWeek === route.query.day),
 )
 
 // Hooks
@@ -77,6 +82,17 @@ watchEffect(() => {
     ({ onCreateMove } = useCreate(subjects.value!, groups.value!, initialContainer, route.params.scheduleId as string))
   }
 })
+
+// Tabs
+const tabIndex = ref(route.query.day ? daysOfWeek.findIndex(day => day.value === route.query.day) : 0)
+function handleTabChange(index: number) {
+  tabIndex.value = index
+  router.push({
+    query: {
+      day: daysOfWeek[index].value,
+    },
+  })
+}
 </script>
 
 <template>
@@ -139,7 +155,7 @@ watchEffect(() => {
   </div>
 
   <Teleport to="#aside-right">
-    <TabGroup @change="tabIndex = $event">
+    <TabGroup :selected-index="tabIndex" @change="handleTabChange">
       <TabList class="flex w-full flex-col gap-2 border-b border-b-gray-200">
         <Tab v-for="(day, index) in daysOfWeek" :key="index" v-slot="{ selected }" as="template">
           <base-button variant="flat" class="-mx-3 flex aspect-square h-12 w-12 items-center justify-center gap-3 rounded-full bg-indigo-50 font-medium transition-colors duration-200 ease-in-out hover:bg-indigo-100" :class="[selected ? 'bg-indigo-100 text-indigo-600' : 'text-indigo-600']">
