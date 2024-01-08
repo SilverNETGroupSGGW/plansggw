@@ -1,4 +1,4 @@
-import { DayOfWeek } from "~/types"
+import { DayOfWeek } from '~/types'
 
 export default function useData() {
   const courses = [
@@ -70,16 +70,16 @@ export default function useData() {
     { value: 'CertificatesAndDiplomas', type: 'dyplomowe' },
     { value: 'OnlineDegrees', type: 'online' },
   ]
-  
+
   const daysOfWeek = [
-  { value: DayOfWeek.Monday, label: 'Poniedziałek' },
-  { value: DayOfWeek.Tuesday, label: 'Wtorek' },
-  { value: DayOfWeek.Wednesday, label: 'Środa' },
-  { value: DayOfWeek.Thursday, label: 'Czwartek' },
-  { value: DayOfWeek.Friday, label: 'Piątek' },
-  { value: DayOfWeek.Saturday, label: 'Sobota' },
-  { value: DayOfWeek.Sunday, label: 'Niedziela' },
-]
+    { value: DayOfWeek.Monday, label: 'Poniedziałek', shortLabel: 'Pon' },
+    { value: DayOfWeek.Tuesday, label: 'Wtorek', shortLabel: 'Wt' },
+    { value: DayOfWeek.Wednesday, label: 'Środa', shortLabel: 'Śr' },
+    { value: DayOfWeek.Thursday, label: 'Czwartek', shortLabel: 'Czw' },
+    { value: DayOfWeek.Friday, label: 'Piątek', shortLabel: 'Pt' },
+    { value: DayOfWeek.Saturday, label: 'Sobota', shortLabel: 'Sob' },
+    { value: DayOfWeek.Sunday, label: 'Niedziela', shortLabel: 'Ndz' },
+  ]
 
   return {
     courses,

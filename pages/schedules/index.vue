@@ -52,7 +52,7 @@ watchEffect(() => {
         <base-button variant="primary" @click="schedules.download(cell)">
           Pobierz plan
         </base-button>
-        <base-button variant="primary" :to="`/schedules/${cell.id}/monday`">
+        <base-button variant="primary" :to="`/schedules/${cell.id}`">
           Kreator
         </base-button>
 

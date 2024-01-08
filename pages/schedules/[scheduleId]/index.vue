@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Tab, TabGroup, TabList } from '@headlessui/vue'
 import type { Group, Schedule, Subject } from '~/types'
 
 // Nuxt hooks
@@ -36,6 +37,7 @@ while (initialDate.getHours() < 20) {
 // Subjects
 const { calculatePosition } = useSubject()
 
+const tabIndex = ref(0)
 const groups = ref<Group[] | null>()
 const subjects = ref<Subject[] | null>(null)
 
@@ -47,8 +49,7 @@ const { data: _groups } = await useFetch<Group[]>(`Groups/Schedule/${route.param
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
 })
 
-if (_groups.value)
-  groups.value = _groups.value!.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
+groups.value = _groups.value!.sort((a, b) => a.name.localeCompare(b.name)) /* temp client-side sorting */
 
 const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route.params.scheduleId}/extended`, {
   baseURL: 'https://kampus-sggw-api.azurewebsites.net/api',
@@ -56,12 +57,15 @@ const { data: _subjects } = await useFetch<Subject[]>(`Subjects/schedule/${route
 
 if (_subjects.value) {
   subjects.value = _subjects.value
-    .filter(x => x.dayOfWeek!.toUpperCase() === (route.params.day as string).toUpperCase())
     .map((subject) => {
       const { x, y, width, height } = calculatePosition(subject, groups.value!.map(x => x.name))
       return { ...subject, x, y, width, height }
     })
 }
+
+const filteredSubjects = computed(() =>
+  subjects.value?.filter(subject => subject.dayOfWeek === daysOfWeek[tabIndex.value].value),
+)
 
 // Hooks
 let onPointerDown: Function | null = null
@@ -91,12 +95,6 @@ watchEffect(() => {
       <p class="text-gray-700">
         Rok {{ schedule?.year }}, semestr {{ schedule?.semester }}
       </p>
-    </div>
-
-    <div class="flex">
-      <base-button v-for="(day, index) in daysOfWeek" :key="index" :variant="(route.params.day as string).toLowerCase() === day.value.toLowerCase() ? 'primary' : 'secondary'" :class="index === 0 ? 'rounded-r-none' : index === daysOfWeek.length - 1 ? 'rounded-l-none' : 'rounded-none'" :to="`/schedules/${route.params.scheduleId}/${day.value.toLowerCase()}`">
-        {{ day.label }}
-      </base-button>
     </div>
   </div>
 
@@ -128,7 +126,7 @@ watchEffect(() => {
         </div>
 
         <div ref="container" class="relative flex flex-col" @pointerdown.prevent="onCreateMove!">
-          <div v-for="(subject, index) in subjects" :id="subject.id" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
+          <div v-for="(subject, index) in filteredSubjects" :id="subject.id" :key="index" :style="{ transform: `translate(${subject.x}px, ${subject.y}px)`, width: `${subject.width}px`, height: `${subject.height}px` }" class="absolute pb-0.5 pr-0.5 hover:cursor-move" @pointerdown.prevent="onPointerDown!($event, subject)">
             <base-lesson v-bind="subject" />
           </div>
 
@@ -139,4 +137,16 @@ watchEffect(() => {
       </div>
     </div>
   </div>
+
+  <Teleport to="#aside-right">
+    <TabGroup @change="tabIndex = $event">
+      <TabList class="flex w-full flex-col gap-2 border-b border-b-gray-200">
+        <Tab v-for="(day, index) in daysOfWeek" :key="index" v-slot="{ selected }" as="template">
+          <base-button variant="flat" class="-mx-3 flex aspect-square h-12 w-12 items-center justify-center gap-3 rounded-full bg-indigo-50 font-medium transition-colors duration-200 ease-in-out hover:bg-indigo-100" :class="[selected ? 'bg-indigo-100 text-indigo-600' : 'text-indigo-600']">
+            {{ day.shortLabel }}
+          </base-button>
+        </Tab>
+      </TabList>
+    </TabGroup>
+  </Teleport>
 </template>
