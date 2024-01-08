@@ -69,7 +69,7 @@ if (_subjects.value) {
 }
 
 const filteredSubjects = computed(() =>
-  subjects.value?.filter(subject => subject.dayOfWeek === route.query.day),
+  subjects.value?.filter(subject => route.query.day ? subject.dayOfWeek === route.query.day : subject.dayOfWeek === DayOfWeek.Monday),
 )
 
 // Hooks
@@ -84,7 +84,7 @@ watchEffect(() => {
 })
 
 // Tabs
-const tabIndex = ref(daysOfWeek.findIndex(day => day.value === route.query.day))
+const tabIndex = ref(daysOfWeek.findIndex(day => route.query.day ? day.value === route.query.day : day.value === DayOfWeek.Monday))
 function handleTabChange(index: number) {
   tabIndex.value = index
   router.push({
