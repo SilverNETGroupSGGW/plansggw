@@ -92,12 +92,12 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
 
     <template #actions="{ cell }">
       <div class="flex gap-4">
-        <NuxtLink :to="`/schedules/${route.params.scheduleId}/subjects/${cell.id}`" class="font-medium text-green-600">
+        <base-button variant="primary" :to="`/schedules/${route.params.scheduleId}/subjects/${cell.id}`">
           Edytuj
-        </NuxtLink>
-        <button class="font-medium text-red-600" @click="handleDialogOpen('delete', cell.id!)">
+        </base-button>
+        <base-button variant="danger" @click="handleDialogOpen('delete', cell.id!)">
           Usuń
-        </button>
+        </base-button>
       </div>
     </template>
   </base-table>
