@@ -84,7 +84,7 @@ watchEffect(() => {
 })
 
 // Tabs
-const tabIndex = ref(route.query.day ? daysOfWeek.findIndex(day => day.value === route.query.day) : 0)
+const tabIndex = ref(daysOfWeek.findIndex(day => day.value === route.query.day))
 function handleTabChange(index: number) {
   tabIndex.value = index
   router.push({
