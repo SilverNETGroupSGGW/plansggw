@@ -84,7 +84,9 @@ watchEffect(() => {
 })
 
 // Tabs
-const tabIndex = ref(daysOfWeek.findIndex(day => route.query.day ? day.value === route.query.day : day.value === DayOfWeek.Monday))
+const tabIndex = ref(daysOfWeek.findIndex(day => day.value === route.query.day))
+console.log(tabIndex.value)
+
 function handleTabChange(index: number) {
   tabIndex.value = index
   router.push({
@@ -158,7 +160,7 @@ function handleTabChange(index: number) {
     <TabGroup :selected-index="tabIndex" @change="handleTabChange">
       <TabList class="flex w-full flex-col gap-2 border-b border-b-gray-200">
         <Tab v-for="(day, index) in daysOfWeek" :key="index" v-slot="{ selected }" as="template">
-          <base-button variant="flat" class="-mx-3 flex aspect-square h-12 w-12 items-center justify-center gap-3 rounded-full bg-indigo-50 font-medium transition-colors duration-200 ease-in-out hover:bg-indigo-100" :class="[selected ? 'bg-indigo-100 text-indigo-600' : 'text-indigo-600']">
+          <base-button variant="flat" class="-mx-3 flex aspect-square h-12 w-12 items-center justify-center gap-3 rounded-full font-medium transition-colors duration-200 ease-in-out hover:bg-indigo-100 text-indigo-600" :class="[selected ? 'bg-indigo-100' : 'bg-indigo-50']">
             {{ day.shortLabel }}
           </base-button>
         </Tab>
