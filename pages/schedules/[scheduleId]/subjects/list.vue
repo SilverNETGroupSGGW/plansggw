@@ -5,7 +5,7 @@ import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/vue/20/solid'
 const route = useRoute()
 
 // Composables
-const { lessonTypes } = useData()
+const { lessonTypes, daysOfWeek } = useData()
 
 // Subjects
 const subjects = useSubjects()
@@ -43,13 +43,7 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
       </div>
 
       <div class="text-sm text-gray-700">
-        <span v-if="cell.dayOfWeek === 'Monday'">Poniedziałek</span>
-        <span v-else-if="cell.dayOfWeek === 'Tuesday'">Wtorek</span>
-        <span v-else-if="cell.dayOfWeek === 'Wednesday'">Środa</span>
-        <span v-else-if="cell.dayOfWeek === 'Thursday'">Czwartek</span>
-        <span v-else-if="cell.dayOfWeek === 'Friday'">Piątek</span>
-        <span v-else-if="cell.dayOfWeek === 'Saturday'">Sobota</span>
-        <span v-else-if="cell.dayOfWeek === 'Sunday'">Niedziela</span>
+        <span>{{ daysOfWeek.find(x => x.value === cell.dayOfWeek)?.label }}</span>
 
         <span v-if="cell.startTime">, {{ cell.startTime }}</span>
         <span v-if="cell.duration"> ({{ cell.duration }} min)</span>
