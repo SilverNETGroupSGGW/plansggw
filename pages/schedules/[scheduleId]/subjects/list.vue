@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/vue/20/solid'
-import { SubjectType } from '~/types'
 
 // Nuxt hooks
 const route = useRoute()
+
+// Composables
+const { lessonTypes } = useData()
 
 // Subjects
 const subjects = useSubjects()
@@ -36,28 +38,8 @@ const { currentItem, deleteDialog, handleDelete, handleDialogOpen, search } = us
       <span class="text-base font-semibold text-gray-900">{{ cell.name }}</span>
 
       <div class="text-sm text-indigo-600">
-        <template v-if="cell.type === SubjectType.Lecture">
-          <span>Wykład</span>
-        </template>
-        <template v-else-if="cell.type === SubjectType.Laboratories">
-          <span>Laboratorium</span>
-        </template>
-        <template v-else-if="cell.type === SubjectType.PracticalClasses">
-          <span>Ćwiczenia</span>
-        </template>
-        <template v-else-if="cell.type === SubjectType.Faculty">
-          <span>Fakultet</span>
-        </template>
-        <template v-else-if="cell.type === SubjectType.Unknown">
-          <span>Inne</span>
-        </template>,
-
-        <template v-if="cell.isRemote">
-          <span>zdalnie</span>
-        </template>
-        <template v-else>
-          <span>stacjonarnie</span>
-        </template>
+        <span>{{ lessonTypes.find(x => x.value === cell.type)?.label }}</span>,
+        <span>{{ cell.isRemote ? 'zdalnie' : 'stacjonarnie' }}</span>
       </div>
 
       <div class="text-sm text-gray-700">

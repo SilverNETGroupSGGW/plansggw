@@ -5,6 +5,8 @@ import { SubjectType } from '~/types'
 
 defineProps<Subject>()
 
+const { lessonTypes } = useData()
+
 const subjects = useSubjects()
 const deleteDialog = ref(false)
 </script>
@@ -41,7 +43,7 @@ const deleteDialog = ref(false)
       {{ name }}
     </p>
     <small class="mb-2 text-xs text-gray-700">
-      {{ type }}
+      {{ lessonTypes.find(x => x.value === type)?.label }}
     </small>
 
     <small v-if="lecturers && lecturers.length > 0" class="text-xs text-gray-700">
